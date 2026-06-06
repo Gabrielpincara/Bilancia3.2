@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
     <title>Smart Hive Dashboard</title>
 
-    <!-- PWA e iOS Setup -->
     <link rel="manifest" href="/Bilancia3.2/manifest.json">
     <meta name="theme-color" content="#1c1c1e">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -921,11 +920,13 @@
         // LOGIN E DISPOSITIVI
         // ============================================================
         function checkAutoLogin() {
-            const savedEmail = localStorage.getItem('userEmail');
-            if (savedEmail) {
-                document.getElementById('emailInput').value = savedEmail;
-                doLoginProcess(savedEmail);
-            }
+            try {
+                const savedEmail = localStorage.getItem('userEmail');
+                if (savedEmail) {
+                    document.getElementById('emailInput').value = savedEmail;
+                    doLoginProcess(savedEmail);
+                }
+            } catch(e) {}
         }
 
         function handleLogin() {
@@ -935,7 +936,7 @@
         }
 
         function logout() {
-            localStorage.removeItem('userEmail');
+            try { localStorage.removeItem('userEmail'); } catch(e) {}
             location.reload();
         }
 
@@ -957,7 +958,8 @@
                 if (json.status === "error") throw new Error(json.message);
                 if (!json.data || json.data.length === 0) throw new Error("Nessun dispositivo trovato.");
 
-                localStorage.setItem('userEmail', email);
+                try { localStorage.setItem('userEmail', email); } catch(e) {}
+                
                 populateDeviceSelector(json.data);
 
                 const badge = document.getElementById('accountBadge');
@@ -1024,7 +1026,7 @@
         // CARICAMENTO DATI
         // ============================================================
         async function loadDeviceData(chipId) {
-            showLoader(true, "Caricamento dati...");
+            showLoader(true, "Verifica database locale...");
             try {
                 fetch(`${scriptUrl}?action=getDeviceConfig&chipId=${chipId}`)
                     .then(r => r.json())
@@ -1037,6 +1039,12 @@
                         } else {
                             ownerBadge.style.display = 'none';
                         }
+                        if (!isMaster) {
+                            const type = d.data?.tipologia || 'Standard';
+                            const badge = document.getElementById('accountBadge');
+                            badge.innerText = type;
+                            badge.style.color = type === 'Demo' ? '#e67e22' : '#2ecc71';
+                        }
                     }).catch(e => {});
 
                 let localData = await getLocalData(chipId);
@@ -1045,7 +1053,9 @@
                 if (localData.length > 0) {
                     localData.sort((a, b) => a.x - b.x);
                     lastTs = localData[localData.length - 1].x;
-                    showLoader(true, "Sincronizzazione...");
+                    showLoader(true, "Sincronizzazione nuovi dati...");
+                } else {
+                    showLoader(true, "Scaricamento dati completi (solo la prima volta)...");
                 }
 
                 const res = await fetch(`${scriptUrl}?action=getDeviceHistory&chipId=${chipId}&after=${lastTs}`);
@@ -1097,10 +1107,208 @@
             }
         }
 
-        // Funzioni stub per i grafici (rimangono le stesse)
-        function updateStatsCards() { }
-        function updateLogs() { }
-        function renderCharts() { }
+        // ============================================================
+        // KPI E TABELLE
+        // ============================================================
+        function updateStatsCards() {
+            if (allData.length === 0) return;
+            const last = allData[allData.length - 1];
+
+            document.getElementById('currWeight1').innerText = `${last.peso1.toFixed(2)} Kg`;
+            document.getElementById('currWeight2').innerText = `${last.peso2.toFixed(2)} Kg`;
+
+            const lastWithFw = [...allData].reverse().find(d => d.firmware && d.firmware !== "");
+            const fwBadge = document.getElementById('fwBadge');
+            if (lastWithFw) {
+                fwBadge.innerText = 'FW: ' + lastWithFw.firmware;
+                fwBadge.style.display = 'inline-block';
+            } else {
+                fwBadge.style.display = 'none';
+            }
+
+            const findAgo = (ms, key) => {
+                const target = last.x - ms;
+                let closestIndex = -1;
+                for (let i = allData.length - 1; i >= 0; i--) {
+                    if (allData[i].x <= target) {
+                        closestIndex = i;
+                        break;
+                    }
+                }
+                if (closestIndex === -1) return allData.length > 0 ? allData[0][key] : null;
+                return allData[closestIndex][key];
+            };
+
+            const lastMaintPoint = [...allData].reverse().find(d => d.maintInizio !== null && d.maintInizio !== "");
+
+            let weightAtMaint1 = null;
+            let weightAtMaint2 = null;
+
+            if (lastMaintPoint) {
+                weightAtMaint1 = lastMaintPoint.peso1;
+                weightAtMaint2 = lastMaintPoint.peso2;
+            }
+
+            const day = 86400000;
+
+            updateDelta('delta24h_1', last.peso1, findAgo(day, 'peso1'));
+            updateDelta('delta24h_2', last.peso2, findAgo(day, 'peso2'));
+            updateDelta('delta7d_1', last.peso1, findAgo(day * 7, 'peso1'));
+            updateDelta('delta7d_2', last.peso2, findAgo(day * 7, 'peso2'));
+            updateDelta('delta15d_1', last.peso1, findAgo(day * 15, 'peso1'));
+            updateDelta('delta15d_2', last.peso2, findAgo(day * 15, 'peso2'));
+            updateDelta('deltaMaint_1', last.peso1, weightAtMaint1);
+            updateDelta('deltaMaint_2', last.peso2, weightAtMaint2);
+        }
+
+        function updateDelta(id, curr, old) {
+            const el = document.getElementById(id);
+            if (old === null) { el.innerText="N/A"; el.className="val-neutral"; return; }
+            const diff = curr - old;
+            const sign = diff > 0 ? "+" : "";
+            el.innerText = `${sign}${diff.toFixed(2)} Kg`;
+            el.className = diff > 0.05 ? 'val-pos' : (diff < -0.05 ? 'val-neg' : 'val-neutral');
+        }
+
+        function updateLogs() {
+            const tMaint = document.querySelector('#maintTable tbody'); tMaint.innerHTML = '';
+            const maints = allData.filter(d => d.maintInizio).reverse().slice(0, 10);
+            if(maints.length === 0) tMaint.innerHTML = '<tr><td colspan="3">Nessuna manutenzione</td></tr>';
+            else maints.forEach(l => {
+                const tr = document.createElement('tr');
+                const fmt = d => d ? new Date(d).toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}) : '-';
+                tr.innerHTML = `<td>${fmt(l.maintInizio)}</td><td>${fmt(l.maintFine)}</td><td>${l.durata}</td></tr>`;
+                tMaint.appendChild(tr);
+            });
+        }
+
+        // ============================================================
+        // GRAFICI (CHART.JS)
+        // ============================================================
+        function generateHtmlLegend(chart, containerId) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+
+            const items = chart.data.datasets.map((ds, i) => {
+                const el = document.createElement('div');
+                const isHidden = !chart.isDatasetVisible(i);
+                el.className = `legend-item ${isHidden ? 'hidden-dataset' : ''}`;
+
+                const colorBox = document.createElement('span');
+                colorBox.className = 'legend-color-box';
+                colorBox.style.backgroundColor = ds.borderColor;
+
+                const text = document.createTextNode(ds.label);
+
+                el.appendChild(colorBox);
+                el.appendChild(text);
+
+                el.onclick = () => {
+                    const isNowVisible = chart.isDatasetVisible(i);
+                    if (isNowVisible) {
+                        chart.hide(i);
+                        el.classList.add('hidden-dataset');
+                    } else {
+                        chart.show(i);
+                        el.classList.remove('hidden-dataset');
+                    }
+                };
+                return el;
+            });
+            items.forEach(item => container.appendChild(item));
+        }
+
+        function renderCharts() {
+            if (allData.length === 0) return;
+            const now = Date.now();
+            let minTime, maxTime = (currentRange === 'SET') ? customEnd : now;
+
+            if (currentRange === 'SET' && customStart && customEnd) {
+                minTime = customStart;
+            } else {
+                const timeMap = { '6H': 21600000, '1D': 86400000, '1W': 604800000, '2W': 1209600000, '1M': 2592000000, '3M': 7776000000, '6M': 15552000000, '1Y': 31536000000, '5Y': 157680000000 };
+                minTime = now - (timeMap[currentRange] || 86400000);
+            }
+
+            const subset = allData.filter(d => d.x >= minTime && d.x <= maxTime);
+
+            const maintenanceAnnotations = subset.filter(d => d.maintInizio).map(d => ({
+                type: 'line', mode: 'vertical', scaleID: 'x', value: d.x,
+                borderColor: '#ff453a', borderWidth: 2, borderDash: [5, 5], label: { enabled: false }
+            }));
+
+            const commonOpts = {
+                responsive: true, maintainAspectRatio: false, animation: false, spanGaps: true,
+                scales: {
+                    x: { type: 'time', time: { displayFormats: { hour: 'HH:mm', day: 'dd/MM' }, tooltipFormat: 'dd/MM HH:mm' }, grid: { color: '#3a3a3c' }, ticks: { color: '#aeaeb2', maxRotation: 0, autoSkip: true, font: {size: 11} }, min: minTime, max: maxTime },
+                    y: { grid: { color: '#3a3a3c' }, ticks: { color: '#aeaeb2', font: {size: 11} }, position: 'left' }
+                },
+                plugins: {
+                    decimation: { enabled: true, algorithm: 'lttb', samples: 200, threshold: 200 },
+                    legend: { display: false },
+                    tooltip: { mode: 'index', intersect: false },
+                    zoom: { pan: { enabled: true, mode: 'x', threshold: 10 }, zoom: { wheel: { enabled: true }, pinch: { enabled: true }, mode: 'x' } },
+                    annotation: { annotations: maintenanceAnnotations }
+                },
+                interaction: { mode: 'nearest', axis: 'x', intersect: false }
+            };
+
+            // CHART PESO
+            const ctxPeso = document.getElementById('chartPeso').getContext('2d');
+            const dsPeso1 = { label: 'Arnia 1', data: subset.map(d=>({x:d.x, y:d.peso1})), borderColor: '#ffffff', borderWidth: 2, pointRadius:0, tension: 0.2, parsing: false, normalized: true, yAxisID: 'y' };
+            const dsPeso2 = { label: 'Arnia 2', data: subset.map(d=>({x:d.x, y:d.peso2})), borderColor: '#4a90e2', borderWidth: 2, pointRadius:0, tension: 0.2, parsing: false, normalized: true, yAxisID: 'y1' };
+
+            let pesoVisibility = [true, true];
+            if(charts.peso) {
+                pesoVisibility = charts.peso.data.datasets.map((d, i) => charts.peso.isDatasetVisible(i));
+                charts.peso.destroy();
+            }
+            dsPeso1.hidden = !pesoVisibility[0]; dsPeso2.hidden = !pesoVisibility[1];
+
+            charts.peso = new Chart(ctxPeso, {
+                type: 'line', data: { datasets: [ dsPeso1, dsPeso2 ] },
+                options: {
+                    ...commonOpts,
+                    scales: {
+                        x: commonOpts.scales.x,
+                        y: { ...commonOpts.scales.y, position: 'left', grid: { color: '#3a3a3c' }, ticks: { color: '#aeaeb2', font: {size: 11} } },
+                        y1: { position: 'right', grid: { display: false }, ticks: { color: '#4a90e2', font: {size: 11} }, display: true }
+                    }
+                }
+            });
+            generateHtmlLegend(charts.peso, 'legendPeso');
+
+            // CHART MULTI
+            const ctxMulti = document.getElementById('chartMulti').getContext('2d');
+            const multiData = [
+                { label: 'Temp Amb.', data: subset.map(d=>({x:d.x, y:d.tempEnv})), borderColor: '#ff9f0a', borderWidth: 2, pointRadius:0, yAxisID:'y', parsing: false, normalized: true },
+                { label: 'Umidità', data: subset.map(d=>({x:d.x, y:d.hum})), borderColor: '#0a84ff', borderWidth: 2, pointRadius:0, yAxisID:'y1', parsing: false, normalized: true },
+                { label: 'Temp 1', data: subset.map(d=>({x:d.x, y:d.temp1})), borderColor: '#ff453a', borderWidth: 1.5, pointRadius:0, yAxisID:'y', hidden: true, parsing: false, normalized: true },
+                { label: 'Temp 2', data: subset.map(d=>({x:d.x, y:d.temp2})), borderColor: '#bf5af2', borderWidth: 1.5, pointRadius:0, yAxisID:'y', hidden: true, parsing: false, normalized: true },
+                { label: 'Batteria', data: subset.map(d=>({x:d.x, y:d.batt})), borderColor: '#32d74b', borderWidth: 1.5, pointRadius:0, yAxisID:'y', hidden: true, parsing: false, normalized: true }
+            ];
+
+            let multiVisibility = [true, true, false, false, false];
+            if(charts.multi) {
+                multiVisibility = charts.multi.data.datasets.map((d, i) => charts.multi.isDatasetVisible(i));
+                charts.multi.destroy();
+            }
+            multiData.forEach((d, i) => { if (i < multiVisibility.length) d.hidden = !multiVisibility[i]; });
+
+            charts.multi = new Chart(ctxMulti, {
+                type: 'line', data: { datasets: multiData },
+                options: {
+                    ...commonOpts,
+                    plugins: { ...commonOpts.plugins, annotation: { annotations: [] }, legend: { display: false } },
+                    scales: {
+                        x: commonOpts.scales.x,
+                        y: { ...commonOpts.scales.y, position: 'left', title: {display: false}, grid: { color: '#3a3a3c' } },
+                        y1: { position: 'right', grid: { display: false }, ticks: { color: '#0a84ff', font: {size: 11} }, title: {display: false} }
+                    }
+                }
+            });
+            generateHtmlLegend(charts.multi, 'legendMulti');
+        }
 
         function showLoader(show, text) {
             loader.classList.toggle('hidden', !show);

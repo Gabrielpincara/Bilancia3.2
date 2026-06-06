@@ -1,0 +1,8 @@
+{
+  "scriptUrl": "https://script.google.com/macros/s/AKfycbwJqzTgmmidqv9oz0sAe8fiKG6j74-MsWJ-wNF-TbeVN5HV0R0J0VHH2e1pLzX0DOuA/exec",
+  "dynamicUrlSheet": "https://docs.google.com/spreadsheets/d/1v2QYh6ZYvMKCxBI0mt7nHSS2btbmDRtP018k8Yj0Lfg/export?format=csv&gid=1773702506&range=B1",
+  "secretKey": "alluser",
+  "dbName": "ArniaDataDB",
+  "storeName": "history",
+  "version": "3.2.0"
+}

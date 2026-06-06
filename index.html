@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
+    <meta name="theme-color" content="#1c1c1e"/>
+    <meta name="description" content="Smart Hive Dashboard - Monitoraggio Intelligente delle Arnie"/>
+    
+    <title>Smart Hive Dashboard</title>
+    <link rel="manifest" href="/Bilancia3.2/manifest.json"/>
+    <link rel="icon" type="image/png" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect fill='%231c1c1e' width='192' height='192'/><text x='96' y='120' font-size='100' text-anchor='middle' fill='%234a90e2'>🐝</text></svg>"/>
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect fill='%231c1c1e' width='192' height='192'/><text x='96' y='120' font-size='100' text-anchor='middle' fill='%234a90e2'>🐝</text></svg>"/>
+    
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1c1c1e, #000000);
+            color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        #loader-container {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 30px;
+        }
+
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border-left-color: #4a90e2;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loader-text {
+            font-size: 1rem;
+            color: #aeaeb2;
+            letter-spacing: 1px;
+        }
+
+        .logo {
+            font-size: 3rem;
+            margin-bottom: 20px;
+        }
+
+        #error-container {
+            display: none;
+            text-align: center;
+            color: #ff453a;
+            padding: 20px;
+        }
+
+        #error-container p {
+            margin-bottom: 10px;
+        }
+
+        #error-container button {
+            background: #4a90e2;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div id="loader-container">
+        <div class="logo">🐝</div>
+        <div class="spinner"></div>
+        <div class="loader-text">Caricamento Dashboard...</div>
+    </div>
+
+    <div id="error-container">
+        <p>Errore nel caricamento dell'applicazione</p>
+        <p id="error-message"></p>
+        <button onclick="location.reload()">Riprova</button>
+    </div>
+
+    <script>
+        // Register Service Worker
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/Bilancia3.2/service-worker.js').catch(e => {
+                console.error('Service Worker registration failed:', e);
+            });
+        }
+
+        // Load main app
+        async function loadApp() {
+            try {
+                const script = document.createElement('script');
+                script.src = '/Bilancia3.2/assets/app.js?v=' + Date.now();
+                script.onload = () => {
+                    console.log('✅ App loaded successfully');
+                };
+                script.onerror = () => {
+                    showError('Impossibile caricare l\'applicazione principale');
+                };
+                document.head.appendChild(script);
+            } catch (e) {
+                showError('Errore sconosciuto: ' + e.message);
+            }
+        }
+
+        function showError(msg) {
+            document.getElementById('loader-container').style.display = 'none';
+            document.getElementById('error-container').style.display = 'block';
+            document.getElementById('error-message').textContent = msg;
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', loadApp);
+        } else {
+            loadApp();
+        }
+    </script>
+</body>
+</html>

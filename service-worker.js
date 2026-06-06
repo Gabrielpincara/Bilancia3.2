@@ -1,52 +1,50 @@
-const CACHE_NAME = 'arnia-cache-v1';
-const urlsToCache = [
-  './index.html',
-  './styles.css',
-  './app.js',
-  './config.json',
-  './manifest.json'
-];
+const CACHE_NAME = 'arnia-app-v1';
+const BASE_PATH = '/Bilancia3.2/';
 
-// Installazione e caching iniziale
-self.addEventListener('install', event => {
-  event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => {
-        console.log('Cache aperta');
-        return cache.addAll(urlsToCache);
-      })
-  );
-});
-
-// Intercettazione fetch - Strategia: Cache First, poi Network
-self.addEventListener('fetch', event => {
-  // Ignora le chiamate a Google Script e CDN esterne, caching solo file locali
-  if (!event.request.url.startsWith(self.location.origin)) return;
-
-  event.respondWith(
-    caches.match(event.request)
-      .then(response => {
-        if (response) {
-          return response; // Trovato in cache
-        }
-        return fetch(event.request); // Non in cache, vai in rete
-      }
-    )
-  );
+// Installazione: precarica la pagina principale
+self.addEventListener('install', (event) => {
+    event.waitUntil(
+        caches.open(CACHE_NAME).then((cache) => {
+            return cache.addAll([
+                BASE_PATH,
+                BASE_PATH + 'index.html',
+                BASE_PATH + 'manifest.json'
+            ]);
+        })
+    );
+    self.skipWaiting();
 });
 
 // Pulizia vecchie cache
-self.addEventListener('activate', event => {
-  const cacheWhitelist = [CACHE_NAME];
-  event.waitUntil(
-    caches.keys().then(cacheNames => {
-      return Promise.all(
-        cacheNames.map(cacheName => {
-          if (cacheWhitelist.indexOf(cacheName) === -1) {
-            return caches.delete(cacheName);
-          }
+self.addEventListener('activate', (event) => {
+    event.waitUntil(
+        caches.keys().then((keyList) => {
+            return Promise.all(keyList.map((key) => {
+                if (key !== CACHE_NAME) {
+                    return caches.delete(key);
+                }
+            }));
         })
-      );
-    })
-  );
+    );
+    self.clients.claim();
+});
+
+// Intercetta il traffico: Network First, Cache Fallback
+self.addEventListener('fetch', (event) => {
+    // Gestiamo solo le richieste di navigazione (pagine)
+    if (event.request.mode === 'navigate') {
+        event.respondWith((async () => {
+            try {
+                // Prova a scaricare la versione più recente dal network
+                const networkResponse = await fetch(event.request);
+                const cache = await caches.open(CACHE_NAME);
+                cache.put(event.request, networkResponse.clone());
+                return networkResponse;
+            } catch (error) {
+                // Se non c'è rete, carica dalla cache
+                const cachedResponse = await caches.match(BASE_PATH + 'index.html');
+                return cachedResponse;
+            }
+        })());
+    }
 });

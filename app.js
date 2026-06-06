@@ -1,7 +1,8 @@
 // ==========================================
 // CONFIGURAZIONE GOOGLE APPS SCRIPT
 // ==========================================
-const APPS_SCRIPT_URL = 'https://script.googleapis.com/macros/s/AKfycbzZpoRaUdx6iJl-8_0REesbgodL8hqUV-QgwCBEaXC0gNTEwORhErbdYX27ZdJUbVJ2/exec';
+// Uso URL pubblico del Web App (script.google.com)
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwJqzTgmmidqv9oz0sAe8fiKG6j74-MsWJ-wNF-TbeVN5HV0R0J0VHH2e1pLzX0DOuA/exec';
 
 // ==========================================
 // VARIABILI GLOBALI
@@ -87,12 +88,17 @@ function handleLogin() {
     
     fetch(APPS_SCRIPT_URL, {
         method: 'POST',
+        mode: 'cors',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
             action: 'authenticate',
             email: email
         })
     })
-    .then(r => r.json())
+    .then(r => {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.json();
+    })
     .then(data => {
         hideLoader();
         if (data.success) {
@@ -164,12 +170,17 @@ function loadDevices() {
     
     fetch(APPS_SCRIPT_URL, {
         method: 'POST',
+        mode: 'cors',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
             action: 'getDevices',
             email: currentUser
         })
     })
-    .then(r => r.json())
+    .then(r => {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.json();
+    })
     .then(data => {
         hideLoader();
         if (data.success && data.devices && data.devices.length > 0) {
@@ -222,6 +233,8 @@ function loadDeviceData() {
     
     fetch(APPS_SCRIPT_URL, {
         method: 'POST',
+        mode: 'cors',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
             action: 'getData',
             email: currentUser,
@@ -229,7 +242,10 @@ function loadDeviceData() {
             range: selectedRange
         })
     })
-    .then(r => r.json())
+    .then(r => {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.json();
+    })
     .then(data => {
         hideLoader();
         if (data.success) {

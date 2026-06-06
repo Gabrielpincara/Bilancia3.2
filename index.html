@@ -3,137 +3,1474 @@
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
-    <meta name="theme-color" content="#1c1c1e"/>
-    <meta name="description" content="Smart Hive Dashboard - Monitoraggio Intelligente delle Arnie"/>
-    
     <title>Smart Hive Dashboard</title>
-    <link rel="manifest" href="/Bilancia3.2/manifest.json"/>
-    <link rel="icon" type="image/png" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect fill='%231c1c1e' width='192' height='192'/><text x='96' y='120' font-size='100' text-anchor='middle' fill='%234a90e2'>🐝</text></svg>"/>
-    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect fill='%231c1c1e' width='192' height='192'/><text x='96' y='120' font-size='100' text-anchor='middle' fill='%234a90e2'>🐝</text></svg>"/>
-    
+
+    <!-- PWA e iOS Setup -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1c1c1e">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/420/420526.png">
+
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@2.2.1/dist/chartjs-plugin-annotation.min.js"></script>
+
     <style>
+        /* --- VARIABILI COLORI MANUALE --- */
+        :root {
+            --manual-bg: #0b0f14;
+            --manual-panel: #151c25;
+            --manual-ink: #e7eef7;
+            --manual-muted: #7a8b9c;
+            --manual-accent: #3aa3ff;
+            --manual-border: #1e2a36;
+            --manual-success: #17c964;
+            --manual-warning: #f5a623;
+            --manual-danger: #ff5470;
+        }
+
+        /* --- RESET E BASE --- */
         * {
             box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+            font-family: 'Montserrat', sans-serif;
+            user-select: none;
+            -webkit-user-select: none;
         }
+
+        input, select { user-select: text; -webkit-user-select: text; }
 
         body {
-            background: linear-gradient(135deg, #1c1c1e, #000000);
+            margin: 0;
+            padding: 0;
+            background-color: #1c1c1e;
             color: #ffffff;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            overflow: hidden;
+            padding-bottom: env(safe-area-inset-bottom);
+            overflow-x: hidden;
         }
 
-        #loader-container {
-            text-align: center;
+        /* --- UTILITÀ --- */
+        .hidden { display: none !important; }
+        .flex { display: flex; }
+        .text-center { text-align: center; }
+
+        /* --- LOGIN PAGE --- */
+        #login-page {
+            height: 100vh;
+            background: linear-gradient(135deg, #1c1c1e, #000000);
             display: flex;
             flex-direction: column;
+            justify-content: center;
             align-items: center;
-            gap: 30px;
-        }
-
-        .spinner {
-            border: 4px solid rgba(255, 255, 255, 0.1);
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            border-left-color: #4a90e2;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .loader-text {
-            font-size: 1rem;
-            color: #aeaeb2;
-            letter-spacing: 1px;
-        }
-
-        .logo {
-            font-size: 3rem;
-            margin-bottom: 20px;
-        }
-
-        #error-container {
-            display: none;
-            text-align: center;
-            color: #ff453a;
             padding: 20px;
         }
 
-        #error-container p {
-            margin-bottom: 10px;
+        .login-card {
+            background: #2c2c2e;
+            padding: 30px;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            text-align: center;
         }
 
-        #error-container button {
+        .login-card h1 { margin-bottom: 20px; color: #4a90e2; font-size: 1.8rem; }
+
+        .login-input {
+            width: 100%;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 12px;
+            border: 1px solid #48484a;
+            background: #1c1c1e;
+            color: white;
+            font-size: 1rem;
+            outline: none;
+        }
+        .login-input:focus { border-color: #4a90e2; }
+
+        .btn-primary {
             background: #4a90e2;
             color: white;
             border: none;
-            padding: 12px 24px;
-            border-radius: 8px;
-            font-size: 0.9rem;
+            padding: 15px 30px;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
             cursor: pointer;
-            margin-top: 20px;
+            width: 100%;
+        }
+
+        /* --- DASHBOARD PAGE --- */
+        #dashboard-page {
+            padding: 10px 10px 90px 10px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* HEADER */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 5px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .app-title { font-size: 1.2rem; font-weight: 700; color: #f2f2f7; }
+
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            font-size: 0.75rem; padding: 4px 8px; border-radius: 12px;
+            background: #3a3a3c; color: #aeaeb2; text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        #accountBadge.master {
+            background: #ff3b30; color: white;
+            box-shadow: 0 0 10px rgba(255, 59, 48, 0.5);
+        }
+
+        #ownerBadge {
+            background: #0a84ff; color: white;
+            text-transform: none;
+            display: none;
+        }
+
+        #fwBadge {
+            background: #5e5ce6; color: white;
+            display: none;
+        }
+
+        #ios-install-banner {
+            display: none;
+            background: #ffcc00;
+            color: #000;
+            padding: 12px;
+            text-align: center;
+            font-size: 0.85rem;
+            font-weight: 600;
+            border-radius: 12px;
+            margin-bottom: 10px;
+        }
+
+        /* SELETTORE DISPOSITIVO */
+        .device-selector-container { margin-bottom: 15px; }
+        select#deviceSelector {
+            width: 100%;
+            padding: 12px;
+            background: #2c2c2e;
+            color: #fff;
+            border: 1px solid #3a3a3c;
+            border-radius: 12px;
+            font-size: 1rem;
+            outline: none;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23FFFFFF%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+            background-repeat: no-repeat;
+            background-position: right 15px top 50%;
+            background-size: 12px auto;
+        }
+
+        /* CARD STATISTICHE */
+        .stats-grid-top { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+        .stats-grid-mid { display: grid; grid-template-columns: 1fr; gap: 8px; margin-bottom: 20px; }
+
+        .stat-card {
+            background: #2c2c2e; border-radius: 12px; padding: 12px 6px; text-align: center;
+            display: flex; flex-direction: column; justify-content: center; min-height: 80px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+        .stat-label { font-size: 0.7rem; color: #aeaeb2; margin-bottom: 6px; line-height: 1.2; font-weight: 600; }
+
+        .dual-val-container { display: flex; flex-direction: column; gap: 4px; align-items: center; }
+        .dual-val-row { font-size: 0.85rem; font-weight: 700; display: flex; align-items: center; gap: 4px; }
+        .dual-val-label { color: #aeaeb2; font-size: 0.7rem; font-weight: 500; }
+
+        .current-weight-row { display: flex; justify-content: space-around; align-items: center; width: 100%; }
+        .current-weight-item { display: flex; flex-direction: column; align-items: center; }
+        .current-weight-val { font-size: 1.4rem; font-weight: 700; color: #fff; }
+        .divider-v { width: 1px; height: 40px; background: #48484a; }
+
+        .val-pos { color: #32d74b; }
+        .val-neg { color: #ff453a; }
+        .val-neutral { color: #ffffff; }
+
+        /* LEGENDA ESTERNA */
+        .custom-legend-container { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 15px; justify-content: center; padding: 0 5px; }
+        .legend-item {
+            display: flex; align-items: center; background: #3a3a3c; padding: 10px 18px;
+            border-radius: 30px; cursor: pointer; font-size: 0.9rem; font-weight: 600;
+            transition: all 0.2s; border: 2px solid transparent; user-select: none;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+        .legend-item:active { transform: scale(0.95); }
+        .legend-item.hidden-dataset { opacity: 0.4; background: #252525; box-shadow: none; border: 2px solid #3a3a3c; }
+        .legend-color-box { width: 14px; height: 14px; border-radius: 50%; margin-right: 10px; display: inline-block; border: 1px solid rgba(255,255,255,0.2); }
+
+        /* GRAFICI */
+        .chart-section { margin-bottom: 30px; }
+        .chart-header { padding: 0 5px; margin-bottom: 5px; color: #aeaeb2; font-size: 0.9rem; font-weight: 600; }
+        .chart-container {
+            background: #2c2c2e; border-radius: 12px; padding: 10px;
+            position: relative; height: 350px; width: 100%; overflow: hidden;
+        }
+        @media (max-width: 600px) {
+            .chart-container { border-radius: 0; margin-left: -10px; margin-right: -10px; width: calc(100% + 20px); padding: 10px 5px; height: 320px; }
+            .chart-header { padding-left: 0; }
+            canvas { touch-action: pan-y !important; }
+        }
+
+        /* BOTTOM NAV */
+        .bottom-nav {
+            position: fixed; bottom: 0; left: 0; width: 100%;
+            background: rgba(28, 28, 30, 0.95); backdrop-filter: blur(10px);
+            padding: 10px 10px 25px 10px; z-index: 1000;
+            border-top: 1px solid #3a3a3c;
+            display: flex; justify-content: flex-start; gap: 6px;
+            overflow-x: auto; -webkit-overflow-scrolling: touch;
+        }
+        .bottom-nav::-webkit-scrollbar { display: none; }
+
+        .range-btn {
+            background: #3a3a3c; color: #fff; border: none; padding: 10px 16px;
+            border-radius: 20px; font-size: 0.85rem; font-weight: 600;
+            flex-shrink: 0; cursor: pointer; transition: 0.2s; white-space: nowrap;
+        }
+        .range-btn.active { background: #ffcc00; color: #000; transform: scale(1.05); }
+
+        /* LOG TABLES */
+        .log-section { margin-top: 20px; margin-bottom: 20px; }
+        .log-header { background: #2c2c2e; padding: 12px; border-radius: 12px 12px 0 0; font-weight: 600; color: #4a90e2; font-size: 0.9rem; }
+        .log-table-container { max-height: 250px; overflow-y: auto; background: #2c2c2e; border-radius: 0 0 12px 12px; margin-bottom: 15px; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #3a3a3c; color: #d1d1d6; }
+        th { position: sticky; top: 0; background: #3a3a3c; color: #fff; z-index: 10; }
+        tr:last-child td { border-bottom: none; }
+
+        /* MODAL CUSTOM RANGE */
+        #customRangeModal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85); z-index: 2000;
+            display: flex; justify-content: center; align-items: center;
+            backdrop-filter: blur(5px);
+        }
+        .modal-content {
+            background: #2c2c2e; padding: 25px; border-radius: 18px;
+            width: 90%; max-width: 350px; text-align: center;
+            border: 1px solid #48484a; box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+        }
+        .modal-content h3 { margin-top: 0; color: #ffcc00; margin-bottom: 20px; }
+        .modal-input-group { margin-bottom: 15px; text-align: left; }
+        .modal-input-group label { display: block; color: #aeaeb2; font-size: 0.85rem; margin-bottom: 5px; font-weight: 600; }
+        .modal-input-group input {
+            width: 100%; padding: 12px; background: #1c1c1e; border: 1px solid #3a3a3c;
+            color: #fff; border-radius: 10px; font-size: 1rem; font-family: 'Montserrat', sans-serif;
+            outline: none;
+        }
+        .modal-input-group input:focus { border-color: #ffcc00; }
+        .modal-buttons { display: flex; gap: 10px; margin-top: 25px; }
+        .modal-buttons button {
+            flex: 1; padding: 14px; border-radius: 12px; font-weight: 600; cursor: pointer; border: none; font-size: 1rem;
+        }
+        .btn-modal-cancel { background: #3a3a3c; color: #fff; }
+        .btn-modal-apply { background: #ffcc00; color: #000; }
+
+        /* LOADER */
+        #loader-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8); z-index: 9999;
+            display: flex; flex-direction: column; justify-content: center; align-items: center; color: #4a90e2;
+        }
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.1); width: 40px; height: 40px; border-radius: 50%;
+            border-left-color: #4a90e2; animation: spin 1s linear infinite; margin-bottom: 15px;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* --- STILI NUOVO MANUALE INTERATTIVO --- */
+        #manual-page {
+            display: flex;
+            height: 100vh;
+            background-color: var(--manual-bg);
+            color: var(--manual-ink);
+            overflow: hidden;
+            width: 100%;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1500;
+        }
+
+        #manual-page nav {
+            width: 280px;
+            background-color: var(--manual-panel);
+            border-right: 1px solid var(--manual-border);
+            display: flex;
+            flex-direction: column;
+            padding: 20px 0;
+            overflow-y: auto;
+            flex-shrink: 0;
+        }
+
+        #manual-page .logo {
+            font-size: 20px;
+            font-weight: 800;
+            padding: 0 20px 20px 20px;
+            border-bottom: 1px solid var(--manual-border);
+            margin-bottom: 10px;
+            color: var(--manual-accent);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        #manual-page .nav-btn {
+            background: none;
+            border: none;
+            color: var(--manual-muted);
+            padding: 15px 20px;
+            text-align: left;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-left: 3px solid transparent;
+        }
+
+        #manual-page .nav-btn:hover {
+            background-color: rgba(58, 163, 255, 0.1);
+            color: var(--manual-ink);
+        }
+
+        #manual-page .nav-btn.active {
+            color: var(--manual-accent);
+            border-left-color: var(--manual-accent);
+            background-color: rgba(58, 163, 255, 0.1);
+        }
+
+        #manual-page main {
+            flex: 1;
+            padding: 40px;
+            overflow-y: auto;
+            scroll-behavior: smooth;
+            background-color: var(--manual-bg);
+        }
+
+        #manual-page .tab-content {
+            display: none;
+            max-width: 800px;
+            margin: 0 auto;
+            animation: fadeIn 0.3s ease;
+        }
+
+        #manual-page .tab-content.active { display: block; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        #manual-page h1 { font-size: 32px; margin-bottom: 20px; color: var(--manual-ink); }
+        #manual-page h2 { font-size: 22px; margin-top: 30px; margin-bottom: 15px; color: var(--manual-accent); border-bottom: 1px solid var(--manual-border); padding-bottom: 5px; }
+        #manual-page p, #manual-page li { line-height: 1.6; margin-bottom: 15px; color: #a0b2c6; }
+        #manual-page ul, #manual-page ol { padding-left: 20px; margin-bottom: 20px; }
+        #manual-page strong { color: var(--manual-ink); }
+        #manual-page code { background: var(--manual-panel); padding: 2px 6px; border-radius: 4px; font-family: monospace; color: var(--manual-warning); border: 1px solid var(--manual-border); }
+
+        #manual-page .alert {
+            background-color: rgba(245, 166, 35, 0.1);
+            border-left: 4px solid var(--manual-warning);
+            padding: 15px;
+            border-radius: 0 8px 8px 0;
+            margin: 20px 0;
+            color: #d1d9e2;
+            line-height: 1.5;
+        }
+
+        #manual-page .mockup-container {
+            margin: 30px 0;
+            text-align: center;
+        }
+
+        #manual-page .mockup-container svg {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            display: block;
+            margin: 0 auto;
+        }
+
+        #manual-page .mockup-caption {
+            margin-top: 10px;
+            font-size: 13px;
+            color: var(--manual-muted);
+            font-style: italic;
+        }
+
+        /* Pulsanti Speciali */
+        #close-manual-mobile {
+            display: none;
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            z-index: 2000;
+            background-color: var(--manual-danger);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
+
+        @media (max-width: 768px) {
+            #manual-page { flex-direction: column; }
+            #manual-page nav { width: 100%; height: auto; flex-direction: row; overflow-x: auto; padding: 10px; border-bottom: 1px solid var(--manual-border); border-right: none; }
+            #manual-page .logo { display: none; }
+            #close-manual-mobile { display: block; }
+            #manual-page .nav-btn { white-space: nowrap; padding: 10px 15px; border-left: none; border-bottom: 3px solid transparent; }
+            #manual-page .nav-btn.active { border-left-color: transparent; border-bottom-color: var(--manual-accent); }
+            #manual-page main { padding: 20px; padding-top: 70px; padding-bottom: 90px; }
         }
     </style>
 </head>
 <body>
-    <div id="loader-container">
-        <div class="logo">🐝</div>
+
+    <div id="loader-overlay" class="hidden">
         <div class="spinner"></div>
-        <div class="loader-text">Caricamento Dashboard...</div>
+        <div id="loader-text">Caricamento...</div>
     </div>
 
-    <div id="error-container">
-        <p>Errore nel caricamento dell'applicazione</p>
-        <p id="error-message"></p>
-        <button onclick="location.reload()">Riprova</button>
+    <div id="customRangeModal" class="hidden">
+        <div class="modal-content">
+            <h3>Seleziona Intervallo</h3>
+            <div class="modal-input-group">
+                <label>Data Inizio:</label>
+                <input type="datetime-local" id="customStartInput">
+            </div>
+            <div class="modal-input-group">
+                <label>Data Fine:</label>
+                <input type="datetime-local" id="customEndInput">
+            </div>
+            <div class="modal-buttons">
+                <button onclick="closeModal()" class="btn-modal-cancel">Annulla</button>
+                <button onclick="applyCustomDate()" class="btn-modal-apply">Applica</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="login-page">
+        <div class="login-card">
+            <h1>Arnia Control</h1>
+            <p style="color: #aeaeb2; margin-bottom: 20px;">Monitoraggio Intelligente</p>
+            <input type="text" id="emailInput" class="login-input" placeholder="Inserisci la tua email" autocapitalize="off" autocomplete="off" autocorrect="off" />
+            <button onclick="handleLogin()" class="btn-primary">ACCEDI</button>
+            <p id="loginError" style="color: #ff453a; font-size: 0.8rem; margin-top: 15px; display: none;"></p>
+        </div>
+    </div>
+
+    <div id="dashboard-page" class="hidden">
+
+        <header>
+            <div class="app-title">BILANCIA ARNIA 3.2</div>
+            <div class="header-controls">
+                <span id="fwBadge" class="badge">FW: --</span>
+                <span id="ownerBadge" class="badge"></span>
+                <span id="accountBadge" class="badge">FREE</span>
+                <button onclick="showManual()" style="background:none; border:none; color:#4a90e2; font-size:0.8rem; font-weight:600; cursor:pointer;">📖 Guida</button>
+                <button onclick="logout()" style="background:none; border:none; color:#ff453a; font-size:0.8rem; font-weight:600; cursor:pointer;">Esci</button>
+            </div>
+        </header>
+
+        <div id="ios-install-banner">📱 Per installare l'App su iPhone: tocca l'icona Condividi di Safari e poi "Aggiungi alla schermata Home"</div>
+
+        <div class="device-selector-container">
+            <select id="deviceSelector" onchange="onDeviceChanged()">
+                <option value="">Caricamento dispositivi...</option>
+            </select>
+        </div>
+
+        <div class="stats-grid-top">
+            <div class="stat-card">
+                <div class="stat-label">Cambio 24h</div>
+                <div class="dual-val-container">
+                    <div class="dual-val-row"><span class="dual-val-label">A1:</span><span id="delta24h_1">--</span></div>
+                    <div class="dual-val-row"><span class="dual-val-label">A2:</span><span id="delta24h_2">--</span></div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Cambio 7gg</div>
+                <div class="dual-val-container">
+                    <div class="dual-val-row"><span class="dual-val-label">A1:</span><span id="delta7d_1">--</span></div>
+                    <div class="dual-val-row"><span class="dual-val-label">A2:</span><span id="delta7d_2">--</span></div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Cambio 15gg</div>
+                <div class="dual-val-container">
+                    <div class="dual-val-row"><span class="dual-val-label">A1:</span><span id="delta15d_1">--</span></div>
+                    <div class="dual-val-row"><span class="dual-val-label">A2:</span><span id="delta15d_2">--</span></div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Dall'ultima Maint.</div>
+                <div class="dual-val-container">
+                    <div class="dual-val-row"><span class="dual-val-label">A1:</span><span id="deltaMaint_1" class="val-neutral">--</span></div>
+                    <div class="dual-val-row"><span class="dual-val-label">A2:</span><span id="deltaMaint_2" class="val-neutral">--</span></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="stats-grid-mid">
+            <div class="stat-card">
+                <div class="stat-label">Peso Attuale</div>
+                <div class="current-weight-row">
+                    <div class="current-weight-item">
+                        <span class="dual-val-label" style="margin-bottom:2px;">Arnia 1</span>
+                        <span class="current-weight-val" id="currWeight1">-- Kg</span>
+                    </div>
+                    <div class="divider-v"></div>
+                    <div class="current-weight-item">
+                        <span class="dual-val-label" style="margin-bottom:2px;">Arnia 2</span>
+                        <span class="current-weight-val" id="currWeight2">-- Kg</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="chart-section">
+            <div class="chart-header">Andamento Peso (Kg)</div>
+            <div id="legendPeso" class="custom-legend-container"></div>
+            <div class="chart-container"><canvas id="chartPeso"></canvas></div>
+        </div>
+
+        <div class="chart-section">
+            <div class="chart-header">Ambiente & Energia</div>
+            <div id="legendMulti" class="custom-legend-container"></div>
+            <div class="chart-container"><canvas id="chartMulti"></canvas></div>
+        </div>
+
+        <div class="log-section">
+            <div class="log-header">Storico Manutenzione</div>
+            <div class="log-table-container">
+                <table id="maintTable"><thead><tr><th>Inizio</th><th>Fine</th><th>Min</th></tr></thead><tbody></tbody></table>
+            </div>
+        </div>
+
+        <div class="bottom-nav" id="rangeContainer"></div>
+
+    </div>
+
+    <button id="close-manual-mobile" onclick="hideManual()">✕</button>
+    <div id="manual-page" class="hidden">
+        <nav>
+            <div class="logo">
+                🐝 Arnia IoT - Guida
+                <button onclick="hideManual()" style="background:none; border:none; color:var(--manual-danger); font-weight:bold; font-size: 14px; cursor:pointer;">✕ Chiudi</button>
+            </div>
+            <button class="nav-btn active" onclick="openManualTab(event, 'intro')">1. Accesso al Sistema</button>
+            <button class="nav-btn" onclick="openManualTab(event, 'dashboard_manual')">2. La Dashboard</button>
+            <button class="nav-btn" onclick="openManualTab(event, 'bilance')">3. Gestione Bilance</button>
+            <button class="nav-btn" onclick="openManualTab(event, 'pesocostante')">4. Peso Costante (Melari)</button>
+            <button class="nav-btn" onclick="openManualTab(event, 'rete')">5. Rete e Trasloco</button>
+            <button class="nav-btn" onclick="openManualTab(event, 'ota')">6. Aggiornamenti OTA</button>
+        </nav>
+
+        <main>
+            <section id="intro" class="tab-content active">
+                <h1>1. Accesso al Sistema</h1>
+                <p>Il sistema opera in due modalità: <strong>Operazione Normale</strong> (dove rileva i dati e va in risparmio energetico) e <strong>Manutenzione</strong> (dove attiva una rete Wi-Fi locale per permetterti di calibrare e configurare l'arnia direttamente dal tuo smartphone).</p>
+
+                <h2>Attivare la Modalità Manutenzione</h2>
+                <ol>
+                    <li>Premi e <strong>tieni premuto</strong> il pulsante fisico per più di 2 secondi.</li>
+                    <li>Il LED di stato <strong>si accenderà</strong>, indicando l'avvio della modalità. Ora il sistema è bloccato ed è pronto per i lavori sull'arnia.</li>
+                    <li>Per configurare il sistema dal tuo smartphone, collegati alla rete Wi-Fi chiamata <strong>Bilancia_XXXXXXXX</strong>.</li>
+                    <li><em>Per uscire dalla manutenzione:</em> tieni premuto nuovamente il pulsante finché il LED non <strong>si spegne</strong>. Da quel momento la bilancia è attiva e l'arnia non va più toccata.</li>
+                </ol>
+
+                <h2>Effettuare il Login</h2>
+                <p>Apri il browser (Chrome, Safari, ecc.) e digita nella barra degli indirizzi: <code>192.168.4.1</code></p>
+                <ul>
+                    <li>Inserisci la tua <strong>Password Utente</strong> fornita in dotazione (es. <code>USER</code>). Questa ti darà accesso al pannello di controllo per calibrare le bilance, attivare il peso costante e gestire la rete.</li>
+                </ul>
+
+                <div class="mockup-container">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" style="background:#0b0f14;">
+                        <rect x="50" y="40" width="300" height="220" rx="16" fill="#151c25" stroke="#1e2a36" stroke-width="1"/>
+                        <text x="200" y="90" fill="#e7eef7" font-family="sans-serif" font-size="20" font-weight="bold" text-anchor="middle">🐝 Accesso Arnia</text>
+                        <rect x="80" y="120" width="240" height="40" rx="8" fill="#0b0f14" stroke="#1e2a36" stroke-width="1"/>
+                        <text x="95" y="145" fill="#7a8b9c" font-family="sans-serif" font-size="14">Password</text>
+                        <rect x="80" y="180" width="240" height="40" rx="8" fill="#3aa3ff"/>
+                        <text x="200" y="206" fill="#ffffff" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="middle">ENTRA</text>
+                    </svg>
+                    <div class="mockup-caption">Schermata di Login del sistema Arnia IoT (v1.9.2)</div>
+                </div>
+            </section>
+
+            <section id="dashboard_manual" class="tab-content">
+                <h1>2. La Dashboard Principale</h1>
+                <p>Appena effettuato l'accesso, la barra superiore ti offre una panoramica istantanea dello stato dell'arnia e dei parametri vitali ambientali.</p>
+
+                <ul>
+                    <li><strong>🔋 Batteria:</strong> Mostra il voltaggio attuale della batteria al litio.</li>
+                    <li><strong>🌡️ Nido 1 / Nido 2:</strong> Temperature lette dalle sonde interne posizionate tra i telaini.</li>
+                    <li><strong>🌤️ Esterna / 💧 Umidità:</strong> Clima ambientale esterno.</li>
+                    <li><strong>⏳ Timer:</strong> Conto alla rovescia di sicurezza. Scaduto il tempo, il Wi-Fi si spegne automaticamente per non consumare la batteria.</li>
+                </ul>
+
+                <div class="mockup-container">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 120" style="background:#151c25; border:1px solid #1e2a36;">
+                        <text x="15" y="30" fill="#e7eef7" font-family="sans-serif" font-size="18" font-weight="bold">🐝 Bilancia_A1B2C3</text>
+                        <text x="550" y="30" fill="#7a8b9c" font-family="sans-serif" font-size="12">v1.9.2</text>
+
+                        <g transform="translate(15, 50)">
+                            <rect x="0" y="0" width="85" height="45" rx="8" fill="#0b0f14"/>
+                            <text x="42.5" y="20" fill="#7a8b9c" font-family="sans-serif" font-size="11" text-anchor="middle">🔋 Batteria</text>
+                            <text x="42.5" y="38" fill="#e7eef7" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="middle">4.10V</text>
+                        </g>
+                        <g transform="translate(110, 50)">
+                            <rect x="0" y="0" width="85" height="45" rx="8" fill="#0b0f14"/>
+                            <text x="42.5" y="20" fill="#7a8b9c" font-family="sans-serif" font-size="11" text-anchor="middle">🌡️ Nido 1</text>
+                            <text x="42.5" y="38" fill="#e7eef7" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="middle">34.5°C</text>
+                        </g>
+                        <g transform="translate(205, 50)">
+                            <rect x="0" y="0" width="85" height="45" rx="8" fill="#0b0f14"/>
+                            <text x="42.5" y="20" fill="#7a8b9c" font-family="sans-serif" font-size="11" text-anchor="middle">🌡️ Nido 2</text>
+                            <text x="42.5" y="38" fill="#e7eef7" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="middle">34.2°C</text>
+                        </g>
+                        <g transform="translate(300, 50)">
+                            <rect x="0" y="0" width="85" height="45" rx="8" fill="#0b0f14"/>
+                            <text x="42.5" y="20" fill="#7a8b9c" font-family="sans-serif" font-size="11" text-anchor="middle">🌤️ Esterna</text>
+                            <text x="42.5" y="38" fill="#e7eef7" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="middle">28.1°C</text>
+                        </g>
+                        <g transform="translate(395, 50)">
+                            <rect x="0" y="0" width="85" height="45" rx="8" fill="#0b0f14"/>
+                            <text x="42.5" y="20" fill="#7a8b9c" font-family="sans-serif" font-size="11" text-anchor="middle">💧 Umidità</text>
+                            <text x="42.5" y="38" fill="#e7eef7" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="middle">55%</text>
+                        </g>
+                        <g transform="translate(490, 50)">
+                            <rect x="0" y="0" width="85" height="45" rx="8" fill="#0b0f14"/>
+                            <text x="42.5" y="20" fill="#7a8b9c" font-family="sans-serif" font-size="11" text-anchor="middle">⏳ Timer</text>
+                            <text x="42.5" y="38" fill="#e7eef7" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="middle">04:30</text>
+                        </g>
+                        <rect x="0" y="114" width="600" height="6" fill="#1e2a36"/>
+                        <rect x="0" y="114" width="120" height="6" fill="#3aa3ff"/>
+                    </svg>
+                    <div class="mockup-caption">Barra superiore con letture in tempo reale e timer di sicurezza</div>
+                </div>
+            </section>
+
+            <section id="bilance" class="tab-content">
+                <h1>3. Gestione Bilance e Pesi</h1>
+                <p>Il sistema gestisce fino a due bilance indipendentemente. Per ognuna puoi fare diverse operazioni in base alle tue esigenze (es. avvio stagione, ricalibrazione, taratura fine).</p>
+
+                <h2>Eseguire la Tara</h2>
+                <p>La tara imposta lo "zero" logico della bilancia, ignorando tutto il peso fisico attualmente presente sull'arnia. Usa il tasto giallo <strong>⚡ ESEGUI TARA</strong> solo a bilancia completamente vuota o se desideri che la situazione attuale diventi il tuo punto di partenza (0 kg).</p>
+
+                <h2>Calibrazione con Peso Noto</h2>
+                <ol>
+                    <li>Assicurati di aver fatto prima la Tara.</li>
+                    <li>Poggia un peso di riferimento noto (es. un peso calibrato da 5 kg) al centro dell'arnia.</li>
+                    <li>Inserisci <code>5.000</code> nel campo apposito e clicca <strong>CALIBRA</strong>.</li>
+                    <li>Il sistema si aggiusterà automaticamente.</li>
+                </ol>
+
+                <h2>Correzione Manuale</h2>
+                <p>Se la bilancia segna 10.2 kg ma una verifica esterna ti conferma che sono 10.0 kg esatti, puoi inserire <code>-0.2</code> nel campo "Correzione Peso" e premere <strong>APPLICA</strong>.</p>
+
+                <div class="mockup-container">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 420" style="background:#151c25; border:1px solid #1e2a36;">
+                        <text x="20" y="30" fill="#7a8b9c" font-family="sans-serif" font-size="15" letter-spacing="1">BILANCIA 1</text>
+                        <line x1="20" y1="40" x2="380" y2="40" stroke="#1e2a36" stroke-width="1"/>
+
+                        <text x="200" y="90" fill="#3aa3ff" font-family="sans-serif" font-size="38" font-weight="800" text-anchor="middle">45.230 kg</text>
+
+                        <text x="200" y="120" fill="#7a8b9c" font-family="sans-serif" font-size="12" text-anchor="middle">Off: <tspan fill="#e7eef7">82553</tspan>   Fatt: <tspan fill="#e7eef7">29293.96</tspan>   Adj: <tspan fill="#e7eef7">0.000</tspan></text>
+
+                        <rect x="20" y="140" width="360" height="40" rx="8" fill="transparent" stroke="#f5a623" stroke-width="2"/>
+                        <text x="200" y="165" fill="#f5a623" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="middle">⚡ ESEGUI TARA</text>
+
+                        <text x="20" y="210" fill="#7a8b9c" font-family="sans-serif" font-size="12" font-weight="bold">Calibrazione con peso noto in Kg</text>
+                        <rect x="20" y="220" width="250" height="40" rx="8" fill="#0b0f14" stroke="#1e2a36" stroke-width="1"/>
+                        <text x="35" y="245" fill="#7a8b9c" font-family="sans-serif" font-size="14">(es. 5.000)</text>
+                        <rect x="280" y="220" width="100" height="40" rx="8" fill="#3aa3ff"/>
+                        <text x="330" y="245" fill="#ffffff" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="middle">CALIBRA</text>
+
+                        <text x="20" y="290" fill="#7a8b9c" font-family="sans-serif" font-size="12" font-weight="bold">Correzione Peso (+ o - kg)</text>
+                        <rect x="20" y="300" width="180" height="40" rx="8" fill="#0b0f14" stroke="#1e2a36" stroke-width="1"/>
+                        <text x="35" y="325" fill="#7a8b9c" font-family="sans-serif" font-size="14">Es. +0.5 o -0.2</text>
+                        <rect x="210" y="300" width="80" height="40" rx="8" fill="#3aa3ff"/>
+                        <text x="250" y="325" fill="#ffffff" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="middle">APPLICA</text>
+                        <rect x="300" y="300" width="80" height="40" rx="8" fill="transparent" stroke="#ff5470" stroke-width="1"/>
+                        <text x="340" y="325" fill="#ff5470" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="middle">🗑️ RESET</text>
+
+                        <rect x="20" y="360" width="360" height="35" rx="8" fill="transparent" stroke="#17c964" stroke-width="1" stroke-dasharray="4"/>
+                        <text x="200" y="382" fill="#17c964" font-family="sans-serif" font-size="12" font-weight="bold" text-anchor="middle">⚖️ Peso Costante ATTIVO</text>
+                    </svg>
+                    <div class="mockup-caption">Pannello di controllo della Bilancia 1 con funzioni di Tara e Calibrazione</div>
+                </div>
+            </section>
+
+            <section id="pesocostante" class="tab-content">
+                <h1>4. Modalità Peso Costante (Gestione Melari)</h1>
+                <p>Questa è la funzione più avanzata del sistema. Serve a evitare che l'andamento del monitoraggio del peso venga sfalsato quando si compiono operazioni manuali di apicoltura (es. posa del melario, nutritore a depressione, apiscampo).</p>
+
+                <div class="alert">
+                    <strong>💡 Il concetto base:</strong> Quando la modalità è attiva, ogni variazione fisica di peso effettuata <em>mentre il sistema è in Manutenzione (LED acceso)</em> viene matematicamente isolata e compensata nei calcoli finali. I dati registrati dal sistema rimarranno perfettamente stabili senza picchi anomali.
+                </div>
+
+                <ol>
+                    <li><em>Operazione preliminare:</em> verifica dal Wi-Fi che l'interruttore <strong>⚖️ Peso Costante (Melari)</strong> sia verde (ATTIVO) nelle Impostazioni. (Questa operazione va fatta solo una volta).</li>
+                    <li>Quando sei in apiario, <strong>non serve collegarsi al Wi-Fi o usare il telefono</strong>. Premi e tieni premuto il pulsante fisico sull'arnia.</li>
+                    <li>Appena il <strong>LED si accende</strong>, la bilancia mette in pausa le letture ufficiali. Ora puoi iniziare a lavorare sull'arnia in totale libertà (aggiungi candito, metti o togli melari, ecc.).</li>
+                    <li>Al termine di tutti i lavori, chiudi il tetto e tieni premuto di nuovo il pulsante finché il <strong>LED non si spegne</strong>.</li>
+                    <li>Da questo momento allontanati e non toccare più l'arnia. Il sistema calcolerà il "peso morto" e lo assorbirà in totale autonomia!</li>
+                </ol>
+
+                <div class="mockup-container">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 70" style="background:#0b0f14; padding:12px;">
+                        <text x="15" y="25" fill="#e7eef7" font-family="sans-serif" font-size="14" font-weight="bold">⚖️ Peso Costante (Melari)</text>
+                        <text x="15" y="45" fill="#7a8b9c" font-family="sans-serif" font-size="11">Compensa peso aggiunto/tolto</text>
+                        <rect x="320" y="15" width="44" height="24" rx="12" fill="#17c964"/>
+                        <circle cx="350" cy="27" r="9" fill="#ffffff"/>
+                    </svg>
+                    <div class="mockup-caption">Interruttore di attivazione Modalità Peso Costante</div>
+                </div>
+            </section>
+
+            <section id="rete" class="tab-content">
+                <h1>5. Rete e Procedure di Trasloco</h1>
+
+                <h2>Cambiare la Rete Wi-Fi</h2>
+                <p>Se trasferisci le arnie in una postazione con un router differente o cambi il tuo hotspot: accedi al pannello, clicca su <strong>🔍 SCANSIONE RETI</strong>, scegli la nuova rete nell'elenco a comparsa, scrivi la password e premi SALVA.</p>
+
+                <h2>Gestione dei Tempi e Sleep</h2>
+                <ul>
+                    <li><strong>Invio Normale (min):</strong> L'intervallo standard di risveglio della bilancia (es. <code>30</code> minuti).</li>
+                    <li><strong>Soglia Critica (V):</strong> Il limite di tensione della batteria (es. <code>3.60V</code>) sotto il quale il sistema entra in risparmio massimo.</li>
+                    <li><strong>Invio Emerg. (min):</strong> Se la tensione scende sotto la soglia critica, l'intervallo si allunga automaticamente a questo valore (es. <code>120</code> minuti) per risparmiare energia.</li>
+                </ul>
+
+                <h2 style="margin-top: 40px;">🚚 Procedura di Trasloco (Nomadismo)</h2>
+                <p>Se devi spostare l'arnia per il nomadismo, la bilancia possiede una speciale intelligenza artificiale per non sballare i tuoi dati storici, anche se cambi il bancale d'appoggio! Segui questi passaggi:</p>
+
+                <div class="alert" style="background-color: rgba(58, 163, 255, 0.1); border-color: var(--manual-accent);">
+                    <strong>Fase 1: Partenza dall'apiario</strong><br><br>
+                    1. Tieni premuto il pulsante fisico per entrare in manutenzione (<strong>LED acceso</strong>).<br>
+                    2. Collegati con lo smartphone, vai in Impostazioni Sistema e attiva la levetta <strong>🚚 Modalità Standby</strong>.<br>
+                    3. Tieni premuto il pulsante fisico per uscire (<strong>LED spento</strong>).<br>
+                    <em>Nota: In questo momento l'arnia fa una "fotografia" del peso esatto prima di partire e va in coma profondo per 8 ore, risparmiando batteria durante il viaggio.</em>
+                </div>
+
+                <p>Fai il tuo viaggio, sposta l'arnia, mettici le cinghie, cambia i bancali... non preoccuparti, la bilancia sta dormendo.</p>
+
+                <div class="alert" style="background-color: rgba(23, 201, 100, 0.1); border-color: var(--manual-success);">
+                    <strong>Fase 2: Arrivo e Riattivazione</strong><br><br>
+                    1. Posiziona la bilancia e mettici sopra l'arnia nella sua forma definitiva.<br>
+                    2. Tieni premuto il pulsante per 3 secondi per forzare il risveglio (<strong>LED acceso</strong>).<br>
+                    3. Collegati col telefono, e <strong>disattiva</strong> la levetta 🚚 Modalità Standby.<br>
+                    4. Assicurati che l'interruttore <strong>⚖️ Peso Costante sia ATTIVO</strong> (verde). In questo modo il sistema capirà che deve assorbire e ignorare eventuali differenze dovute a cinghie o nuovi bancali.<br>
+                    5. Se necessario, inserisci la password del nuovo Wi-Fi del nuovo apiario.<br>
+                    6. Tieni premuto il pulsante per uscire dalla manutenzione (<strong>LED spento</strong>).<br>
+                    <em>Finito! Il sistema calcolerà le differenze in autonomia, riprendendo le misurazioni esattamente da dove le aveva interrotte alla partenza.</em>
+                </div>
+
+                <div class="mockup-container">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 70" style="background:#0b0f14; padding:12px;">
+                        <text x="15" y="25" fill="#e7eef7" font-family="sans-serif" font-size="14" font-weight="bold">🚚 Modalità Standby</text>
+                        <text x="15" y="45" fill="#7a8b9c" font-family="sans-serif" font-size="11">Disattiva letture per il trasporto</text>
+                        <rect x="320" y="15" width="44" height="24" rx="12" fill="#17c964"/>
+                        <circle cx="350" cy="27" r="9" fill="#ffffff"/>
+                    </svg>
+                    <div class="mockup-caption">Interruttore di attivazione Modalità Trasporto</div>
+                </div>
+            </section>
+
+            <section id="ota" class="tab-content">
+                <h1>6. Aggiornamenti Firmware (OTA)</h1>
+                <p>Il sistema supporta gli aggiornamenti in modalità wireless ("Over The Air"). Per applicare una nuova release del software fornita dal produttore:</p>
+
+                <ol>
+                    <li>Assicurati di aver effettuato l'accesso al sistema.</li>
+                    <li>Scorri in fondo alla pagina principale e clicca sul bottone verde <strong>⬆ AGGIORNA</strong>.</li>
+                    <li>Nella schermata che si apre, tocca su "Scegli file" e seleziona il file <code>.bin</code> dell'aggiornamento.</li>
+                    <li>Premi <strong>AVVIA AGGIORNAMENTO</strong>.</li>
+                    <li>Attendi senza chiudere la pagina. La barra indicherà il progresso e, a operazione conclusa, l'arnia si riavvierà da sola con la nuova versione installata.</li>
+                </ol>
+
+                <div class="mockup-container">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 250" style="background:#0b0f14;">
+                        <text x="200" y="40" fill="#e7eef7" font-family="sans-serif" font-size="20" font-weight="bold" text-anchor="middle">⬆ Aggiornamento Firmware</text>
+
+                        <rect x="20" y="60" width="360" height="40" rx="5" fill="#ffaa00"/>
+                        <text x="200" y="85" fill="#000000" font-family="sans-serif" font-size="12" font-weight="bold" text-anchor="middle">⚠️ Se il file non si seleziona, apri Chrome...</text>
+
+                        <rect x="20" y="120" width="360" height="60" rx="10" fill="transparent" stroke="#3aa3ff" stroke-width="2" stroke-dasharray="6"/>
+                        <text x="200" y="155" fill="#7a8b9c" font-family="sans-serif" font-size="14" text-anchor="middle">Scegli file... nessun file selezionato</text>
+
+                        <rect x="20" y="200" width="360" height="40" rx="5" fill="#3aa3ff"/>
+                        <text x="200" y="225" fill="#ffffff" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="middle">AVVIA AGGIORNAMENTO</text>
+                    </svg>
+                    <div class="mockup-caption">Schermata per l'installazione dei file di aggiornamento</div>
+                </div>
+            </section>
+        </main>
     </div>
 
     <script>
-        // Register Service Worker
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/Bilancia3.2/service-worker.js').catch(e => {
-                console.error('Service Worker registration failed:', e);
-            });
-        }
+        // ============================================================
+        // CONFIGURAZIONE DINAMICA E BACKUP
+        // ============================================================
+        let scriptUrl = 'https://script.google.com/macros/s/AKfycbwJqzTgmmidqv9oz0sAe8fiKG6j74-MsWJ-wNF-TbeVN5HV0R0J0VHH2e1pLzX0DOuA/exec';
+        const SECRET_KEY = "alluser";
 
-        // Load main app
-        async function loadApp() {
+        // Link per scaricare il contenuto della cella B1 come fa l'ESP32
+        const DYNAMIC_URL_SHEET = "https://docs.google.com/spreadsheets/d/1v2QYh6ZYvMKCxBI0mt7nHSS2btbmDRtP018k8Yj0Lfg/export?format=csv&gid=1773702506&range=B1";
+        
+        // Configurazione remota da Google Sheets (lascia vuoto se non usato)
+        const CONFIG_SHEET_URL = "";
+
+        // ============================================================
+        // STATO
+        // ============================================================
+        let charts = {};
+        let allData = [];
+        let currentRange = '1W';
+        let customStart = null;
+        let customEnd = null;
+
+        const ranges = ['6H','1D','1W','2W','1M','3M','6M','1Y','5Y', 'SET'];
+
+        const loginPage = document.getElementById('login-page');
+        const dashboardPage = document.getElementById('dashboard-page');
+        const manualPage = document.getElementById('manual-page');
+        const loader = document.getElementById('loader-overlay');
+        const loaderText = document.getElementById('loader-text');
+        const modal = document.getElementById('customRangeModal');
+
+        // ============================================================
+        // AVVIO DELLA PAGINA
+        // ============================================================
+        window.onload = async function() {
+            await syncDynamicUrl();
+            initRanges();
+            checkAutoLogin();
+            caricaConfigurazioneRemota();
+            checkIosInstall();
+        };
+
+        // Aggiorna la scriptUrl in base al Google Sheet
+        async function syncDynamicUrl() {
             try {
-                const script = document.createElement('script');
-                script.src = '/Bilancia3.2/assets/app.js?v=' + Date.now();
-                script.onload = () => {
-                    console.log('✅ App loaded successfully');
-                };
-                script.onerror = () => {
-                    showError('Impossibile caricare l\'applicazione principale');
-                };
-                document.head.appendChild(script);
-            } catch (e) {
-                showError('Errore sconosciuto: ' + e.message);
+                const res = await fetch(DYNAMIC_URL_SHEET);
+                const text = await res.text();
+                const fetchedUrl = text.trim();
+
+                if (fetchedUrl.startsWith('http')) {
+                    scriptUrl = fetchedUrl;
+                    console.log("🌐 URL dell'App sincronizzato con successo dal Foglio Google!");
+                }
+            } catch(e) {
+                console.warn("⚠️ Impossibile raggiungere il foglio, uso l'URL di backup locale.");
             }
         }
 
-        function showError(msg) {
-            document.getElementById('loader-container').style.display = 'none';
-            document.getElementById('error-container').style.display = 'block';
-            document.getElementById('error-message').textContent = msg;
+        // ============================================================
+        // FUNZIONI AGGIUNTIVE (iOS Banner e Config Remota)
+        // ============================================================
+        function checkIosInstall() {
+            const isIos = /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
+            const isInStandaloneMode = ('standalone' in window.navigator) && window.navigator.standalone;
+            if (isIos && !isInStandaloneMode) {
+                document.getElementById('ios-install-banner').style.display = 'block';
+            }
         }
 
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', loadApp);
-        } else {
-            loadApp();
+        async function caricaConfigurazioneRemota() {
+            if(!CONFIG_SHEET_URL) return;
+            try {
+                const res = await fetch(CONFIG_SHEET_URL);
+                const text = await res.text();
+                const righe = text.trim().split('\n');
+                righe.forEach(riga => {
+                    const parti = riga.split(',');
+                    const chiave = parti[0]?.trim();
+                    const valore = parti.slice(1).join(',').trim();
+                    if(chiave === 'avviso_manutenzione' && valore) {
+                        const avviso = document.createElement('div');
+                        avviso.style.cssText = 'background:#ffcc00; color:#000; padding:12px; text-align:center; font-weight:bold; font-size:0.85rem; border-radius: 12px; margin-bottom: 10px;';
+                        avviso.innerText = valore;
+                        document.getElementById('dashboard-page').querySelector('header').after(avviso);
+                    }
+                });
+            } catch(e) { console.log("Config remota non caricata."); }
         }
+
+        // ============================================================
+        // DATABASE LOCALE (IndexedDB)
+        // ============================================================
+        const DB_NAME = "ArniaDataDB";
+        const STORE_NAME = "history";
+        let isDbAvailable = true;
+
+        function openDB() {
+            return new Promise((resolve, reject) => {
+                try {
+                    const request = indexedDB.open(DB_NAME, 1);
+                    request.onupgradeneeded = event => {
+                        event.target.result.createObjectStore(STORE_NAME);
+                    };
+                    request.onsuccess = event => resolve(event.target.result);
+                    request.onerror = event => {
+                        isDbAvailable = false;
+                        reject(event.target.error);
+                    };
+                } catch(e) {
+                    isDbAvailable = false;
+                    reject(e);
+                }
+            });
+        }
+
+        async function getLocalData(chipId) {
+            if (!isDbAvailable) return [];
+            try {
+                const db = await openDB();
+                return new Promise((resolve, reject) => {
+                    const tx = db.transaction(STORE_NAME, "readonly");
+                    const store = tx.objectStore(STORE_NAME);
+                    const request = store.get(chipId);
+                    request.onsuccess = () => resolve(request.result || []);
+                    request.onerror = () => reject(request.error);
+                });
+            } catch(e) { return []; }
+        }
+
+        async function saveLocalData(chipId, data) {
+            if (!isDbAvailable) return;
+            try {
+                const db = await openDB();
+                return new Promise((resolve, reject) => {
+                    const tx = db.transaction(STORE_NAME, "readwrite");
+                    const store = tx.objectStore(STORE_NAME);
+                    store.put(data, chipId);
+                    tx.oncomplete = () => resolve();
+                    tx.onerror = () => reject(tx.error);
+                });
+            } catch(e) { console.error("Errore salvataggio locale", e); }
+        }
+
+        // ============================================================
+        // RANGE BUTTONS E MODALE
+        // ============================================================
+        function initRanges() {
+            const container = document.getElementById('rangeContainer');
+            container.innerHTML = '';
+            ranges.forEach(r => {
+                const btn = document.createElement('button');
+                btn.className = `range-btn ${r === currentRange ? 'active' : ''}`;
+                btn.textContent = r;
+                btn.onclick = () => setRange(r);
+                container.appendChild(btn);
+            });
+        }
+
+        function setRange(range) {
+            if (range === 'SET') { openModal(); return; }
+            currentRange = range;
+            customStart = null; customEnd = null;
+            updateRangeButtons();
+            renderCharts();
+        }
+
+        function updateRangeButtons() {
+            document.querySelectorAll('.range-btn').forEach(b => {
+                if(b.textContent === currentRange) b.classList.add('active');
+                else b.classList.remove('active');
+            });
+        }
+
+        function openModal() {
+            const now = new Date();
+            if (!document.getElementById('customEndInput').value) {
+                document.getElementById('customEndInput').value = now.toISOString().slice(0, 16);
+                const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+                document.getElementById('customStartInput').value = weekAgo.toISOString().slice(0, 16);
+            }
+            modal.classList.remove('hidden');
+        }
+
+        function closeModal() { modal.classList.add('hidden'); }
+
+        function applyCustomDate() {
+            const startVal = document.getElementById('customStartInput').value;
+            const endVal = document.getElementById('customEndInput').value;
+            if (!startVal || !endVal) { alert("Seleziona entrambe le date."); return; }
+            const s = new Date(startVal).getTime(); const e = new Date(endVal).getTime();
+            if (e <= s) { alert("Data fine errata."); return; }
+            customStart = s; customEnd = e; currentRange = 'SET';
+            updateRangeButtons(); renderCharts(); closeModal();
+        }
+
+        // ============================================================
+        // MENU GUIDA
+        // ============================================================
+        function showManual() {
+            dashboardPage.classList.add('hidden');
+            manualPage.classList.remove('hidden');
+        }
+        function hideManual() {
+            manualPage.classList.add('hidden');
+            dashboardPage.classList.remove('hidden');
+        }
+        function openManualTab(evt, tabName) {
+            const tabcontent = document.querySelectorAll('#manual-page .tab-content');
+            tabcontent.forEach(tab => tab.classList.remove('active'));
+            const navbtns = document.querySelectorAll('#manual-page .nav-btn');
+            navbtns.forEach(btn => btn.classList.remove('active'));
+            document.getElementById(tabName).classList.add('active');
+            evt.currentTarget.classList.add('active');
+        }
+
+        // ============================================================
+        // LOGIN E DISPOSITIVI (VIA FETCH)
+        // ============================================================
+        function checkAutoLogin() {
+            try {
+                const savedEmail = localStorage.getItem('userEmail');
+                if (savedEmail) {
+                    document.getElementById('emailInput').value = savedEmail;
+                    doLoginProcess(savedEmail);
+                }
+            } catch(e) {}
+        }
+
+        function handleLogin() {
+            const email = document.getElementById('emailInput').value.trim();
+            if (!email) { showLoginError("Inserisci un'email valida."); return; }
+            doLoginProcess(email);
+        }
+
+        function logout() {
+            try { localStorage.removeItem('userEmail'); } catch(e) {}
+            location.reload();
+        }
+
+        async function doLoginProcess(email) {
+            showLoader(true, "Accesso in corso...");
+            try {
+                let requestEmail = email;
+                let isMaster = false;
+
+                if (email.toLowerCase() === SECRET_KEY) {
+                    requestEmail = "";
+                    isMaster = true;
+                }
+
+                // Chiama il server via FETCH (locale friendly)
+                const url = `${scriptUrl}?action=listDevices&email=${encodeURIComponent(requestEmail)}`;
+                const res = await fetch(url);
+                const json = await res.json();
+
+                if (json.status === "error") throw new Error(json.message);
+                if (!json.data || json.data.length === 0) throw new Error("Nessun dispositivo trovato.");
+
+                try { localStorage.setItem('userEmail', email); } catch(e) {}
+                
+                populateDeviceSelector(json.data);
+
+                const badge = document.getElementById('accountBadge');
+                if (isMaster) {
+                    badge.innerText = "MASTER KEY";
+                    badge.className = "badge master";
+                } else {
+                    badge.innerText = "FREE";
+                    badge.className = "badge";
+                }
+
+                loginPage.classList.add('hidden');
+                dashboardPage.classList.remove('hidden');
+
+                if (json.data.length > 0) {
+                    // Prende l'ID corretto dal nuovo formato che include la mail
+                    const firstId = json.data[0].id || json.data[0];
+                    document.getElementById('deviceSelector').value = firstId;
+                    await loadDeviceData(firstId);
+                }
+
+            } catch (e) {
+                console.error(e);
+                showLoginError(e.message);
+                loginPage.classList.remove('hidden');
+                dashboardPage.classList.add('hidden');
+            } finally {
+                showLoader(false);
+            }
+        }
+
+        function showLoginError(msg) {
+            const el = document.getElementById('loginError');
+            el.innerText = msg;
+            el.style.display = 'block';
+        }
+
+        function populateDeviceSelector(devices) {
+            const sel = document.getElementById('deviceSelector');
+            sel.innerHTML = '';
+
+            devices.forEach(d => {
+                const opt = document.createElement('option');
+
+                // Estrae ID ed Email dal nuovo formato
+                const deviceId = d.id || d;
+                const deviceEmail = d.email || '';
+
+                opt.value = deviceId;
+
+                // Se c'è una mail associata, mostra "ID - Email", altrimenti solo "ID"
+                if (deviceEmail) {
+                    opt.textContent = `${deviceId} - ${deviceEmail}`;
+                } else {
+                    opt.textContent = `${deviceId}`;
+                }
+
+                sel.appendChild(opt);
+            });
+        }
+
+        async function onDeviceChanged() {
+            const id = document.getElementById('deviceSelector').value;
+            if(id) await loadDeviceData(id);
+        }
+
+        // ============================================================
+        // CARICAMENTO DATI (INCREMENTALE & FETCH LOCAL-FRIENDLY)
+        // ============================================================
+        async function loadDeviceData(chipId) {
+            showLoader(true, "Verifica database locale...");
+            try {
+                // 1. Fetch Configurazione in background
+                fetch(`${scriptUrl}?action=getDeviceConfig&chipId=${chipId}`)
+                    .then(r => r.json())
+                    .then(d => {
+                        const isMaster = document.getElementById('accountBadge').classList.contains('master');
+                        const ownerBadge = document.getElementById('ownerBadge');
+                        if (isMaster && d.data?.email) {
+                            ownerBadge.innerText = d.data.email;
+                            ownerBadge.style.display = 'inline-block';
+                        } else {
+                            ownerBadge.style.display = 'none';
+                        }
+                        if (!isMaster) {
+                            const type = d.data?.tipologia || 'Standard';
+                            const badge = document.getElementById('accountBadge');
+                            badge.innerText = type;
+                            badge.style.color = type === 'Demo' ? '#e67e22' : '#2ecc71';
+                        }
+                    }).catch(e => {});
+
+                // 2. Carica i dati vecchi dalla memoria del telefono/PC
+                let localData = await getLocalData(chipId);
+                let lastTs = 0;
+
+                if (localData.length > 0) {
+                    localData.sort((a, b) => a.x - b.x);
+                    lastTs = localData[localData.length - 1].x;
+                    showLoader(true, "Sincronizzazione nuovi dati...");
+                } else {
+                    showLoader(true, "Scaricamento dati completi (solo la prima volta)...");
+                }
+
+                // 3. Scarica SOLO i dati successivi all'ultimo salvato
+                const res = await fetch(`${scriptUrl}?action=getDeviceHistory&chipId=${chipId}&after=${lastTs}`);
+                const json = await res.json();
+                if (json.status === 'error') throw new Error(json.message);
+
+                // 4. Se ci sono dati nuovi, li processa e li unisce
+                if (json.data && json.data.length > 0) {
+                    const newData = json.data.map(row => {
+                        const ts = row.Timestamp ? new Date(row.Timestamp).getTime() : null;
+                        if (!ts) return null;
+                        return {
+                            x: ts,
+                            peso1: parseFloat(row['Peso 1']) || 0,
+                            peso2: parseFloat(row['Peso 2']) || 0,
+                            tempEnv: parseFloat(row['Temp SHT4x']) || 0,
+                            hum: parseFloat(row.Umidità) || 0,
+                            batt: parseFloat(row.Batteria) || 0,
+                            temp1: parseFloat(row['Temp 1']) || 0,
+                            temp2: parseFloat(row['Temp 2']) || 0,
+                            maintInizio: row['Maint Inizio'] ? new Date(row['Maint Inizio']) : null,
+                            maintFine: row['Maint Fine'] ? new Date(row['Maint Fine']) : null,
+                            durata: row['Durata (min)'] || 0,
+                            firmware: row['Firmware'] || ''
+                        };
+                    }).filter(d => d !== null);
+
+                    localData = localData.concat(newData);
+                }
+
+                // Rimuove eventuali righe doppie e riordina
+                const uniqueMap = new Map();
+                localData.forEach(item => uniqueMap.set(item.x, item));
+                localData = Array.from(uniqueMap.values());
+                localData.sort((a, b) => a.x - b.x);
+
+                // Salva il database pulito sul dispositivo locale se necessario
+                if (json.data && json.data.length > 0) {
+                    await saveLocalData(chipId, localData);
+                }
+
+                allData = localData;
+
+                updateStatsCards();
+                updateLogs();
+                renderCharts();
+
+            } catch (e) {
+                alert("Errore caricamento dati: " + e.message);
+            } finally {
+                showLoader(false);
+            }
+        }
+
+        // ============================================================
+        // KPI E TABELLE
+        // ============================================================
+        function updateStatsCards() {
+            if (allData.length === 0) return;
+            const last = allData[allData.length - 1];
+
+            document.getElementById('currWeight1').innerText = `${last.peso1.toFixed(2)} Kg`;
+            document.getElementById('currWeight2').innerText = `${last.peso2.toFixed(2)} Kg`;
+
+            // Aggiorna Badge Firmware
+            const lastWithFw = [...allData].reverse().find(d => d.firmware && d.firmware !== "");
+            const fwBadge = document.getElementById('fwBadge');
+            if (lastWithFw) {
+                fwBadge.innerText = 'FW: ' + lastWithFw.firmware;
+                fwBadge.style.display = 'inline-block';
+            } else {
+                fwBadge.style.display = 'none';
+            }
+
+            const findAgo = (ms, key) => {
+                const target = last.x - ms;
+                let closestIndex = -1;
+                for (let i = allData.length - 1; i >= 0; i--) {
+                    if (allData[i].x <= target) {
+                        closestIndex = i;
+                        break;
+                    }
+                }
+                if (closestIndex === -1) return allData.length > 0 ? allData[0][key] : null;
+                return allData[closestIndex][key];
+            };
+
+            const lastMaintPoint = [...allData].reverse().find(d => d.maintInizio !== null && d.maintInizio !== "");
+
+            let weightAtMaint1 = null;
+            let weightAtMaint2 = null;
+
+            if (lastMaintPoint) {
+                weightAtMaint1 = lastMaintPoint.peso1;
+                weightAtMaint2 = lastMaintPoint.peso2;
+            }
+
+            const day = 86400000;
+
+            updateDelta('delta24h_1', last.peso1, findAgo(day, 'peso1'));
+            updateDelta('delta24h_2', last.peso2, findAgo(day, 'peso2'));
+            updateDelta('delta7d_1', last.peso1, findAgo(day * 7, 'peso1'));
+            updateDelta('delta7d_2', last.peso2, findAgo(day * 7, 'peso2'));
+            updateDelta('delta15d_1', last.peso1, findAgo(day * 15, 'peso1'));
+            updateDelta('delta15d_2', last.peso2, findAgo(day * 15, 'peso2'));
+            updateDelta('deltaMaint_1', last.peso1, weightAtMaint1);
+            updateDelta('deltaMaint_2', last.peso2, weightAtMaint2);
+        }
+
+        function updateDelta(id, curr, old) {
+            const el = document.getElementById(id);
+            if (old === null) { el.innerText="N/A"; el.className="val-neutral"; return; }
+            const diff = curr - old;
+            const sign = diff > 0 ? "+" : "";
+            el.innerText = `${sign}${diff.toFixed(2)} Kg`;
+            el.className = diff > 0.05 ? 'val-pos' : (diff < -0.05 ? 'val-neg' : 'val-neutral');
+        }
+
+        function updateLogs() {
+            // Tabella Manutenzioni
+            const tMaint = document.querySelector('#maintTable tbody'); tMaint.innerHTML = '';
+            const maints = allData.filter(d => d.maintInizio).reverse().slice(0, 10);
+            if(maints.length === 0) tMaint.innerHTML = '<tr><td colspan="3">Nessuna manutenzione</td></tr>';
+            else maints.forEach(l => {
+                const tr = document.createElement('tr');
+                const fmt = d => d ? new Date(d).toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}) : '-';
+                tr.innerHTML = `<td>${fmt(l.maintInizio)}</td><td>${fmt(l.maintFine)}</td><td>${l.durata}</td></tr>`;
+                tMaint.appendChild(tr);
+            });
+        }
+
+        // ============================================================
+        // GRAFICI (CHART.JS)
+        // ============================================================
+        function generateHtmlLegend(chart, containerId) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+
+            const items = chart.data.datasets.map((ds, i) => {
+                const el = document.createElement('div');
+                const isHidden = !chart.isDatasetVisible(i);
+                el.className = `legend-item ${isHidden ? 'hidden-dataset' : ''}`;
+
+                const colorBox = document.createElement('span');
+                colorBox.className = 'legend-color-box';
+                colorBox.style.backgroundColor = ds.borderColor;
+
+                const text = document.createTextNode(ds.label);
+
+                el.appendChild(colorBox);
+                el.appendChild(text);
+
+                el.onclick = () => {
+                    const isNowVisible = chart.isDatasetVisible(i);
+                    if (isNowVisible) {
+                        chart.hide(i);
+                        el.classList.add('hidden-dataset');
+                    } else {
+                        chart.show(i);
+                        el.classList.remove('hidden-dataset');
+                    }
+                };
+                return el;
+            });
+            items.forEach(item => container.appendChild(item));
+        }
+
+        function renderCharts() {
+            if (allData.length === 0) return;
+            const now = Date.now();
+            let minTime, maxTime = (currentRange === 'SET') ? customEnd : now;
+
+            if (currentRange === 'SET' && customStart && customEnd) {
+                minTime = customStart;
+            } else {
+                const timeMap = { '6H': 21600000, '1D': 86400000, '1W': 604800000, '2W': 1209600000, '1M': 2592000000, '3M': 7776000000, '6M': 15552000000, '1Y': 31536000000, '5Y': 157680000000 };
+                minTime = now - (timeMap[currentRange] || 86400000);
+            }
+
+            const subset = allData.filter(d => d.x >= minTime && d.x <= maxTime);
+
+            const maintenanceAnnotations = subset.filter(d => d.maintInizio).map(d => ({
+                type: 'line', mode: 'vertical', scaleID: 'x', value: d.x,
+                borderColor: '#ff453a', borderWidth: 2, borderDash: [5, 5], label: { enabled: false }
+            }));
+
+            const commonOpts = {
+                responsive: true, maintainAspectRatio: false, animation: false, spanGaps: true,
+                scales: {
+                    x: { type: 'time', time: { displayFormats: { hour: 'HH:mm', day: 'dd/MM' }, tooltipFormat: 'dd/MM HH:mm' }, grid: { color: '#3a3a3c' }, ticks: { color: '#aeaeb2', maxRotation: 0, autoSkip: true, font: {size: 11} }, min: minTime, max: maxTime },
+                    y: { grid: { color: '#3a3a3c' }, ticks: { color: '#aeaeb2', font: {size: 11} }, position: 'left' }
+                },
+                plugins: {
+                    decimation: { enabled: true, algorithm: 'lttb', samples: 200, threshold: 200 },
+                    legend: { display: false },
+                    tooltip: { mode: 'index', intersect: false },
+                    zoom: { pan: { enabled: true, mode: 'x', threshold: 10 }, zoom: { wheel: { enabled: true }, pinch: { enabled: true }, mode: 'x' } },
+                    annotation: { annotations: maintenanceAnnotations }
+                },
+                interaction: { mode: 'nearest', axis: 'x', intersect: false }
+            };
+
+            // CHART PESO
+            const ctxPeso = document.getElementById('chartPeso').getContext('2d');
+            const dsPeso1 = { label: 'Arnia 1', data: subset.map(d=>({x:d.x, y:d.peso1})), borderColor: '#ffffff', borderWidth: 2, pointRadius:0, tension: 0.2, parsing: false, normalized: true, yAxisID: 'y' };
+            const dsPeso2 = { label: 'Arnia 2', data: subset.map(d=>({x:d.x, y:d.peso2})), borderColor: '#4a90e2', borderWidth: 2, pointRadius:0, tension: 0.2, parsing: false, normalized: true, yAxisID: 'y1' };
+
+            let pesoVisibility = [true, true];
+            if(charts.peso) {
+                pesoVisibility = charts.peso.data.datasets.map((d, i) => charts.peso.isDatasetVisible(i));
+                charts.peso.destroy();
+            }
+            dsPeso1.hidden = !pesoVisibility[0]; dsPeso2.hidden = !pesoVisibility[1];
+
+            charts.peso = new Chart(ctxPeso, {
+                type: 'line', data: { datasets: [ dsPeso1, dsPeso2 ] },
+                options: {
+                    ...commonOpts,
+                    scales: {
+                        x: commonOpts.scales.x,
+                        y: { ...commonOpts.scales.y, position: 'left', grid: { color: '#3a3a3c' }, ticks: { color: '#aeaeb2', font: {size: 11} } },
+                        y1: { position: 'right', grid: { display: false }, ticks: { color: '#4a90e2', font: {size: 11} }, display: true }
+                    }
+                }
+            });
+            generateHtmlLegend(charts.peso, 'legendPeso');
+
+            // CHART MULTI
+            const ctxMulti = document.getElementById('chartMulti').getContext('2d');
+            const multiData = [
+                { label: 'Temp Amb.', data: subset.map(d=>({x:d.x, y:d.tempEnv})), borderColor: '#ff9f0a', borderWidth: 2, pointRadius:0, yAxisID:'y', parsing: false, normalized: true },
+                { label: 'Umidità', data: subset.map(d=>({x:d.x, y:d.hum})), borderColor: '#0a84ff', borderWidth: 2, pointRadius:0, yAxisID:'y1', parsing: false, normalized: true },
+                { label: 'Temp 1', data: subset.map(d=>({x:d.x, y:d.temp1})), borderColor: '#ff453a', borderWidth: 1.5, pointRadius:0, yAxisID:'y', hidden: true, parsing: false, normalized: true },
+                { label: 'Temp 2', data: subset.map(d=>({x:d.x, y:d.temp2})), borderColor: '#bf5af2', borderWidth: 1.5, pointRadius:0, yAxisID:'y', hidden: true, parsing: false, normalized: true },
+                { label: 'Batteria', data: subset.map(d=>({x:d.x, y:d.batt})), borderColor: '#32d74b', borderWidth: 1.5, pointRadius:0, yAxisID:'y', hidden: true, parsing: false, normalized: true }
+            ];
+
+            let multiVisibility = [true, true, false, false, false];
+            if(charts.multi) {
+                multiVisibility = charts.multi.data.datasets.map((d, i) => charts.multi.isDatasetVisible(i));
+                charts.multi.destroy();
+            }
+            multiData.forEach((d, i) => { if (i < multiVisibility.length) d.hidden = !multiVisibility[i]; });
+
+            charts.multi = new Chart(ctxMulti, {
+                type: 'line', data: { datasets: multiData },
+                options: {
+                    ...commonOpts,
+                    plugins: { ...commonOpts.plugins, annotation: { annotations: [] }, legend: { display: false } },
+                    scales: {
+                        x: commonOpts.scales.x,
+                        y: { ...commonOpts.scales.y, position: 'left', title: {display: false}, grid: { color: '#3a3a3c' } },
+                        y1: { position: 'right', grid: { display: false }, ticks: { color: '#0a84ff', font: {size: 11} }, title: {display: false} }
+                    }
+                }
+            });
+            generateHtmlLegend(charts.multi, 'legendMulti');
+        }
+
+        function showLoader(show, text) {
+            loader.classList.toggle('hidden', !show);
+            if(text) loaderText.innerText = text;
+        }
+    </script>
+
+    <!-- Registrazione Service Worker (Essenziale per iOS) -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js').catch(err => console.log('SW non registrato:', err));
+        });
+      }
     </script>
 </body>
 </html>

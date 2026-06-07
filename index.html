@@ -17,11 +17,10 @@
 
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 
-    <!-- Librerie Chart.js e Adapter Luxon (Corretti) -->
+    <!-- Librerie Chart.js e Adapter DATE-FNS (VERSIONE BUNDLE AUTOCONTENUTA) -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8/hammer.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/luxon@3.4.4/build/global/luxon.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@1.3.1/dist/chartjs-adapter-luxon.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"></script>
 
@@ -306,7 +305,7 @@
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* --- STILI NUOVO MANUALE INTERATTIVO --- */
+        /* --- STILI MANUALE --- */
         #manual-page {
             display: flex;
             height: 100vh;
@@ -427,7 +426,6 @@
             font-style: italic;
         }
 
-        /* Pulsanti Speciali */
         #close-manual-mobile {
             display: none;
             position: fixed;
@@ -1237,6 +1235,7 @@
                     }).filter(d => d !== null);
 
                     localData = localData.concat(newData);
+                    console.log(`✅ ${newData.length} nuovi dati scaricati e uniti.`);
                 }
 
                 const uniqueMap = new Map();
@@ -1249,6 +1248,7 @@
                 }
 
                 allData = localData;
+                console.log(`📊 Totale punti dati disponibili in allData: ${allData.length}`);
 
                 updateStatsCards();
                 updateLogs();
@@ -1256,6 +1256,7 @@
 
             } catch (e) {
                 alert("Errore caricamento dati: " + e.message);
+                console.error("❌ Errore loadDeviceData:", e);
             } finally {
                 showLoader(false);
             }
@@ -1337,7 +1338,7 @@
         }
 
         // ============================================================
-        // GRAFICI (CHART.JS) - CORRETTO CON LUXON
+        // GRAFICI (CHART.JS) - DEBUGGED
         // ============================================================
         function generateHtmlLegend(chart, containerId) {
             const container = document.getElementById(containerId);
@@ -1374,7 +1375,7 @@
 
         function renderCharts() {
             if (allData.length === 0) {
-                console.warn("renderCharts: nessun dato disponibile");
+                console.warn("⚠️ renderCharts bloccato: allData è vuoto.");
                 return;
             }
             
@@ -1390,6 +1391,12 @@
                 }
 
                 const subset = allData.filter(d => d.x >= minTime && d.x <= maxTime);
+                console.log(`📈 Subset da disegnare: ${subset.length} punti. Range: ${new Date(minTime).toLocaleString()} -> ${new Date(maxTime).toLocaleString()}`);
+
+                if(subset.length === 0) {
+                    console.warn("⚠️ Nessun dato nel range selezionato.");
+                    return;
+                }
 
                 const maintenanceAnnotations = subset.filter(d => d.maintInizio).map(d => ({
                     type: 'line', mode: 'vertical', scaleID: 'x', value: d.x,
@@ -1397,9 +1404,22 @@
                 }));
 
                 const commonOpts = {
-                    responsive: true, maintainAspectRatio: false, animation: false, spanGaps: true,
+                    responsive: true, 
+                    maintainAspectRatio: false, 
+                    animation: false, 
+                    spanGaps: true,
                     scales: {
-                        x: { type: 'time', time: { displayFormats: { hour: 'HH:mm', day: 'dd/LL' }, tooltipFormat: 'dd/LL HH:mm' }, grid: { color: '#3a3a3c' }, ticks: { color: '#aeaeb2', maxRotation: 0, autoSkip: true, font: {size: 11} }, min: minTime, max: maxTime },
+                        x: { 
+                            type: 'time', 
+                            time: { 
+                                displayFormats: { hour: 'HH:mm', day: 'dd/MM' }, 
+                                tooltipFormat: 'dd/MM HH:mm' 
+                            }, 
+                            grid: { color: '#3a3a3c' }, 
+                            ticks: { color: '#aeaeb2', maxRotation: 0, autoSkip: true, font: {size: 11} }, 
+                            min: minTime, 
+                            max: maxTime 
+                        },
                         y: { grid: { color: '#3a3a3c' }, ticks: { color: '#aeaeb2', font: {size: 11} }, position: 'left' }
                     },
                     plugins: {
@@ -1436,6 +1456,7 @@
                     }
                 });
                 generateHtmlLegend(charts.peso, 'legendPeso');
+                console.log("✅ Grafico Peso creato con successo.");
 
                 // CHART MULTI
                 const ctxMulti = document.getElementById('chartMulti').getContext('2d');
@@ -1467,9 +1488,10 @@
                     }
                 });
                 generateHtmlLegend(charts.multi, 'legendMulti');
+                console.log("✅ Grafico Multi creato con successo.");
                 
             } catch(e) {
-                console.error("❌ Errore renderizzazione grafici:", e);
+                console.error("❌ Errore fatale durante renderCharts:", e);
             }
         }
 

@@ -1,18 +1,25 @@
 {
-  "name": "Smart Hive Dashboard",
-  "short_name": "Arnia IoT",
-  "description": "Monitoraggio bilance arnia intelligente",
-  "start_url": "/Bilancia3.2/",
-  "scope": "/Bilancia3.2/",
-  "display": "standalone",
-  "background_color": "#1c1c1e",
-  "theme_color": "#1c1c1e",
-  "icons": [
-    {
-      "src": "https://cdn-icons-png.flaticon.com/512/420/420526.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
-    }
-  ]
+    "name": "Smart Hive Dashboard",
+    "short_name": "Arnia IoT",
+    "description": "Monitoraggio bilance arnia intelligente",
+    "start_url": "/Bilancia3.2/",
+    "scope": "/Bilancia3.2/",
+    "display": "standalone",
+    "orientation": "portrait",
+    "background_color": "#1c1c1e",
+    "theme_color": "#1c1c1e",
+    "icons": [
+        {
+            "src": "https://cdn-icons-png.flaticon.com/512/420/420526.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "https://cdn-icons-png.flaticon.com/512/420/420526.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "maskable"
+        }
+    ]
 }

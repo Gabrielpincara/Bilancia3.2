@@ -307,143 +307,43 @@
 
         /* --- STILI MANUALE --- */
         #manual-page {
-            display: flex;
-            height: 100vh;
-            background-color: var(--manual-bg);
-            color: var(--manual-ink);
-            overflow: hidden;
-            width: 100%;
-            position: fixed;
-            top: 0;
-            left: 0;
-            z-index: 1500;
+            display: flex; height: 100vh; background-color: var(--manual-bg); color: var(--manual-ink);
+            overflow: hidden; width: 100%; position: fixed; top: 0; left: 0; z-index: 1500;
         }
-
         #manual-page nav {
-            width: 280px;
-            background-color: var(--manual-panel);
-            border-right: 1px solid var(--manual-border);
-            display: flex;
-            flex-direction: column;
-            padding: 20px 0;
-            overflow-y: auto;
-            flex-shrink: 0;
+            width: 280px; background-color: var(--manual-panel); border-right: 1px solid var(--manual-border);
+            display: flex; flex-direction: column; padding: 20px 0; overflow-y: auto; flex-shrink: 0;
         }
-
         #manual-page .logo {
-            font-size: 20px;
-            font-weight: 800;
-            padding: 0 20px 20px 20px;
-            border-bottom: 1px solid var(--manual-border);
-            margin-bottom: 10px;
-            color: var(--manual-accent);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            font-size: 20px; font-weight: 800; padding: 0 20px 20px 20px;
+            border-bottom: 1px solid var(--manual-border); margin-bottom: 10px; color: var(--manual-accent);
+            display: flex; justify-content: space-between; align-items: center;
         }
-
         #manual-page .nav-btn {
-            background: none;
-            border: none;
-            color: var(--manual-muted);
-            padding: 15px 20px;
-            text-align: left;
-            font-size: 15px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            border-left: 3px solid transparent;
+            background: none; border: none; color: var(--manual-muted); padding: 15px 20px; text-align: left;
+            font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s; border-left: 3px solid transparent;
         }
-
-        #manual-page .nav-btn:hover {
-            background-color: rgba(58, 163, 255, 0.1);
-            color: var(--manual-ink);
-        }
-
-        #manual-page .nav-btn.active {
-            color: var(--manual-accent);
-            border-left-color: var(--manual-accent);
-            background-color: rgba(58, 163, 255, 0.1);
-        }
-
-        #manual-page main {
-            flex: 1;
-            padding: 40px;
-            overflow-y: auto;
-            scroll-behavior: smooth;
-            background-color: var(--manual-bg);
-        }
-
-        #manual-page .tab-content {
-            display: none;
-            max-width: 800px;
-            margin: 0 auto;
-            animation: fadeIn 0.3s ease;
-        }
-
+        #manual-page .nav-btn:hover { background-color: rgba(58, 163, 255, 0.1); color: var(--manual-ink); }
+        #manual-page .nav-btn.active { color: var(--manual-accent); border-left-color: var(--manual-accent); background-color: rgba(58, 163, 255, 0.1); }
+        #manual-page main { flex: 1; padding: 40px; overflow-y: auto; scroll-behavior: smooth; background-color: var(--manual-bg); }
+        #manual-page .tab-content { display: none; max-width: 800px; margin: 0 auto; animation: fadeIn 0.3s ease; }
         #manual-page .tab-content.active { display: block; }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         #manual-page h1 { font-size: 32px; margin-bottom: 20px; color: var(--manual-ink); }
         #manual-page h2 { font-size: 22px; margin-top: 30px; margin-bottom: 15px; color: var(--manual-accent); border-bottom: 1px solid var(--manual-border); padding-bottom: 5px; }
         #manual-page p, #manual-page li { line-height: 1.6; margin-bottom: 15px; color: #a0b2c6; }
         #manual-page ul, #manual-page ol { padding-left: 20px; margin-bottom: 20px; }
         #manual-page strong { color: var(--manual-ink); }
         #manual-page code { background: var(--manual-panel); padding: 2px 6px; border-radius: 4px; font-family: monospace; color: var(--manual-warning); border: 1px solid var(--manual-border); }
-
-        #manual-page .alert {
-            background-color: rgba(245, 166, 35, 0.1);
-            border-left: 4px solid var(--manual-warning);
-            padding: 15px;
-            border-radius: 0 8px 8px 0;
-            margin: 20px 0;
-            color: #d1d9e2;
-            line-height: 1.5;
-        }
-
-        #manual-page .mockup-container {
-            margin: 30px 0;
-            text-align: center;
-        }
-
-        #manual-page .mockup-container svg {
-            max-width: 100%;
-            height: auto;
-            border-radius: 8px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            display: block;
-            margin: 0 auto;
-        }
-
-        #manual-page .mockup-caption {
-            margin-top: 10px;
-            font-size: 13px;
-            color: var(--manual-muted);
-            font-style: italic;
-        }
-
+        #manual-page .alert { background-color: rgba(245, 166, 35, 0.1); border-left: 4px solid var(--manual-warning); padding: 15px; border-radius: 0 8px 8px 0; margin: 20px 0; color: #d1d9e2; line-height: 1.5; }
+        #manual-page .mockup-container { margin: 30px 0; text-align: center; }
+        #manual-page .mockup-container svg { max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); display: block; margin: 0 auto; }
+        #manual-page .mockup-caption { margin-top: 10px; font-size: 13px; color: var(--manual-muted); font-style: italic; }
         #close-manual-mobile {
-            display: none;
-            position: fixed;
-            top: 15px;
-            right: 15px;
-            z-index: 2000;
-            background-color: var(--manual-danger);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 45px;
-            height: 45px;
-            font-size: 20px;
-            font-weight: bold;
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            display: none; position: fixed; top: 15px; right: 15px; z-index: 2000; background-color: var(--manual-danger);
+            color: white; border: none; border-radius: 50%; width: 45px; height: 45px; font-size: 20px; font-weight: bold;
+            cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.5);
         }
-
         @media (max-width: 768px) {
             #manual-page { flex-direction: column; }
             #manual-page nav { width: 100%; height: auto; flex-direction: row; overflow-x: auto; padding: 10px; border-bottom: 1px solid var(--manual-border); border-right: none; }
@@ -491,6 +391,12 @@
     </div>
 
     <div id="dashboard-page" class="hidden">
+
+        <!-- DEBUG CONSOLE VISIBILE - RIMUOVERE DOPO AVER RISOLTO -->
+        <div id="debug-console" style="background: #000; color: #0f0; padding: 15px; font-family: monospace; font-size: 11px; border-radius: 10px; margin-bottom: 15px; max-height: 200px; overflow-y: auto; border: 1px solid #333; white-space: pre-wrap; word-break: break-all;">
+            <b>📡 Diagnostica Caricamento Dati:</b>
+        </div>
+        <!-- FINE DEBUG CONSOLE -->
 
         <header>
             <div class="app-title">BILANCIA ARNIA 3.2</div>
@@ -601,7 +507,6 @@
             <section id="intro" class="tab-content active">
                 <h1>1. Accesso al Sistema</h1>
                 <p>Il sistema opera in due modalità: <strong>Operazione Normale</strong> (dove rileva i dati e va in risparmio energetico) e <strong>Manutenzione</strong> (dove attiva una rete Wi-Fi locale per permetterti di calibrare e configurare l'arnia direttamente dal tuo smartphone).</p>
-
                 <h2>Attivare la Modalità Manutenzione</h2>
                 <ol>
                     <li>Premi e <strong>tieni premuto</strong> il pulsante fisico per più di 2 secondi.</li>
@@ -609,86 +514,29 @@
                     <li>Per configurare il sistema dal tuo smartphone, collegati alla rete Wi-Fi chiamata <strong>Bilancia_XXXXXXXX</strong>.</li>
                     <li><em>Per uscire dalla manutenzione:</em> tieni premuto nuovamente il pulsante finché il LED non <strong>si spegne</strong>. Da quel momento la bilancia è attiva e l'arnia non va più toccata.</li>
                 </ol>
-
                 <h2>Effettuare il Login</h2>
                 <p>Apri il browser (Chrome, Safari, ecc.) e digita nella barra degli indirizzi: <code>192.168.4.1</code></p>
                 <ul>
                     <li>Inserisci la tua <strong>Password Utente</strong> fornita in dotazione (es. <code>USER</code>). Questa ti darà accesso al pannello di controllo per calibrare le bilance, attivare il peso costante e gestire la rete.</li>
                 </ul>
-
-                <div class="mockup-container">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" style="background:#0b0f14;">
-                        <rect x="50" y="40" width="300" height="220" rx="16" fill="#151c25" stroke="#1e2a36" stroke-width="1"/>
-                        <text x="200" y="90" fill="#e7eef7" font-family="sans-serif" font-size="20" font-weight="bold" text-anchor="middle">🐝 Accesso Arnia</text>
-                        <rect x="80" y="120" width="240" height="40" rx="8" fill="#0b0f14" stroke="#1e2a36" stroke-width="1"/>
-                        <text x="95" y="145" fill="#7a8b9c" font-family="sans-serif" font-size="14">Password</text>
-                        <rect x="80" y="180" width="240" height="40" rx="8" fill="#3aa3ff"/>
-                        <text x="200" y="206" fill="#ffffff" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="middle">ENTRA</text>
-                    </svg>
-                    <div class="mockup-caption">Schermata di Login del sistema Arnia IoT (v1.9.2)</div>
-                </div>
             </section>
 
             <section id="dashboard_manual" class="tab-content">
                 <h1>2. La Dashboard Principale</h1>
                 <p>Appena effettuato l'accesso, la barra superiore ti offre una panoramica istantanea dello stato dell'arnia e dei parametri vitali ambientali.</p>
-
                 <ul>
                     <li><strong>🔋 Batteria:</strong> Mostra il voltaggio attuale della batteria al litio.</li>
                     <li><strong>🌡️ Nido 1 / Nido 2:</strong> Temperature lette dalle sonde interne posizionate tra i telaini.</li>
                     <li><strong>🌤️ Esterna / 💧 Umidità:</strong> Clima ambientale esterno.</li>
                     <li><strong>⏳ Timer:</strong> Conto alla rovescia di sicurezza. Scaduto il tempo, il Wi-Fi si spegne automaticamente per non consumare la batteria.</li>
                 </ul>
-
-                <div class="mockup-container">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 120" style="background:#151c25; border:1px solid #1e2a36;">
-                        <text x="15" y="30" fill="#e7eef7" font-family="sans-serif" font-size="18" font-weight="bold">🐝 Bilancia_A1B2C3</text>
-                        <text x="550" y="30" fill="#7a8b9c" font-family="sans-serif" font-size="12">v1.9.2</text>
-
-                        <g transform="translate(15, 50)">
-                            <rect x="0" y="0" width="85" height="45" rx="8" fill="#0b0f14"/>
-                            <text x="42.5" y="20" fill="#7a8b9c" font-family="sans-serif" font-size="11" text-anchor="middle">🔋 Batteria</text>
-                            <text x="42.5" y="38" fill="#e7eef7" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="middle">4.10V</text>
-                        </g>
-                        <g transform="translate(110, 50)">
-                            <rect x="0" y="0" width="85" height="45" rx="8" fill="#0b0f14"/>
-                            <text x="42.5" y="20" fill="#7a8b9c" font-family="sans-serif" font-size="11" text-anchor="middle">🌡️ Nido 1</text>
-                            <text x="42.5" y="38" fill="#e7eef7" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="middle">34.5°C</text>
-                        </g>
-                        <g transform="translate(205, 50)">
-                            <rect x="0" y="0" width="85" height="45" rx="8" fill="#0b0f14"/>
-                            <text x="42.5" y="20" fill="#7a8b9c" font-family="sans-serif" font-size="11" text-anchor="middle">🌡️ Nido 2</text>
-                            <text x="42.5" y="38" fill="#e7eef7" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="middle">34.2°C</text>
-                        </g>
-                        <g transform="translate(300, 50)">
-                            <rect x="0" y="0" width="85" height="45" rx="8" fill="#0b0f14"/>
-                            <text x="42.5" y="20" fill="#7a8b9c" font-family="sans-serif" font-size="11" text-anchor="middle">🌤️ Esterna</text>
-                            <text x="42.5" y="38" fill="#e7eef7" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="middle">28.1°C</text>
-                        </g>
-                        <g transform="translate(395, 50)">
-                            <rect x="0" y="0" width="85" height="45" rx="8" fill="#0b0f14"/>
-                            <text x="42.5" y="20" fill="#7a8b9c" font-family="sans-serif" font-size="11" text-anchor="middle">💧 Umidità</text>
-                            <text x="42.5" y="38" fill="#e7eef7" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="middle">55%</text>
-                        </g>
-                        <g transform="translate(490, 50)">
-                            <rect x="0" y="0" width="85" height="45" rx="8" fill="#0b0f14"/>
-                            <text x="42.5" y="20" fill="#7a8b9c" font-family="sans-serif" font-size="11" text-anchor="middle">⏳ Timer</text>
-                            <text x="42.5" y="38" fill="#e7eef7" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="middle">04:30</text>
-                        </g>
-                        <rect x="0" y="114" width="600" height="6" fill="#1e2a36"/>
-                        <rect x="0" y="114" width="120" height="6" fill="#3aa3ff"/>
-                    </svg>
-                    <div class="mockup-caption">Barra superiore con letture in tempo reale e timer di sicurezza</div>
-                </div>
             </section>
 
             <section id="bilance" class="tab-content">
                 <h1>3. Gestione Bilance e Pesi</h1>
                 <p>Il sistema gestisce fino a due bilance indipendentemente. Per ognuna puoi fare diverse operazioni in base alle tue esigenze (es. avvio stagione, ricalibrazione, taratura fine).</p>
-
                 <h2>Eseguire la Tara</h2>
                 <p>La tara imposta lo "zero" logico della bilancia, ignorando tutto il peso fisico attualmente presente sull'arnia. Usa il tasto giallo <strong>⚡ ESEGUI TARA</strong> solo a bilancia completamente vuota o se desideri che la situazione attuale diventi il tuo punto di partenza (0 kg).</p>
-
                 <h2>Calibrazione con Peso Noto</h2>
                 <ol>
                     <li>Assicurati di aver fatto prima la Tara.</li>
@@ -696,51 +544,16 @@
                     <li>Inserisci <code>5.000</code> nel campo apposito e clicca <strong>CALIBRA</strong>.</li>
                     <li>Il sistema si aggiusterà automaticamente.</li>
                 </ol>
-
                 <h2>Correzione Manuale</h2>
                 <p>Se la bilancia segna 10.2 kg ma una verifica esterna ti conferma che sono 10.0 kg esatti, puoi inserire <code>-0.2</code> nel campo "Correzione Peso" e premere <strong>APPLICA</strong>.</p>
-
-                <div class="mockup-container">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 420" style="background:#151c25; border:1px solid #1e2a36;">
-                        <text x="20" y="30" fill="#7a8b9c" font-family="sans-serif" font-size="15" letter-spacing="1">BILANCIA 1</text>
-                        <line x1="20" y1="40" x2="380" y2="40" stroke="#1e2a36" stroke-width="1"/>
-
-                        <text x="200" y="90" fill="#3aa3ff" font-family="sans-serif" font-size="38" font-weight="800" text-anchor="middle">45.230 kg</text>
-
-                        <text x="200" y="120" fill="#7a8b9c" font-family="sans-serif" font-size="12" text-anchor="middle">Off: <tspan fill="#e7eef7">82553</tspan>   Fatt: <tspan fill="#e7eef7">29293.96</tspan>   Adj: <tspan fill="#e7eef7">0.000</tspan></text>
-
-                        <rect x="20" y="140" width="360" height="40" rx="8" fill="transparent" stroke="#f5a623" stroke-width="2"/>
-                        <text x="200" y="165" fill="#f5a623" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="middle">⚡ ESEGUI TARA</text>
-
-                        <text x="20" y="210" fill="#7a8b9c" font-family="sans-serif" font-size="12" font-weight="bold">Calibrazione con peso noto in Kg</text>
-                        <rect x="20" y="220" width="250" height="40" rx="8" fill="#0b0f14" stroke="#1e2a36" stroke-width="1"/>
-                        <text x="35" y="245" fill="#7a8b9c" font-family="sans-serif" font-size="14">(es. 5.000)</text>
-                        <rect x="280" y="220" width="100" height="40" rx="8" fill="#3aa3ff"/>
-                        <text x="330" y="245" fill="#ffffff" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="middle">CALIBRA</text>
-
-                        <text x="20" y="290" fill="#7a8b9c" font-family="sans-serif" font-size="12" font-weight="bold">Correzione Peso (+ o - kg)</text>
-                        <rect x="20" y="300" width="180" height="40" rx="8" fill="#0b0f14" stroke="#1e2a36" stroke-width="1"/>
-                        <text x="35" y="325" fill="#7a8b9c" font-family="sans-serif" font-size="14">Es. +0.5 o -0.2</text>
-                        <rect x="210" y="300" width="80" height="40" rx="8" fill="#3aa3ff"/>
-                        <text x="250" y="325" fill="#ffffff" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="middle">APPLICA</text>
-                        <rect x="300" y="300" width="80" height="40" rx="8" fill="transparent" stroke="#ff5470" stroke-width="1"/>
-                        <text x="340" y="325" fill="#ff5470" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="middle">🗑️ RESET</text>
-
-                        <rect x="20" y="360" width="360" height="35" rx="8" fill="transparent" stroke="#17c964" stroke-width="1" stroke-dasharray="4"/>
-                        <text x="200" y="382" fill="#17c964" font-family="sans-serif" font-size="12" font-weight="bold" text-anchor="middle">⚖️ Peso Costante ATTIVO</text>
-                    </svg>
-                    <div class="mockup-caption">Pannello di controllo della Bilancia 1 con funzioni di Tara e Calibrazione</div>
-                </div>
             </section>
 
             <section id="pesocostante" class="tab-content">
                 <h1>4. Modalità Peso Costante (Gestione Melari)</h1>
                 <p>Questa è la funzione più avanzata del sistema. Serve a evitare che l'andamento del monitoraggio del peso venga sfalsato quando si compiono operazioni manuali di apicoltura (es. posa del melario, nutritore a depressione, apiscampo).</p>
-
                 <div class="alert">
                     <strong>💡 Il concetto base:</strong> Quando la modalità è attiva, ogni variazione fisica di peso effettuata <em>mentre il sistema è in Manutenzione (LED acceso)</em> viene matematicamente isolata e compensata nei calcoli finali. I dati registrati dal sistema rimarranno perfettamente stabili senza picchi anomali.
                 </div>
-
                 <ol>
                     <li><em>Operazione preliminare:</em> verifica dal Wi-Fi che l'interruttore <strong>⚖️ Peso Costante (Melari)</strong> sia verde (ATTIVO) nelle Impostazioni. (Questa operazione va fatta solo una volta).</li>
                     <li>Quando sei in apiario, <strong>non serve collegarsi al Wi-Fi o usare il telefono</strong>. Premi e tieni premuto il pulsante fisico sull'arnia.</li>
@@ -748,34 +561,20 @@
                     <li>Al termine di tutti i lavori, chiudi il tetto e tieni premuto di nuovo il pulsante finché il <strong>LED non si spegne</strong>.</li>
                     <li>Da questo momento allontanati e non toccare più l'arnia. Il sistema calcolerà il "peso morto" e lo assorbirà in totale autonomia!</li>
                 </ol>
-
-                <div class="mockup-container">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 70" style="background:#0b0f14; padding:12px;">
-                        <text x="15" y="25" fill="#e7eef7" font-family="sans-serif" font-size="14" font-weight="bold">⚖️ Peso Costante (Melari)</text>
-                        <text x="15" y="45" fill="#7a8b9c" font-family="sans-serif" font-size="11">Compensa peso aggiunto/tolto</text>
-                        <rect x="320" y="15" width="44" height="24" rx="12" fill="#17c964"/>
-                        <circle cx="350" cy="27" r="9" fill="#ffffff"/>
-                    </svg>
-                    <div class="mockup-caption">Interruttore di attivazione Modalità Peso Costante</div>
-                </div>
             </section>
 
             <section id="rete" class="tab-content">
                 <h1>5. Rete e Procedure di Trasloco</h1>
-
                 <h2>Cambiare la Rete Wi-Fi</h2>
                 <p>Se trasferisci le arnie in una postazione con un router differente o cambi il tuo hotspot: accedi al pannello, clicca su <strong>🔍 SCANSIONE RETI</strong>, scegli la nuova rete nell'elenco a comparsa, scrivi la password e premi SALVA.</p>
-
                 <h2>Gestione dei Tempi e Sleep</h2>
                 <ul>
                     <li><strong>Invio Normale (min):</strong> L'intervallo standard di risveglio della bilancia (es. <code>30</code> minuti).</li>
                     <li><strong>Soglia Critica (V):</strong> Il limite di tensione della batteria (es. <code>3.60V</code>) sotto il quale il sistema entra in risparmio massimo.</li>
                     <li><strong>Invio Emerg. (min):</strong> Se la tensione scende sotto la soglia critica, l'intervallo si allunga automaticamente a questo valore (es. <code>120</code> minuti) per risparmiare energia.</li>
                 </ul>
-
                 <h2 style="margin-top: 40px;">🚚 Procedura di Trasloco (Nomadismo)</h2>
                 <p>Se devi spostare l'arnia per il nomadismo, la bilancia possiede una speciale intelligenza artificiale per non sballare i tuoi dati storici, anche se cambi il bancale d'appoggio! Segui questi passaggi:</p>
-
                 <div class="alert" style="background-color: rgba(58, 163, 255, 0.1); border-color: var(--manual-accent);">
                     <strong>Fase 1: Partenza dall'apiario</strong><br><br>
                     1. Tieni premuto il pulsante fisico per entrare in manutenzione (<strong>LED acceso</strong>).<br>
@@ -783,9 +582,7 @@
                     3. Tieni premuto il pulsante fisico per uscire (<strong>LED spento</strong>).<br>
                     <em>Nota: In questo momento l'arnia fa una "fotografia" del peso esatto prima di partire e va in coma profondo per 8 ore, risparmiando batteria durante il viaggio.</em>
                 </div>
-
                 <p>Fai il tuo viaggio, sposta l'arnia, mettici le cinghie, cambia i bancali... non preoccuparti, la bilancia sta dormendo.</p>
-
                 <div class="alert" style="background-color: rgba(23, 201, 100, 0.1); border-color: var(--manual-success);">
                     <strong>Fase 2: Arrivo e Riattivazione</strong><br><br>
                     1. Posiziona la bilancia e mettici sopra l'arnia nella sua forma definitiva.<br>
@@ -796,22 +593,11 @@
                     6. Tieni premuto il pulsante per uscire dalla manutenzione (<strong>LED spento</strong>).<br>
                     <em>Finito! Il sistema calcolerà le differenze in autonomia, riprendendo le misurazioni esattamente da dove le aveva interrotte alla partenza.</em>
                 </div>
-
-                <div class="mockup-container">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 70" style="background:#0b0f14; padding:12px;">
-                        <text x="15" y="25" fill="#e7eef7" font-family="sans-serif" font-size="14" font-weight="bold">🚚 Modalità Standby</text>
-                        <text x="15" y="45" fill="#7a8b9c" font-family="sans-serif" font-size="11">Disattiva letture per il trasporto</text>
-                        <rect x="320" y="15" width="44" height="24" rx="12" fill="#17c964"/>
-                        <circle cx="350" cy="27" r="9" fill="#ffffff"/>
-                    </svg>
-                    <div class="mockup-caption">Interruttore di attivazione Modalità Trasporto</div>
-                </div>
             </section>
 
             <section id="ota" class="tab-content">
                 <h1>6. Aggiornamenti Firmware (OTA)</h1>
                 <p>Il sistema supporta gli aggiornamenti in modalità wireless ("Over The Air"). Per applicare una nuova release del software fornita dal produttore:</p>
-
                 <ol>
                     <li>Assicurati di aver effettuato l'accesso al sistema.</li>
                     <li>Scorri in fondo alla pagina principale e clicca sul bottone verde <strong>⬆ AGGIORNA</strong>.</li>
@@ -819,22 +605,6 @@
                     <li>Premi <strong>AVVIA AGGIORNAMENTO</strong>.</li>
                     <li>Attendi senza chiudere la pagina. La barra indicherà il progresso e, a operazione conclusa, l'arnia si riavvierà da sola con la nuova versione installata.</li>
                 </ol>
-
-                <div class="mockup-container">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 250" style="background:#0b0f14;">
-                        <text x="200" y="40" fill="#e7eef7" font-family="sans-serif" font-size="20" font-weight="bold" text-anchor="middle">⬆ Aggiornamento Firmware</text>
-
-                        <rect x="20" y="60" width="360" height="40" rx="5" fill="#ffaa00"/>
-                        <text x="200" y="85" fill="#000000" font-family="sans-serif" font-size="12" font-weight="bold" text-anchor="middle">⚠️ Se il file non si seleziona, apri Chrome...</text>
-
-                        <rect x="20" y="120" width="360" height="60" rx="10" fill="transparent" stroke="#3aa3ff" stroke-width="2" stroke-dasharray="6"/>
-                        <text x="200" y="155" fill="#7a8b9c" font-family="sans-serif" font-size="14" text-anchor="middle">Scegli file... nessun file selezionato</text>
-
-                        <rect x="20" y="200" width="360" height="40" rx="5" fill="#3aa3ff"/>
-                        <text x="200" y="225" fill="#ffffff" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="middle">AVVIA AGGIORNAMENTO</text>
-                    </svg>
-                    <div class="mockup-caption">Schermata per l'installazione dei file di aggiornamento</div>
-                </div>
             </section>
         </main>
     </div>
@@ -857,9 +627,7 @@
         let scriptUrl = 'https://script.google.com/macros/s/AKfycbzZpoRaUdx6iJl-8_0REesbgodL8hqUV-QgwCBEaXC0gNTEwORhErbdYX27ZdJUbVJ2/exec';
         const SECRET_KEY = "alluser";
 
-        // Link scriptUrl aggiornato
         const DYNAMIC_URL_SHEET = "https://docs.google.com/spreadsheets/d/1v2QYh6ZYvMKCxBI0mt7nHSS2btbmDRtP018k8Yj0Lfg/export?format=csv&gid=1773702506&range=B1";
-
         const CONFIG_SHEET_URL = "";
 
         // ============================================================
@@ -881,6 +649,18 @@
         const modal = document.getElementById('customRangeModal');
 
         // ============================================================
+        // FUNZIONE DI DIAGNOSTICA A SCHERMO
+        // ============================================================
+        function debugLog(msg) {
+            console.log(msg);
+            const debugDiv = document.getElementById('debug-console');
+            if(debugDiv) {
+                debugDiv.innerHTML += `<div>${msg}</div>`;
+                debugDiv.scrollTop = debugDiv.scrollHeight;
+            }
+        }
+
+        // ============================================================
         // AVVIO DELLA PAGINA
         // ============================================================
         window.onload = async function() {
@@ -891,29 +671,21 @@
             checkIosInstall();
         };
 
-        // Aggiorna la scriptUrl in base al Google Sheet in tempo reale
         async function syncDynamicUrl() {
             try {
                 const res = await fetch(DYNAMIC_URL_SHEET);
                 if (!res.ok) throw new Error("Risposta network non ok");
-
                 const text = await res.text();
                 const fetchedUrl = text.trim();
-
                 if (fetchedUrl.startsWith('http')) {
                     scriptUrl = fetchedUrl;
-                    console.log("🌐 URL dell'App Script aggiornato dal Foglio Google!");
-                } else {
-                    console.warn("La cella B1 non contiene un URL valido.");
+                    debugLog("🌐 URL Script aggiornato.");
                 }
             } catch(e) {
-                console.warn("⚠️ Impossibile raggiungere il foglio, uso l'URL locale.", e);
+                debugLog("⚠️ URL Script non aggiornato, uso default.");
             }
         }
 
-        // ============================================================
-        // FUNZIONI AGGIUNTIVE (iOS Banner e Config Remota)
-        // ============================================================
         function checkIosInstall() {
             const isIos = /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
             const isInStandaloneMode = ('standalone' in window.navigator) && window.navigator.standalone;
@@ -953,18 +725,10 @@
             return new Promise((resolve, reject) => {
                 try {
                     const request = indexedDB.open(DB_NAME, 1);
-                    request.onupgradeneeded = event => {
-                        event.target.result.createObjectStore(STORE_NAME);
-                    };
+                    request.onupgradeneeded = event => { event.target.result.createObjectStore(STORE_NAME); };
                     request.onsuccess = event => resolve(event.target.result);
-                    request.onerror = event => {
-                        isDbAvailable = false;
-                        reject(event.target.error);
-                    };
-                } catch(e) {
-                    isDbAvailable = false;
-                    reject(e);
-                }
+                    request.onerror = event => { isDbAvailable = false; reject(event.target.error); };
+                } catch(e) { isDbAvailable = false; reject(e); }
             });
         }
 
@@ -1051,19 +815,11 @@
         // ============================================================
         // MENU GUIDA
         // ============================================================
-        function showManual() {
-            dashboardPage.classList.add('hidden');
-            manualPage.classList.remove('hidden');
-        }
-        function hideManual() {
-            manualPage.classList.add('hidden');
-            dashboardPage.classList.remove('hidden');
-        }
+        function showManual() { dashboardPage.classList.add('hidden'); manualPage.classList.remove('hidden'); }
+        function hideManual() { manualPage.classList.add('hidden'); dashboardPage.classList.remove('hidden'); }
         function openManualTab(evt, tabName) {
-            const tabcontent = document.querySelectorAll('#manual-page .tab-content');
-            tabcontent.forEach(tab => tab.classList.remove('active'));
-            const navbtns = document.querySelectorAll('#manual-page .nav-btn');
-            navbtns.forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('#manual-page .tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('#manual-page .nav-btn').forEach(btn => btn.classList.remove('active'));
             document.getElementById(tabName).classList.add('active');
             evt.currentTarget.classList.add('active');
         }
@@ -1087,10 +843,7 @@
             doLoginProcess(email);
         }
 
-        function logout() {
-            try { localStorage.removeItem('userEmail'); } catch(e) {}
-            location.reload();
-        }
+        function logout() { try { localStorage.removeItem('userEmail'); } catch(e) {} location.reload(); }
 
         async function doLoginProcess(email) {
             showLoader(true, "Accesso in corso...");
@@ -1115,14 +868,10 @@
                 populateDeviceSelector(json.data);
 
                 const badge = document.getElementById('accountBadge');
-                if (isMaster) {
-                    badge.innerText = "MASTER KEY";
-                    badge.className = "badge master";
-                } else {
-                    badge.innerText = "FREE";
-                    badge.className = "badge";
-                }
+                if (isMaster) { badge.innerText = "MASTER KEY"; badge.className = "badge master"; }
+                else { badge.innerText = "FREE"; badge.className = "badge"; }
 
+                // RENDO LA DASHBOARD VISIBILE PRIMA DI CARICARE I DATI E DISEGNARE I GRAFICI
                 loginPage.classList.add('hidden');
                 dashboardPage.classList.remove('hidden');
 
@@ -1151,20 +900,12 @@
         function populateDeviceSelector(devices) {
             const sel = document.getElementById('deviceSelector');
             sel.innerHTML = '';
-
             devices.forEach(d => {
                 const opt = document.createElement('option');
                 const deviceId = d.id || d;
                 const deviceEmail = d.email || '';
-
                 opt.value = deviceId;
-
-                if (deviceEmail) {
-                    opt.textContent = `${deviceId} - ${deviceEmail}`;
-                } else {
-                    opt.textContent = `${deviceId}`;
-                }
-
+                opt.textContent = deviceEmail ? `${deviceId} - ${deviceEmail}` : `${deviceId}`;
                 sel.appendChild(opt);
             });
         }
@@ -1175,22 +916,21 @@
         }
 
         // ============================================================
-        // CARICAMENTO DATI
+        // CARICAMENTO DATI (CON PARSING ROBUSTO)
         // ============================================================
         async function loadDeviceData(chipId) {
             showLoader(true, "Verifica database locale...");
+            const debugDiv = document.getElementById('debug-console');
+            if(debugDiv) debugDiv.innerHTML = '<b>--- Nuovo Caricamento ---</b>';
+            
             try {
                 fetch(`${scriptUrl}?action=getDeviceConfig&chipId=${chipId}`)
                     .then(r => r.json())
                     .then(d => {
                         const isMaster = document.getElementById('accountBadge').classList.contains('master');
                         const ownerBadge = document.getElementById('ownerBadge');
-                        if (isMaster && d.data?.email) {
-                            ownerBadge.innerText = d.data.email;
-                            ownerBadge.style.display = 'inline-block';
-                        } else {
-                            ownerBadge.style.display = 'none';
-                        }
+                        if (isMaster && d.data?.email) { ownerBadge.innerText = d.data.email; ownerBadge.style.display = 'inline-block'; }
+                        else { ownerBadge.style.display = 'none'; }
                         if (!isMaster) {
                             const type = d.data?.tipologia || 'Standard';
                             const badge = document.getElementById('accountBadge');
@@ -1206,18 +946,27 @@
                     localData.sort((a, b) => a.x - b.x);
                     lastTs = localData[localData.length - 1].x;
                     showLoader(true, "Sincronizzazione nuovi dati...");
+                    debugLog(`Dati locali trovati: ${localData.length}. Ultimo TS: ${lastTs}`);
                 } else {
-                    showLoader(true, "Scaricamento dati completi (solo la prima volta)...");
+                    showLoader(true, "Scaricamento dati completi...");
+                    debugLog("Nessun dato locale. Scaricamento completo...");
                 }
 
                 const res = await fetch(`${scriptUrl}?action=getDeviceHistory&chipId=${chipId}&after=${lastTs}`);
                 const json = await res.json();
+                
                 if (json.status === 'error') throw new Error(json.message);
 
                 if (json.data && json.data.length > 0) {
+                    debugLog(`Ricevuti ${json.data.length} nuovi record dal server.`);
+                    debugLog(`Primo record JSON: <code>${JSON.stringify(json.data[0]).substring(0, 200)}...</code>`);
+
                     const newData = json.data.map(row => {
                         const ts = row.Timestamp ? new Date(row.Timestamp).getTime() : null;
-                        if (!ts) return null;
+                        
+                        // CONTROLLO CRITICO: Se il browser non riesce a parsare la data, ts è NaN
+                        if (!ts || isNaN(ts)) return null; 
+                        
                         return {
                             x: ts,
                             peso1: parseFloat(row['Peso 1']) || 0,
@@ -1235,7 +984,9 @@
                     }).filter(d => d !== null);
 
                     localData = localData.concat(newData);
-                    console.log(`✅ ${newData.length} nuovi dati scaricati e uniti.`);
+                    debugLog(`Parsati con successo: ${newData.length} record. (Scartati: ${json.data.length - newData.length})`);
+                } else {
+                    debugLog("Nessun nuovo dato dal server.");
                 }
 
                 const uniqueMap = new Map();
@@ -1248,15 +999,19 @@
                 }
 
                 allData = localData;
-                console.log(`📊 Totale punti dati disponibili in allData: ${allData.length}`);
+                debugLog(`Totale allData: ${allData.length} punti.`);
 
                 updateStatsCards();
                 updateLogs();
-                renderCharts();
+                
+                // RITARDO ARTIFICIALE PER RENDERING: Il div era nascosto, il browser ha bisogno di un istante per calcolare la larghezza dei canvas
+                setTimeout(() => {
+                    renderCharts();
+                }, 250);
 
             } catch (e) {
+                debugLog(`❌ ERRORE: ${e.message}`);
                 alert("Errore caricamento dati: " + e.message);
-                console.error("❌ Errore loadDeviceData:", e);
             } finally {
                 showLoader(false);
             }
@@ -1274,35 +1029,22 @@
 
             const lastWithFw = [...allData].reverse().find(d => d.firmware && d.firmware !== "");
             const fwBadge = document.getElementById('fwBadge');
-            if (lastWithFw) {
-                fwBadge.innerText = 'FW: ' + lastWithFw.firmware;
-                fwBadge.style.display = 'inline-block';
-            } else {
-                fwBadge.style.display = 'none';
-            }
+            if (lastWithFw) { fwBadge.innerText = 'FW: ' + lastWithFw.firmware; fwBadge.style.display = 'inline-block'; }
+            else { fwBadge.style.display = 'none'; }
 
             const findAgo = (ms, key) => {
                 const target = last.x - ms;
                 let closestIndex = -1;
                 for (let i = allData.length - 1; i >= 0; i--) {
-                    if (allData[i].x <= target) {
-                        closestIndex = i;
-                        break;
-                    }
+                    if (allData[i].x <= target) { closestIndex = i; break; }
                 }
                 if (closestIndex === -1) return allData.length > 0 ? allData[0][key] : null;
                 return allData[closestIndex][key];
             };
 
             const lastMaintPoint = [...allData].reverse().find(d => d.maintInizio !== null && d.maintInizio !== "");
-
-            let weightAtMaint1 = null;
-            let weightAtMaint2 = null;
-
-            if (lastMaintPoint) {
-                weightAtMaint1 = lastMaintPoint.peso1;
-                weightAtMaint2 = lastMaintPoint.peso2;
-            }
+            let weightAtMaint1 = null, weightAtMaint2 = null;
+            if (lastMaintPoint) { weightAtMaint1 = lastMaintPoint.peso1; weightAtMaint2 = lastMaintPoint.peso2; }
 
             const day = 86400000;
 
@@ -1318,7 +1060,7 @@
 
         function updateDelta(id, curr, old) {
             const el = document.getElementById(id);
-            if (old === null) { el.innerText="N/A"; el.className="val-neutral"; return; }
+            if (old === null || isNaN(curr) || isNaN(old)) { el.innerText="N/A"; el.className="val-neutral"; return; }
             const diff = curr - old;
             const sign = diff > 0 ? "+" : "";
             el.innerText = `${sign}${diff.toFixed(2)} Kg`;
@@ -1338,35 +1080,25 @@
         }
 
         // ============================================================
-        // GRAFICI (CHART.JS) - DEBUGGED
+        // GRAFICI (CHART.JS)
         // ============================================================
         function generateHtmlLegend(chart, containerId) {
             const container = document.getElementById(containerId);
             container.innerHTML = '';
-
             const items = chart.data.datasets.map((ds, i) => {
                 const el = document.createElement('div');
                 const isHidden = !chart.isDatasetVisible(i);
                 el.className = `legend-item ${isHidden ? 'hidden-dataset' : ''}`;
-
                 const colorBox = document.createElement('span');
                 colorBox.className = 'legend-color-box';
                 colorBox.style.backgroundColor = ds.borderColor;
-
                 const text = document.createTextNode(ds.label);
-
                 el.appendChild(colorBox);
                 el.appendChild(text);
-
                 el.onclick = () => {
                     const isNowVisible = chart.isDatasetVisible(i);
-                    if (isNowVisible) {
-                        chart.hide(i);
-                        el.classList.add('hidden-dataset');
-                    } else {
-                        chart.show(i);
-                        el.classList.remove('hidden-dataset');
-                    }
+                    if (isNowVisible) { chart.hide(i); el.classList.add('hidden-dataset'); }
+                    else { chart.show(i); el.classList.remove('hidden-dataset'); }
                 };
                 return el;
             });
@@ -1375,7 +1107,7 @@
 
         function renderCharts() {
             if (allData.length === 0) {
-                console.warn("⚠️ renderCharts bloccato: allData è vuoto.");
+                debugLog("⚠️ renderCharts bloccato: allData vuoto.");
                 return;
             }
             
@@ -1391,10 +1123,10 @@
                 }
 
                 const subset = allData.filter(d => d.x >= minTime && d.x <= maxTime);
-                console.log(`📈 Subset da disegnare: ${subset.length} punti. Range: ${new Date(minTime).toLocaleString()} -> ${new Date(maxTime).toLocaleString()}`);
+                debugLog(`Disegno subset: ${subset.length} punti.`);
 
                 if(subset.length === 0) {
-                    console.warn("⚠️ Nessun dato nel range selezionato.");
+                    debugLog("⚠️ Nessun dato nel range selezionato.");
                     return;
                 }
 
@@ -1409,17 +1141,7 @@
                     animation: false, 
                     spanGaps: true,
                     scales: {
-                        x: { 
-                            type: 'time', 
-                            time: { 
-                                displayFormats: { hour: 'HH:mm', day: 'dd/MM' }, 
-                                tooltipFormat: 'dd/MM HH:mm' 
-                            }, 
-                            grid: { color: '#3a3a3c' }, 
-                            ticks: { color: '#aeaeb2', maxRotation: 0, autoSkip: true, font: {size: 11} }, 
-                            min: minTime, 
-                            max: maxTime 
-                        },
+                        x: { type: 'time', time: { displayFormats: { hour: 'HH:mm', day: 'dd/MM' }, tooltipFormat: 'dd/MM HH:mm' }, grid: { color: '#3a3a3c' }, ticks: { color: '#aeaeb2', maxRotation: 0, autoSkip: true, font: {size: 11} }, min: minTime, max: maxTime },
                         y: { grid: { color: '#3a3a3c' }, ticks: { color: '#aeaeb2', font: {size: 11} }, position: 'left' }
                     },
                     plugins: {
@@ -1456,7 +1178,7 @@
                     }
                 });
                 generateHtmlLegend(charts.peso, 'legendPeso');
-                console.log("✅ Grafico Peso creato con successo.");
+                debugLog("✅ Grafico Peso creato.");
 
                 // CHART MULTI
                 const ctxMulti = document.getElementById('chartMulti').getContext('2d');
@@ -1488,10 +1210,11 @@
                     }
                 });
                 generateHtmlLegend(charts.multi, 'legendMulti');
-                console.log("✅ Grafico Multi creato con successo.");
+                debugLog("✅ Grafico Multi creato.");
                 
             } catch(e) {
-                console.error("❌ Errore fatale durante renderCharts:", e);
+                debugLog(`❌ Errore fatale renderCharts: ${e.message}`);
+                console.error(e);
             }
         }
 

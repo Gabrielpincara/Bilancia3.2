@@ -9,7 +9,6 @@
     <meta name="theme-color" content="#1c1c1e">
 
     <meta name="mobile-web-app-capable" content="yes">
-
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
@@ -17,7 +16,6 @@
 
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 
-    <!-- Librerie Chart.js e Adapter DATE-FNS (VERSIONE BUNDLE AUTOCONTENUTA) -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8/hammer.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
@@ -392,12 +390,9 @@
 
     <div id="dashboard-page" class="hidden">
 
-        <!-- DEBUG CONSOLE VISIBILE - RIMUOVERE DOPO AVER RISOLTO -->
         <div id="debug-console" style="background: #000; color: #0f0; padding: 15px; font-family: monospace; font-size: 11px; border-radius: 10px; margin-bottom: 15px; max-height: 200px; overflow-y: auto; border: 1px solid #333; white-space: pre-wrap; word-break: break-all;">
             <b>📡 Diagnostica Caricamento Dati:</b>
         </div>
-        <!-- FINE DEBUG CONSOLE -->
-
         <header>
             <div class="app-title">BILANCIA ARNIA 3.2</div>
             <div class="header-controls">
@@ -871,7 +866,6 @@
                 if (isMaster) { badge.innerText = "MASTER KEY"; badge.className = "badge master"; }
                 else { badge.innerText = "FREE"; badge.className = "badge"; }
 
-                // RENDO LA DASHBOARD VISIBILE PRIMA DI CARICARE I DATI E DISEGNARE I GRAFICI
                 loginPage.classList.add('hidden');
                 dashboardPage.classList.remove('hidden');
 
@@ -919,9 +913,9 @@
         // CARICAMENTO DATI (CON PARSING ROBUSTO)
         // ============================================================
         async function loadDeviceData(chipId) {
-            showLoader(true, "Verifica database locale...");
+            showLoader(true, "Caricamento...");
             const debugDiv = document.getElementById('debug-console');
-            if(debugDiv) debugDiv.innerHTML = '<b>--- Nuovo Caricamento ---</b>';
+            if(debugDiv) debugDiv.innerHTML = '<b>--- Diagnostica ---</b>';
             
             try {
                 fetch(`${scriptUrl}?action=getDeviceConfig&chipId=${chipId}`)
@@ -941,31 +935,34 @@
 
                 let localData = await getLocalData(chipId);
                 let lastTs = 0;
-
                 if (localData.length > 0) {
                     localData.sort((a, b) => a.x - b.x);
                     lastTs = localData[localData.length - 1].x;
-                    showLoader(true, "Sincronizzazione nuovi dati...");
-                    debugLog(`Dati locali trovati: ${localData.length}. Ultimo TS: ${lastTs}`);
-                } else {
-                    showLoader(true, "Scaricamento dati completi...");
-                    debugLog("Nessun dato locale. Scaricamento completo...");
                 }
 
+                debugLog(`Richiesta dati dopo: ${lastTs}`);
                 const res = await fetch(`${scriptUrl}?action=getDeviceHistory&chipId=${chipId}&after=${lastTs}`);
                 const json = await res.json();
                 
                 if (json.status === 'error') throw new Error(json.message);
 
                 if (json.data && json.data.length > 0) {
-                    debugLog(`Ricevuti ${json.data.length} nuovi record dal server.`);
-                    debugLog(`Primo record JSON: <code>${JSON.stringify(json.data[0]).substring(0, 200)}...</code>`);
+                    debugLog(`Server inviati: ${json.data.length} record.`);
 
                     const newData = json.data.map(row => {
-                        const ts = row.Timestamp ? new Date(row.Timestamp).getTime() : null;
+                        // PULIZIA DATA: Il tuo server invia date tipo 2026-04-04T06:56:27.000Z
+                        // Cerchiamo di parsare il timestamp in modo più sicuro
+                        let ts = null;
+                        if (row.Timestamp) {
+                            // Se è una stringa, proviamo a convertirla
+                            const d = new Date(row.Timestamp);
+                            if (!isNaN(d.getTime())) ts = d.getTime();
+                        }
                         
-                        // CONTROLLO CRITICO: Se il browser non riesce a parsare la data, ts è NaN
-                        if (!ts || isNaN(ts)) return null; 
+                        if (!ts) {
+                            debugLog(`Record scartato (Data non valida): ${row.Timestamp}`);
+                            return null;
+                        }
                         
                         return {
                             x: ts,
@@ -984,30 +981,22 @@
                     }).filter(d => d !== null);
 
                     localData = localData.concat(newData);
-                    debugLog(`Parsati con successo: ${newData.length} record. (Scartati: ${json.data.length - newData.length})`);
+                    debugLog(`Record validi trovati: ${newData.length}`);
                 } else {
                     debugLog("Nessun nuovo dato dal server.");
                 }
 
+                // Salva e ordina
                 const uniqueMap = new Map();
                 localData.forEach(item => uniqueMap.set(item.x, item));
-                localData = Array.from(uniqueMap.values());
-                localData.sort((a, b) => a.x - b.x);
-
-                if (json.data && json.data.length > 0) {
-                    await saveLocalData(chipId, localData);
-                }
-
-                allData = localData;
-                debugLog(`Totale allData: ${allData.length} punti.`);
+                allData = Array.from(uniqueMap.values()).sort((a, b) => a.x - b.x);
+                
+                await saveLocalData(chipId, allData);
+                debugLog(`Totale punti pronti: ${allData.length}`);
 
                 updateStatsCards();
                 updateLogs();
-                
-                // RITARDO ARTIFICIALE PER RENDERING: Il div era nascosto, il browser ha bisogno di un istante per calcolare la larghezza dei canvas
-                setTimeout(() => {
-                    renderCharts();
-                }, 250);
+                setTimeout(() => renderCharts(), 500);
 
             } catch (e) {
                 debugLog(`❌ ERRORE: ${e.message}`);

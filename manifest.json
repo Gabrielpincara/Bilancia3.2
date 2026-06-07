@@ -1,25 +1,43 @@
 {
-    "name": "Smart Hive Dashboard",
-    "short_name": "Arnia IoT",
-    "description": "Monitoraggio bilance arnia intelligente",
-    "start_url": "/Bilancia3.2/",
-    "scope": "/Bilancia3.2/",
-    "display": "standalone",
-    "orientation": "portrait",
-    "background_color": "#1c1c1e",
-    "theme_color": "#1c1c1e",
-    "icons": [
-        {
-            "src": "https://cdn-icons-png.flaticon.com/512/420/420526.png",
-            "sizes": "512x512",
-            "type": "image/png",
-            "purpose": "any"
-        },
-        {
-            "src": "https://cdn-icons-png.flaticon.com/512/420/420526.png",
-            "sizes": "512x512",
-            "type": "image/png",
-            "purpose": "maskable"
-        }
-    ]
+  "name": "Bilancia Arnia Control",
+  "short_name": "ArniaControl",
+  "description": "Sistema di monitoraggio e controllo per la bilancia dell'arnia",
+  "start_url": "/Bilancia3.2/index.html",
+  "scope": "/Bilancia3.2/",
+  "display": "standalone",
+  "background_color": "#121212",
+  "theme_color": "#ff9800",
+  "orientation": "portrait-primary",
+  "categories": ["utilities", "productivity"],
+  "icons": [
+    {
+      "src": "https://jsdelivr.net",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "https://placehold.co",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "https://placehold.co",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "https://placehold.co",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "https://placehold.co",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
 }

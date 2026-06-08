@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
     <title>Smart Hive Dashboard</title>
 
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1c1c1e">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -14,6 +19,19 @@
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@2.2.1/dist/chartjs-plugin-annotation.min.js"></script>
 
     <style>
+        /* --- VARIABILI COLORI --- */
+        :root {
+            --manual-bg: #0b0f14;
+            --manual-panel: #151c25;
+            --manual-ink: #e7eef7;
+            --manual-muted: #7a8b9c;
+            --manual-accent: #3aa3ff;
+            --manual-border: #1e2a36;
+            --manual-success: #17c964;
+            --manual-warning: #f5a623;
+            --manual-danger: #ff5470;
+        }
+
         * {
             box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
@@ -21,72 +39,42 @@
             user-select: none;
             -webkit-user-select: none;
         }
+
         input, select { user-select: text; -webkit-user-select: text; }
+
         body {
             margin: 0; padding: 0;
             background-color: #1c1c1e; color: #ffffff;
             padding-bottom: env(safe-area-inset-bottom); overflow-x: hidden;
         }
+
         .hidden { display: none !important; }
+        .flex { display: flex; }
 
-        #login-page {
-            height: 100vh; background: linear-gradient(135deg, #1c1c1e, #000000);
-            display: flex; flex-direction: column; justify-content: center;
-            align-items: center; padding: 20px;
-        }
-        .login-card {
-            background: #2c2c2e; padding: 30px; border-radius: 20px;
-            width: 100%; max-width: 400px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5); text-align: center;
-        }
+        /* --- SCHERMATA LOGIN --- */
+        #login-page { height: 100vh; background: linear-gradient(135deg, #1c1c1e, #000000); display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; }
+        .login-card { background: #2c2c2e; padding: 30px; border-radius: 20px; width: 100%; max-width: 400px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); text-align: center; }
         .login-card h1 { margin-bottom: 20px; color: #4a90e2; font-size: 1.8rem; }
-        .login-input {
-            width: 100%; padding: 15px; margin-bottom: 20px; border-radius: 12px;
-            border: 1px solid #48484a; background: #1c1c1e; color: white;
-            font-size: 1rem; outline: none;
-        }
+        .login-input { width: 100%; padding: 15px; margin-bottom: 20px; border-radius: 12px; border: 1px solid #48484a; background: #1c1c1e; color: white; font-size: 1rem; outline: none; }
         .login-input:focus { border-color: #4a90e2; }
-        .btn-primary {
-            background: #4a90e2; color: white; border: none; padding: 15px 30px;
-            border-radius: 12px; font-size: 1rem; font-weight: 600; cursor: pointer; width: 100%;
-        }
+        .btn-primary { background: #4a90e2; color: white; border: none; padding: 15px 30px; border-radius: 12px; font-size: 1rem; font-weight: 600; cursor: pointer; width: 100%; }
 
+        /* --- DASHBOARD PRINCIPALE --- */
         #dashboard-page { padding: 10px 10px 90px 10px; max-width: 1200px; margin: 0 auto; }
-        header {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 10px 5px; margin-bottom: 10px; flex-wrap: wrap; gap: 10px;
-        }
+        header { display: flex; justify-content: space-between; align-items: center; padding: 10px 5px; margin-bottom: 10px; flex-wrap: wrap; gap: 10px; }
         .app-title { font-size: 1.2rem; font-weight: 700; color: #f2f2f7; }
         .header-controls { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-        .badge {
-            font-size: 0.75rem; padding: 4px 8px; border-radius: 12px;
-            background: #3a3a3c; color: #aeaeb2; text-transform: uppercase; font-weight: 600;
-        }
-        #accountBadge.master {
-            background: #ff3b30; color: white;
-            box-shadow: 0 0 10px rgba(255, 59, 48, 0.5);
-        }
-        #ownerBadge {
-            background: #0a84ff; color: white; text-transform: none; display: none;
-        }
+        .badge { font-size: 0.75rem; padding: 4px 8px; border-radius: 12px; background: #3a3a3c; color: #aeaeb2; text-transform: uppercase; font-weight: 600; }
+        #accountBadge.master { background: #ff3b30; color: white; box-shadow: 0 0 10px rgba(255, 59, 48, 0.5); }
+        #ownerBadge { background: #0a84ff; color: white; text-transform: none; display: none; }
+        #fwBadge { background: #5e5ce6; color: white; display: none; }
+
         .device-selector-container { margin-bottom: 15px; }
-        select#deviceSelector {
-            width: 100%; padding: 12px; background: #2c2c2e; color: #fff;
-            border: 1px solid #3a3a3c; border-radius: 12px; font-size: 1rem; outline: none;
-            appearance: none;
-            background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23FFFFFF%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
-            background-repeat: no-repeat; background-position: right 15px top 50%; background-size: 12px auto;
-        }
-        .stats-grid-top { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 8px; }
-        @media (max-width: 480px) {
-            .stats-grid-top { grid-template-columns: repeat(2, 1fr); gap: 8px; }
-        }
-        .stats-grid-mid { display: grid; grid-template-columns: 1fr; gap: 8px; margin-bottom: 20px; }
-        .stat-card {
-            background: #2c2c2e; border-radius: 12px; padding: 12px 6px; text-align: center;
-            display: flex; flex-direction: column; justify-content: center; min-height: 80px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-        }
+        select#deviceSelector { width: 100%; padding: 12px; background: #2c2c2e; color: #fff; border: 1px solid #3a3a3c; border-radius: 12px; font-size: 1rem; outline: none; appearance: none; background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23FFFFFF%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E"); background-repeat: no-repeat; background-position: right 15px top 50%; background-size: 12px auto; }
+
+        .stats-grid-top { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+        @media (max-width: 768px) { .stats-grid-top { grid-template-columns: 1fr 1fr; } }
+        .stat-card { background: #2c2c2e; border-radius: 12px; padding: 12px 6px; text-align: center; display: flex; flex-direction: column; justify-content: center; min-height: 80px; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
         .stat-label { font-size: 0.7rem; color: #aeaeb2; margin-bottom: 6px; line-height: 1.2; font-weight: 600; }
         .dual-val-container { display: flex; flex-direction: column; gap: 4px; align-items: center; }
         .dual-val-row { font-size: 0.85rem; font-weight: 700; display: flex; align-items: center; gap: 4px; }
@@ -95,177 +83,48 @@
         .current-weight-item { display: flex; flex-direction: column; align-items: center; }
         .current-weight-val { font-size: 1.4rem; font-weight: 700; color: #fff; }
         .divider-v { width: 1px; height: 40px; background: #48484a; }
-        .val-pos { color: #32d74b; }
-        .val-neg { color: #ff453a; }
-        .val-neutral { color: #ffffff; }
+        .val-pos { color: #32d74b; } .val-neg { color: #ff453a; } .val-neutral { color: #ffffff; }
 
         .custom-legend-container { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 15px; justify-content: center; padding: 0 5px; }
-        .legend-item {
-            display: flex; align-items: center; background: #3a3a3c; padding: 10px 18px;
-            border-radius: 30px; cursor: pointer; font-size: 0.9rem; font-weight: 600;
-            transition: all 0.2s; border: 2px solid transparent; user-select: none;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-        }
-        .legend-item:active { transform: scale(0.95); }
-        .legend-item.hidden-dataset { opacity: 0.4; background: #252525; box-shadow: none; border: 2px solid #3a3a3c; }
+        .legend-item { display: flex; align-items: center; background: #3a3a3c; padding: 10px 18px; border-radius: 30px; cursor: pointer; font-size: 0.9rem; font-weight: 600; transition: all 0.2s; border: 2px solid transparent; user-select: none; box-shadow: 0 2px 5px rgba(0,0,0,0.3); }
+        .legend-item.hidden-dataset { opacity: 0.4; background: #252525; border: 2px solid #3a3a3c; }
         .legend-color-box { width: 14px; height: 14px; border-radius: 50%; margin-right: 10px; display: inline-block; border: 1px solid rgba(255,255,255,0.2); }
 
         .chart-section { margin-bottom: 30px; }
         .chart-header { padding: 0 5px; margin-bottom: 5px; color: #aeaeb2; font-size: 0.9rem; font-weight: 600; }
-        .chart-container {
-            background: #2c2c2e; border-radius: 12px; padding: 10px;
-            position: relative; height: 350px; width: 100%; overflow: hidden;
-        }
-        @media (max-width: 600px) {
-            .chart-container { border-radius: 0; margin-left: -10px; margin-right: -10px; width: calc(100% + 20px); padding: 10px 5px; height: 320px; }
-            .chart-header { padding-left: 0; }
-            canvas { touch-action: pan-y !important; }
-        }
+        .chart-container { background: #2c2c2e; border-radius: 12px; padding: 10px; position: relative; height: 350px; width: 100%; overflow: hidden; }
+        @media (max-width: 600px) { .chart-container { border-radius: 0; margin-left: -10px; margin-right: -10px; width: calc(100% + 20px); height: 320px; } canvas { touch-action: pan-y !important; } }
 
-        .bottom-nav {
-            position: fixed; bottom: 0; left: 0; width: 100%;
-            background: rgba(28, 28, 30, 0.95); backdrop-filter: blur(10px);
-            padding: 10px 10px 25px 10px; z-index: 1000;
-            border-top: 1px solid #3a3a3c;
-            display: flex; justify-content: flex-start; gap: 6px;
-            overflow-x: auto; -webkit-overflow-scrolling: touch;
-        }
-        .bottom-nav::-webkit-scrollbar { display: none; }
-        .range-btn {
-            background: #3a3a3c; color: #fff; border: none; padding: 10px 16px;
-            border-radius: 20px; font-size: 0.85rem; font-weight: 600;
-            flex-shrink: 0; cursor: pointer; transition: 0.2s; white-space: nowrap;
-        }
+        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: rgba(28, 28, 30, 0.95); backdrop-filter: blur(10px); padding: 10px 10px 25px 10px; z-index: 1000; border-top: 1px solid #3a3a3c; display: flex; justify-content: flex-start; gap: 6px; overflow-x: auto; }
+        .range-btn { background: #3a3a3c; color: #fff; border: none; padding: 10px 16px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; flex-shrink: 0; cursor: pointer; transition: 0.2s; white-space: nowrap; }
         .range-btn.active { background: #ffcc00; color: #000; transform: scale(1.05); }
 
         .log-section { margin-top: 20px; margin-bottom: 20px; }
         .log-header { background: #2c2c2e; padding: 12px; border-radius: 12px 12px 0 0; font-weight: 600; color: #4a90e2; font-size: 0.9rem; }
         .log-table-container { max-height: 250px; overflow-y: auto; background: #2c2c2e; border-radius: 0 0 12px 12px; margin-bottom: 15px; }
-        table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
-        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #3a3a3c; color: #d1d1d6; }
-        th { position: sticky; top: 0; background: #3a3a3c; color: #fff; z-index: 10; }
-        tr:last-child td { border-bottom: none; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.8rem; } th, td { padding: 10px; text-align: left; border-bottom: 1px solid #3a3a3c; color: #d1d1d6; } th { position: sticky; top: 0; background: #3a3a3c; color: #fff; z-index: 10; }
 
-        #customRangeModal {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85); z-index: 2000;
-            display: flex; justify-content: center; align-items: center; backdrop-filter: blur(5px);
-        }
-        .modal-content {
-            background: #2c2c2e; padding: 25px; border-radius: 18px;
-            width: 90%; max-width: 350px; text-align: center;
-            border: 1px solid #48484a; box-shadow: 0 20px 40px rgba(0,0,0,0.6);
-        }
+        #customRangeModal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 2000; display: flex; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
+        .modal-content { background: #2c2c2e; padding: 25px; border-radius: 18px; width: 90%; max-width: 350px; text-align: center; border: 1px solid #48484a; box-shadow: 0 20px 40px rgba(0,0,0,0.6); }
         .modal-content h3 { margin-top: 0; color: #ffcc00; margin-bottom: 20px; }
-        .modal-input-group { margin-bottom: 15px; text-align: left; }
-        .modal-input-group label { display: block; color: #aeaeb2; font-size: 0.85rem; margin-bottom: 5px; font-weight: 600; }
-        .modal-input-group input {
-            width: 100%; padding: 12px; background: #1c1c1e; border: 1px solid #3a3a3c;
-            color: #fff; border-radius: 10px; font-size: 1rem; font-family: 'Montserrat', sans-serif; outline: none;
-        }
-        .modal-input-group input:focus { border-color: #ffcc00; }
-        .modal-buttons { display: flex; gap: 10px; margin-top: 25px; }
-        .modal-buttons button { flex: 1; padding: 14px; border-radius: 12px; font-weight: 600; cursor: pointer; border: none; font-size: 1rem; }
-        .btn-modal-cancel { background: #3a3a3c; color: #fff; }
-        .btn-modal-apply { background: #ffcc00; color: #000; }
+        .modal-input-group { margin-bottom: 15px; text-align: left; } .modal-input-group label { display: block; color: #aeaeb2; font-size: 0.85rem; margin-bottom: 5px; font-weight: 600; } .modal-input-group input { width: 100%; padding: 12px; background: #1c1c1e; border: 1px solid #3a3a3c; color: #fff; border-radius: 10px; font-size: 1rem; outline: none; }
+        .modal-buttons { display: flex; gap: 10px; margin-top: 25px; } .modal-buttons button { flex: 1; padding: 14px; border-radius: 12px; font-weight: 600; cursor: pointer; border: none; font-size: 1rem; } .btn-modal-cancel { background: #3a3a3c; color: #fff; } .btn-modal-apply { background: #ffcc00; color: #000; }
 
-        #loader-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.8); z-index: 9999;
-            display: flex; flex-direction: column; justify-content: center; align-items: center; color: #4a90e2;
-        }
-        .spinner {
-            border: 4px solid rgba(255, 255, 255, 0.1); width: 40px; height: 40px; border-radius: 50%;
-            border-left-color: #4a90e2; animation: spin 1s linear infinite; margin-bottom: 15px;
-        }
+        #loader-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; color: #4a90e2; }
+        .spinner { border: 4px solid rgba(255, 255, 255, 0.1); width: 40px; height: 40px; border-radius: 50%; border-left-color: #4a90e2; animation: spin 1s linear infinite; margin-bottom: 15px; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-        .refresh-btn {
-            background: none; border: 1px solid #4a90e2; color: #4a90e2;
-            padding: 4px 10px; border-radius: 8px; font-size: 0.75rem; font-weight: 600;
-            cursor: pointer; transition: 0.2s;
-        }
-        .refresh-btn:hover { background: #4a90e2; color: #fff; }
-
-        .update-toast {
-            position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
-            background: #32d74b; color: #000; padding: 10px 20px; border-radius: 12px;
-            font-size: 0.85rem; font-weight: 600; z-index: 9000;
-            box-shadow: 0 4px 15px rgba(50, 215, 75, 0.4);
-            animation: toastIn 0.3s ease, toastOut 0.3s ease 2.7s forwards;
-        }
-        @keyframes toastIn { from { opacity: 0; transform: translateX(-50%) translateY(-20px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
-        @keyframes toastOut { from { opacity: 1; } to { opacity: 0; transform: translateX(-50%) translateY(-20px); } }
-
-        #manual-page {
-            display: flex; height: 100vh; background-color: #1c1c1e; overflow: hidden; width: 100%;
-        }
-        #manual-page nav {
-            width: 280px; background-color: #2c2c2e; border-right: 1px solid #3a3a3c;
-            display: flex; flex-direction: column; padding: 20px 0; overflow-y: auto; flex-shrink: 0;
-        }
-        #manual-page .logo {
-            font-size: 20px; font-weight: 800; padding: 0 20px 20px 20px;
-            border-bottom: 1px solid #3a3a3c; margin-bottom: 10px; color: #4a90e2;
-            display: flex; justify-content: space-between; align-items: center;
-        }
-        #manual-page .nav-btn {
-            background: none; border: none; color: #aeaeb2; padding: 15px 20px;
-            text-align: left; font-size: 15px; font-weight: 600; cursor: pointer;
-            transition: all 0.2s; border-left: 3px solid transparent;
-        }
-        #manual-page .nav-btn:hover { background-color: rgba(74, 144, 226, 0.1); color: #fff; }
-        #manual-page .nav-btn.active { color: #4a90e2; border-left-color: #4a90e2; background-color: rgba(74, 144, 226, 0.1); }
-        #manual-page main {
-            flex: 1; padding: 40px; overflow-y: auto; scroll-behavior: smooth; background-color: #1c1c1e;
-        }
-        #manual-page .tab-content { display: none; max-width: 800px; margin: 0 auto; animation: fadeIn 0.3s ease; }
-        #manual-page .tab-content.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        #manual-page h1 { font-size: 32px; margin-bottom: 20px; color: #fff; }
-        #manual-page h2 { font-size: 22px; margin-top: 30px; margin-bottom: 15px; color: #4a90e2; border-bottom: 1px solid #3a3a3c; padding-bottom: 5px; }
-        #manual-page p, #manual-page li { line-height: 1.6; margin-bottom: 15px; color: #a0b2c6; }
-        #manual-page ul, #manual-page ol { padding-left: 20px; margin-bottom: 20px; }
-        #manual-page strong { color: #fff; }
-        #manual-page code { background: #2c2c2e; padding: 2px 6px; border-radius: 4px; font-family: monospace; color: #ffcc00; border: 1px solid #3a3a3c; }
-        @media (max-width: 768px) {
-            #manual-page { flex-direction: column; }
-            #manual-page nav { width: 100%; height: auto; flex-direction: row; overflow-x: auto; padding: 10px; border-bottom: 1px solid #3a3a3c; border-right: none; }
-            #manual-page .logo { display: none; }
-            #manual-page .nav-btn { white-space: nowrap; padding: 10px 15px; border-left: none; border-bottom: 3px solid transparent; }
-            #manual-page .nav-btn.active { border-left-color: transparent; border-bottom-color: #4a90e2; }
-            #manual-page main { padding: 20px; padding-bottom: 90px; }
-        }
-
-        .debug-info {
-            margin-top: 20px; padding: 15px; background: #2c2c2e; border-radius: 12px;
-            font-size: 0.7rem; color: #aeaeb2; max-height: 120px; overflow-y: auto;
-            font-family: monospace;
-        }
     </style>
 </head>
 <body>
 
-    <div id="loader-overlay" class="hidden">
-        <div class="spinner"></div>
-        <div id="loader-text">Caricamento...</div>
-    </div>
+    <div id="loader-overlay" class="hidden"><div class="spinner"></div><div id="loader-text">Caricamento...</div></div>
 
     <div id="customRangeModal" class="hidden">
         <div class="modal-content">
             <h3>Seleziona Intervallo</h3>
-            <div class="modal-input-group">
-                <label>Data Inizio:</label>
-                <input type="datetime-local" id="customStartInput">
-            </div>
-            <div class="modal-input-group">
-                <label>Data Fine:</label>
-                <input type="datetime-local" id="customEndInput">
-            </div>
-            <div class="modal-buttons">
-                <button onclick="closeModal()" class="btn-modal-cancel">Annulla</button>
-                <button onclick="applyCustomDate()" class="btn-modal-apply">Applica</button>
-            </div>
+            <div class="modal-input-group"><label>Data Inizio:</label><input type="datetime-local" id="customStartInput"></div>
+            <div class="modal-input-group"><label>Data Fine:</label><input type="datetime-local" id="customEndInput"></div>
+            <div class="modal-buttons"><button onclick="closeModal()" class="btn-modal-cancel">Annulla</button><button onclick="applyCustomDate()" class="btn-modal-apply">Applica</button></div>
         </div>
     </div>
 
@@ -283,658 +142,154 @@
         <header>
             <div class="app-title">BILANCIA ARNIA 3.2</div>
             <div class="header-controls">
-                <span id="ownerBadge" class="badge"></span>
-                <span id="accountBadge" class="badge">FREE</span>
-                <button id="refreshBtn" onclick="manualRefresh()" class="refresh-btn" title="Aggiorna dati">&#x21BB; Aggiorna</button>
-                <button onclick="showManual()" style="background:none; border:none; color:#4a90e2; font-size:0.8rem; font-weight:600; cursor:pointer;">&#x1F4D6; Guida</button>
+                <span id="fwBadge" class="badge">FW: --</span> <span id="ownerBadge" class="badge"></span> <span id="accountBadge" class="badge">FREE</span>
                 <button onclick="logout()" style="background:none; border:none; color:#ff453a; font-size:0.8rem; font-weight:600; cursor:pointer;">Esci</button>
             </div>
         </header>
-
-        <div class="device-selector-container">
-            <select id="deviceSelector" onchange="onDeviceChanged()">
-                <option value="">Caricamento dispositivi...</option>
-            </select>
-        </div>
-
+        <div class="device-selector-container"><select id="deviceSelector" onchange="onDeviceChanged()"><option value="">Caricamento dispositivi...</option></select></div>
+        
         <div class="stats-grid-top">
-            <div class="stat-card">
-                <div class="stat-label">Cambio 24h</div>
-                <div class="dual-val-container">
-                    <div class="dual-val-row"><span class="dual-val-label">A1:</span><span id="delta24h_1">--</span></div>
-                    <div class="dual-val-row"><span class="dual-val-label">A2:</span><span id="delta24h_2">--</span></div>
-                </div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">Cambio 7gg</div>
-                <div class="dual-val-container">
-                    <div class="dual-val-row"><span class="dual-val-label">A1:</span><span id="delta7d_1">--</span></div>
-                    <div class="dual-val-row"><span class="dual-val-label">A2:</span><span id="delta7d_2">--</span></div>
-                </div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">Cambio 15gg</div>
-                <div class="dual-val-container">
-                    <div class="dual-val-row"><span class="dual-val-label">A1:</span><span id="delta15d_1">--</span></div>
-                    <div class="dual-val-row"><span class="dual-val-label">A2:</span><span id="delta15d_2">--</span></div>
-                </div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">Dall'ultima Maint.</div>
-                <div class="dual-val-container">
-                    <div class="dual-val-row"><span class="dual-val-label">A1:</span><span id="deltaMaint_1" class="val-neutral">--</span></div>
-                    <div class="dual-val-row"><span class="dual-val-label">A2:</span><span id="deltaMaint_2" class="val-neutral">--</span></div>
-                </div>
-            </div>
+            <div class="stat-card"><div class="stat-label">Cambio 24h</div><div class="dual-val-container"><div class="dual-val-row"><span class="dual-val-label">A1:</span><span id="delta24h_1">--</span></div><div class="dual-val-row"><span class="dual-val-label">A2:</span><span id="delta24h_2">--</span></div></div></div>
+            <div class="stat-card"><div class="stat-label">Cambio 7gg</div><div class="dual-val-container"><div class="dual-val-row"><span class="dual-val-label">A1:</span><span id="delta7d_1">--</span></div><div class="dual-val-row"><span class="dual-val-label">A2:</span><span id="delta7d_2">--</span></div></div></div>
+            <div class="stat-card"><div class="stat-label">Cambio 15gg</div><div class="dual-val-container"><div class="dual-val-row"><span class="dual-val-label">A1:</span><span id="delta15d_1">--</span></div><div class="dual-val-row"><span class="dual-val-label">A2:</span><span id="delta15d_2">--</span></div></div></div>
+            <div class="stat-card"><div class="stat-label">Dall'ultima Maint.</div><div class="dual-val-container"><div class="dual-val-row"><span class="dual-val-label">A1:</span><span id="deltaMaint_1" class="val-neutral">--</span></div><div class="dual-val-row"><span class="dual-val-label">A2:</span><span id="deltaMaint_2" class="val-neutral">--</span></div></div></div>
         </div>
-
         <div class="stats-grid-mid">
-            <div class="stat-card">
-                <div class="stat-label">Peso Attuale</div>
-                <div class="current-weight-row">
-                    <div class="current-weight-item">
-                        <span class="dual-val-label" style="margin-bottom:2px;">Arnia 1</span>
-                        <span class="current-weight-val" id="currWeight1">-- Kg</span>
-                    </div>
-                    <div class="divider-v"></div>
-                    <div class="current-weight-item">
-                        <span class="dual-val-label" style="margin-bottom:2px;">Arnia 2</span>
-                        <span class="current-weight-val" id="currWeight2">-- Kg</span>
-                    </div>
-                </div>
-            </div>
+            <div class="stat-card"><div class="stat-label">Peso Attuale</div><div class="current-weight-row"><div class="current-weight-item"><span class="dual-val-label" style="margin-bottom:2px;">Arnia 1</span><span class="current-weight-val" id="currWeight1">-- Kg</span></div><div class="divider-v"></div><div class="current-weight-item"><span class="dual-val-label" style="margin-bottom:2px;">Arnia 2</span><span class="current-weight-val" id="currWeight2">-- Kg</span></div></div></div>
         </div>
-
-        <div class="chart-section">
-            <div class="chart-header">Andamento Peso (Kg)</div>
-            <div id="legendPeso" class="custom-legend-container"></div>
-            <div class="chart-container"><canvas id="chartPeso"></canvas></div>
-        </div>
-
-        <div class="chart-section">
-            <div class="chart-header">Ambiente & Energia</div>
-            <div id="legendMulti" class="custom-legend-container"></div>
-            <div class="chart-container"><canvas id="chartMulti"></canvas></div>
-        </div>
-
-        <div class="log-section">
-            <div class="log-header">Storico Manutenzione</div>
-            <div class="log-table-container">
-                <table id="maintTable"><thead><tr><th>Inizio</th><th>Fine</th><th>Min</th></tr></thead><tbody></tbody></table>
-            </div>
-        </div>
-
-        <div id="debugInfo" class="debug-info"></div>
-
+        
+        <div class="chart-section"><div class="chart-header">Andamento Peso (Kg)</div><div id="legendPeso" class="custom-legend-container"></div><div class="chart-container"><canvas id="chartPeso"></canvas></div></div>
+        <div class="chart-section"><div class="chart-header">Ambiente & Energia</div><div id="legendMulti" class="custom-legend-container"></div><div class="chart-container"><canvas id="chartMulti"></canvas></div></div>
+        <div class="log-section"><div class="log-header">Storico Manutenzione</div><div class="log-table-container"><table id="maintTable"><thead><tr><th>Inizio</th><th>Fine</th><th>Min</th></tr></thead><tbody></tbody></table></div></div>
         <div class="bottom-nav" id="rangeContainer"></div>
     </div>
 
-    <div id="manual-page" class="hidden">
-        <nav>
-            <div class="logo">🐝 Arnia IoT - Guida <button onclick="hideManual()" style="background:none; border:none; color:#ff453a; font-weight:bold; font-size: 14px; cursor:pointer;">✕ Chiudi</button></div>
-            <button class="nav-btn active" onclick="openManualTab(event, 'intro')">1. Accesso</button>
-            <button class="nav-btn" onclick="openManualTab(event, 'dashboard')">2. Dashboard</button>
-            <button class="nav-btn" onclick="openManualTab(event, 'bilance')">3. Bilance</button>
-            <button class="nav-btn" onclick="openManualTab(event, 'pesocostante')">4. Peso Costante</button>
-            <button class="nav-btn" onclick="openManualTab(event, 'rete')">5. Rete</button>
-            <button class="nav-btn" onclick="openManualTab(event, 'ota')">6. Aggiornamenti OTA</button>
-        </nav>
-        <main>
-            <section id="intro" class="tab-content active"><h1>1. Accesso al Sistema</h1><p>Premi il pulsante fisico per 2 secondi. Il LED si accende. Collegati alla rete <strong>Bilancia_XXXXXXXX</strong>, vai su <code>192.168.4.1</code> e inserisci la password.</p></section>
-            <section id="dashboard" class="tab-content"><h1>2. La Dashboard</h1><p>La barra superiore mostra parametri vitali in tempo reale e il timer di sicurezza.</p></section>
-            <section id="bilance" class="tab-content"><h1>3. Gestione Bilance</h1><p><strong>⚡ TARA</strong>: azzera il peso. <strong>CALIBRA</strong>: con peso noto. <strong>Correzione</strong>: offset manuale.</p></section>
-            <section id="pesocostante" class="tab-content"><h1>4. Peso Costante (Melari)</h1><p>Quando attivo, le variazioni di peso durante la Manutenzione vengono compensate. Attiva l'interruttore, entra in manutenzione, lavora, esci. Il sistema calcolerà il peso morto da solo.</p></section>
-            <section id="rete" class="tab-content"><h1>5. Rete e Trasloco</h1><p>Per il nomadismo: attiva <strong>🚚 Modalità Standby</strong> prima di partire. All'arrivo disattivala e assicurati che il Peso Costante sia attivo. Il sistema compenserà le differenze in autonomia.</p></section>
-            <section id="ota" class="tab-content"><h1>6. Aggiornamenti OTA</h1><p>Clicca <strong>⬆ AGGIORNA</strong>, seleziona il file <code>.bin</code> e primi AVVIA.</p></section>
-        </main>
-    </div>
-
     <script>
-    // ================================================================
-    //  CONFIGURAZIONE
-    // ================================================================
-    const CONFIG = {
-        SHEET_ID: "1v2QYh6ZYvMKCxBI0mt7nHSS2btbmDRtP018k8Yj0Lfg",
-        GID_HISTORY: "0",
-        SECRET_KEY: "alluser",
-        REFRESH_INTERVAL: 5 * 60 * 1000,
-    };
+        // Integrazione dell'URL Apps Script statico per evitare blocchi CORS
+        const scriptUrl = 'https://script.google.com/macros/s/AKfycbbyM_8DLqOMBtGzVyqfiNNukCsSl3UesDV2Ui74jSjV3vIqcaMZLddpa8uwAZAkI_r/exec';
+        const SECRET_KEY = "alluser";
 
-    // --- STATO ---
-    let charts = {};
-    let allData = [];
-    let allSheetData = [];
-    let deviceList = [];
-    let currentUserEmail = "";
-    let isMasterUser = false;
-    let currentRange = '1W';
-    let customStart = null;
-    let customEnd = null;
-    let refreshTimer = null;
-    let columnMap = {};
+        let charts = {}; let allData = []; let currentRange = '1W'; let customStart = null; let customEnd = null;
+        const ranges = ['6H','1D','1W','2W','1M','3M','6M','1Y','5Y', 'SET'];
+        const loginPage = document.getElementById('login-page'); const dashboardPage = document.getElementById('dashboard-page'); const loader = document.getElementById('loader-overlay'); const loaderText = document.getElementById('loader-text'); const modal = document.getElementById('customRangeModal');
 
-    const ranges = ['6H','1D','1W','2W','1M','3M','6M','1Y','5Y', 'SET'];
-
-    const loginPage = document.getElementById('login-page');
-    const dashboardPage = document.getElementById('dashboard-page');
-    const manualPage = document.getElementById('manual-page');
-    const loader = document.getElementById('loader-overlay');
-    const loaderText = document.getElementById('loader-text');
-    const modal = document.getElementById('customRangeModal');
-
-    window.onload = function() {
-        initRanges();
-        checkAutoLogin();
-    };
-
-    // ================================================================
-    //  CSV PARSER
-    // ================================================================
-    function parseCSV(text) {
-        const rows = [];
-        let row = []; let field = ''; let inQuotes = false;
-        for (let i = 0; i < text.length; i++) {
-            const c = text[i];
-            if (inQuotes) {
-                if (c === '"') { if (text[i + 1] === '"') { field += '"'; i++; } else inQuotes = false; }
-                else field += c;
-            } else {
-                if (c === '"') inQuotes = true;
-                else if (c === ',') { row.push(field.trim()); field = ''; }
-                else if (c === '\r') continue;
-                else if (c === '\n') { row.push(field.trim()); if (row.some(f => f !== '')) rows.push(row); row = []; field = ''; }
-                else field += c;
-            }
-        }
-        row.push(field.trim());
-        if (row.some(f => f !== '')) rows.push(row);
-        return rows;
-    }
-
-    function csvToObjects(rows) {
-        if (rows.length < 2) return [];
-        const headers = rows[0];
-        return rows.slice(1).map(row => {
-            const obj = {};
-            headers.forEach((h, i) => { obj[h] = row[i] !== undefined ? row[i] : ''; });
-            return obj;
-        });
-    }
-
-    // ================================================================
-    //  FETCH LIVE DA GOOGLE SHEETS (gviz)
-    // ================================================================
-    async function fetchSheetCsv() {
-        const gvizUrl = `https://docs.google.com/spreadsheets/d/${CONFIG.SHEET_ID}/gviz/tq?tqx=out:csv&gid=${CONFIG.GID_HISTORY}&t=${Date.now()}`;
-        try {
-            const res = await fetch(gvizUrl);
-            if (res.ok) {
-                const text = await res.text();
-                if (text && text.length > 20 && !text.includes('<!DOCTYPE') && !text.includes('<html')) {
-                    return text;
-                }
-                throw new Error("Il foglio non è accessibile in lettura. Assicurati che sia impostato su 'Chiunque abbia il link può visualizzare'.");
-            }
-            throw new Error("Errore di rete nel download del foglio.");
-        } catch(e) {
-            console.error("Fetch fallito:", e);
-            throw e;
-        }
-    }
-
-    // ================================================================
-    //  RILEVAMENTO COLONNE
-    // ================================================================
-    function detectColumn(obj, possibleNames) {
-        for (const name of possibleNames) {
-            if (obj.hasOwnProperty(name)) return name;
-        }
-        return null;
-    }
-
-    function buildColumnMap(sample) {
-        const map = {};
-        map.chipId = detectColumn(sample, ['chipId','ChipID','chip_id','ID','id','Chip','chip','Dispositivo','Mac','MAC','Device']);
-        map.email  = detectColumn(sample, ['email','Email','E-mail','utente','Utente','Proprietario','User','user','OWNER','owner']);
-        map.timestamp = detectColumn(sample, ['Timestamp','timestamp','Data','data','Data/Ora','Data e Ora','date','Date']);
-        map.peso1  = detectColumn(sample, ['Peso 1','peso1','Peso1','Peso_A1','Peso A1','peso_1']);
-        map.peso2  = detectColumn(sample, ['Peso 2','peso2','Peso2','Peso_A2','Peso A2','peso_2']);
-        map.tempEnv = detectColumn(sample, ['Temp SHT4x','Temp Env','TempEsterna','Temp_Amb','Temperatura Esterna','temp_env','Temp SHT']);
-        map.hum    = detectColumn(sample, ['Umidità','Umidita','Umidity','Humidity','Hum','hum','Umidità %']);
-        map.batt   = detectColumn(sample, ['Batteria','Battery','Batt','V_Batt','Tensione','batt','battery']);
-        map.temp1  = detectColumn(sample, ['Temp 1','Temp1','Temp_Nido1','TempNido1','temp1','Temperatura 1']);
-        map.temp2  = detectColumn(sample, ['Temp 2','Temp2','Temp_Nido2','TempNido2','temp2','Temperatura 2']);
-        map.maintInizio = detectColumn(sample, ['Maint Inizio','Manutenzione Inizio','maint_inizio','Inizio Maint','Maint Start']);
-        map.maintFine   = detectColumn(sample, ['Maint Fine','Manutenzione Fine','maint_fine','Fine Maint','Maint End']);
-        map.durata      = detectColumn(sample, ['Durata (min)','Durata','durata','Duration','Durata min']);
-        map.logMsg      = detectColumn(sample, ['Messaggio log','Log','log','Message','messaggio','Note','note']);
-        return map;
-    }
-
-    function parseTimestamp(str) {
-        if (!str) return null;
-        let d = new Date(str);
-        if (!isNaN(d.getTime()) && d.getFullYear() > 2000) return d.getTime();
-        const itMatch = str.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})\s+(\d{1,2}):(\d{1,2}):?(\d{0,2})/);
-        if (itMatch) {
-            d = new Date(itMatch[3], itMatch[2]-1, itMatch[1], itMatch[4], itMatch[5], itMatch[6] || 0);
-            if (!isNaN(d.getTime())) return d.getTime();
-        }
-        const dateOnly = str.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
-        if (dateOnly) { d = new Date(dateOnly[3], dateOnly[2]-1, dateOnly[1]); if (!isNaN(d.getTime())) return d.getTime(); }
-        return null;
-    }
-
-    function safeFloat(str) {
-        if (!str || str === '' || str === '-') return 0;
-        const n = parseFloat(String(str).replace(',', '.'));
-        return isNaN(n) ? 0 : n;
-    }
-
-    // ================================================================
-    //  INDEXEDDB
-    // ================================================================
-    const DB_NAME = "ArniaDataDB";
-    const STORE_NAME = "history";
-
-    function openDB() {
-        return new Promise((resolve, reject) => {
-            const request = indexedDB.open(DB_NAME, 1);
-            request.onupgradeneeded = event => { event.target.result.createObjectStore(STORE_NAME); };
-            request.onsuccess = event => resolve(event.target.result);
-            request.onerror = event => reject(event.target.error);
-        });
-    }
-
-    async function getLocalData(chipId) {
-        try {
-            const db = await openDB();
-            return new Promise((resolve, reject) => {
-                const tx = db.transaction(STORE_NAME, "readonly");
-                const store = tx.objectStore(STORE_NAME);
-                const request = store.get(chipId);
-                request.onsuccess = () => resolve(request.result || []);
-                request.onerror = () => reject(request.error);
-            });
-        } catch(e) { return []; }
-    }
-
-    async function saveLocalData(chipId, data) {
-        try {
-            const db = await openDB();
-            return new Promise((resolve, reject) => {
-                const tx = db.transaction(STORE_NAME, "readwrite");
-                const store = tx.objectStore(STORE_NAME);
-                store.put(data, chipId);
-                tx.oncomplete = () => resolve();
-                tx.onerror = () => reject(tx.error);
-            });
-        } catch(e) { console.error("Errore salvataggio locale", e); }
-    }
-
-    // ================================================================
-    //  RANGE & NAV
-    // ================================================================
-    function initRanges() {
-        const container = document.getElementById('rangeContainer');
-        container.innerHTML = '';
-        ranges.forEach(r => {
-            const btn = document.createElement('button');
-            btn.className = `range-btn ${r === currentRange ? 'active' : ''}`;
-            btn.textContent = r;
-            btn.onclick = () => setRange(r);
-            container.appendChild(btn);
-        });
-    }
-
-    function setRange(range) {
-        if (range === 'SET') { openModal(); return; }
-        currentRange = range;
-        customStart = null; customEnd = null;
-        updateRangeButtons(); renderCharts();
-    }
-
-    function updateRangeButtons() {
-        document.querySelectorAll('.range-btn').forEach(b => {
-            if(b.textContent === currentRange) b.classList.add('active');
-            else b.classList.remove('active');
-        });
-    }
-
-    function openModal() {
-        const now = new Date();
-        if (!document.getElementById('customEndInput').value) {
-            document.getElementById('customEndInput').value = now.toISOString().slice(0, 16);
-            const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-            document.getElementById('customStartInput').value = weekAgo.toISOString().slice(0, 16);
-        }
-        modal.classList.remove('hidden');
-    }
-
-    function closeModal() { modal.classList.add('hidden'); }
-
-    function applyCustomDate() {
-        const startVal = document.getElementById('customStartInput').value;
-        const endVal = document.getElementById('customEndInput').value;
-        if (!startVal || !endVal) { alert("Seleziona entrambe le date."); return; }
-        const s = new Date(startVal).getTime(); const e = new Date(endVal).getTime();
-        if (e <= s) { alert("Data fine errata."); return; }
-        customStart = s; customEnd = e; currentRange = 'SET';
-        updateRangeButtons(); renderCharts(); closeModal();
-    }
-
-    function showManual() { dashboardPage.classList.add('hidden'); manualPage.classList.remove('hidden'); }
-    function hideManual() { manualPage.classList.add('hidden'); dashboardPage.classList.remove('hidden'); }
-    function openManualTab(evt, tabName) {
-        document.querySelectorAll('#manual-page .tab-content').forEach(tab => tab.classList.remove('active'));
-        document.querySelectorAll('#manual-page .nav-btn').forEach(btn => btn.classList.remove('active'));
-        document.getElementById(tabName).classList.add('active');
-        evt.currentTarget.classList.add('active');
-    }
-
-    // ================================================================
-    //  LOGIN
-    // ================================================================
-    function checkAutoLogin() {
-        const savedEmail = localStorage.getItem('userEmail');
-        if (savedEmail) { document.getElementById('emailInput').value = savedEmail; doLoginProcess(savedEmail); }
-    }
-
-    function handleLogin() {
-        const email = document.getElementById('emailInput').value.trim();
-        if (!email) { showLoginError("Inserisci un'email valida."); return; }
-        doLoginProcess(email);
-    }
-
-    function logout() { localStorage.removeItem('userEmail'); if (refreshTimer) clearInterval(refreshTimer); location.reload(); }
-
-    async function doLoginProcess(email) {
-        showLoader(true, "Scaricamento dati live dal foglio Google...");
-        try {
-            currentUserEmail = email;
-            isMasterUser = email.toLowerCase() === CONFIG.SECRET_KEY.toLowerCase();
-
-            const csvText = await fetchSheetCsv();
-            showLoader(true, "Elaborazione dati...");
-
-            const rows = parseCSV(csvText);
-            const objects = csvToObjects(rows);
-            allSheetData = objects;
-
-            if (objects.length === 0) throw new Error("Nessun dato trovato nel foglio.");
-
-            const sample = objects[0];
-            columnMap = buildColumnMap(sample);
-
-            const debugEl = document.getElementById('debugInfo');
-            debugEl.innerHTML = '<strong>Colonne rilevate:</strong><br>' + Object.entries(columnMap).map(([k,v]) => `${k}: ${v || 'NON TROVATO'}`).join('<br>') + '<br><br><strong>Intestazioni foglio:</strong><br>' + Object.keys(sample).join(', ');
-
-            if (columnMap.chipId) {
-                if (isMasterUser) deviceList = [...new Set(objects.map(d => d[columnMap.chipId]).filter(Boolean))];
-                else if (columnMap.email) deviceList = [...new Set(objects.filter(d => d[columnMap.email] && d[columnMap.email].toLowerCase() === email.toLowerCase()).map(d => d[columnMap.chipId]).filter(Boolean))];
-                else deviceList = [...new Set(objects.map(d => d[columnMap.chipId]).filter(Boolean))];
-            } else { deviceList = ['default']; }
-
-            if (deviceList.length === 0) throw new Error("Nessun dispositivo associato a questa email.");
-
-            localStorage.setItem('userEmail', email);
-            populateDeviceSelector(deviceList);
-
-            const badge = document.getElementById('accountBadge');
-            if (isMasterUser) { badge.innerText = "MASTER KEY"; badge.className = "badge master"; }
-            else { badge.innerText = "FREE"; badge.className = "badge"; }
-
-            loginPage.classList.add('hidden');
-            dashboardPage.classList.remove('hidden');
-
-            document.getElementById('deviceSelector').value = deviceList[0];
-            await loadDeviceData(deviceList[0]);
-            startAutoRefresh();
-
-        } catch (e) {
-            console.error("Login fallito:", e);
-            showLoginError(e.message);
-            loginPage.classList.remove('hidden');
-            dashboardPage.classList.add('hidden');
-        } finally { showLoader(false); }
-    }
-
-    function showLoginError(msg) { const el = document.getElementById('loginError'); el.innerText = msg; el.style.display = 'block'; }
-
-    function populateDeviceSelector(devices) {
-        const sel = document.getElementById('deviceSelector');
-        sel.innerHTML = '';
-        devices.forEach(d => { const opt = document.createElement('option'); opt.value = d; opt.textContent = d === 'default' ? 'Arnia (dati unici)' : `Arnia: ${d}`; sel.appendChild(opt); });
-    }
-
-    async function onDeviceChanged() { const id = document.getElementById('deviceSelector').value; if(id) await loadDeviceData(id); }
-
-    // ================================================================
-    //  CARICAMENTO DATI DISPOSITIVO
-    // ================================================================
-    async function loadDeviceData(chipId) {
-        showLoader(true, "Elaborazione dati dispositivo...");
-        try {
-            let deviceRows;
-            if (columnMap.chipId && chipId !== 'default') deviceRows = allSheetData.filter(d => d[columnMap.chipId] === chipId);
-            else deviceRows = allSheetData;
-
-            const parsed = [];
-            for (const row of deviceRows) {
-                const ts = parseTimestamp(row[columnMap.timestamp]);
-                if (!ts) continue;
-                parsed.push({
-                    x: ts,
-                    peso1: safeFloat(row[columnMap.peso1]),
-                    peso2: safeFloat(row[columnMap.peso2]),
-                    tempEnv: safeFloat(row[columnMap.tempEnv]),
-                    hum: safeFloat(row[columnMap.hum]),
-                    batt: safeFloat(row[columnMap.batt]),
-                    temp1: safeFloat(row[columnMap.temp1]),
-                    temp2: safeFloat(row[columnMap.temp2]),
-                    maintInizio: columnMap.maintInizio ? row[columnMap.maintInizio] : null,
-                    maintFine: columnMap.maintFine ? row[columnMap.maintFine] : null,
-                    durata: columnMap.durata ? safeFloat(row[columnMap.durata]) : 0,
-                    logMsg: columnMap.logMsg ? row[columnMap.logMsg] : ''
-                });
-            }
-
-            const uniqueMap = new Map();
-            parsed.forEach(item => uniqueMap.set(item.x, item));
-            allData = Array.from(uniqueMap.values());
-            allData.sort((a, b) => a.x - b.x);
-
-            await saveLocalData(chipId, allData);
-            updateStatsCards();
-            updateLogs();
-            renderCharts();
-
-        } catch (e) { alert("Errore caricamento dati: " + e.message); }
-        finally { showLoader(false); }
-    }
-
-    // ================================================================
-    //  STATISTICHE
-    // ================================================================
-    function updateStatsCards() {
-        if (allData.length === 0) return;
-        const last = allData[allData.length - 1];
-        document.getElementById('currWeight1').innerText = `${last.peso1.toFixed(2)} Kg`;
-        document.getElementById('currWeight2').innerText = `${last.peso2.toFixed(2)} Kg`;
-
-        const findAgo = (ms, key) => {
-            const target = last.x - ms; let closestIndex = -1;
-            for (let i = allData.length - 1; i >= 0; i--) { if (allData[i].x <= target) { closestIndex = i; break; } }
-            if (closestIndex === -1) return allData.length > 0 ? allData[0][key] : null;
-            return allData[closestIndex][key];
+        window.onload = function() { 
+            initRanges(); 
+            checkAutoLogin(); 
+            if ('serviceWorker' in navigator) { 
+                navigator.serviceWorker.register('sw.js').catch(e => console.log("SW Error:", e)); 
+            } 
         };
 
-        const lastMaintPoint = [...allData].reverse().find(d => d.maintInizio && d.maintInizio !== "");
-        let weightAtMaint1 = null, weightAtMaint2 = null;
-        if (lastMaintPoint) { weightAtMaint1 = lastMaintPoint.peso1; weightAtMaint2 = lastMaintPoint.peso2; }
+        // --- DATABASE INTERNO LOCALE PER MOBILE ---
+        const DB_NAME = "ArniaDataDB"; const STORE_NAME = "history"; let isDbAvailable = true;
+        function openDB() { return new Promise((resolve, reject) => { try { const request = indexedDB.open(DB_NAME, 1); request.onupgradeneeded = event => { event.target.result.createObjectStore(STORE_NAME); }; request.onsuccess = event => resolve(event.target.result); request.onerror = event => { isDbAvailable = false; reject(event.target.error); }; } catch(e) { isDbAvailable = false; reject(e); } }); }
+        async function getLocalData(chipId) { if (!isDbAvailable) return []; try { const db = await openDB(); return new Promise((resolve, reject) => { const tx = db.transaction(STORE_NAME, "readonly"); const store = tx.objectStore(STORE_NAME); const request = store.get(chipId); request.onsuccess = () => resolve(request.result || []); request.onerror = () => reject(request.error); }); } catch(e) { return []; } }
+        async function saveLocalData(chipId, data) { if (!isDbAvailable) return; try { const db = await openDB(); return new Promise((resolve, reject) => { const tx = db.transaction(STORE_NAME, "readwrite"); const store = tx.objectStore(STORE_NAME); store.put(data, chipId); tx.oncomplete = () => resolve(); tx.onerror = () => reject(tx.error); }); } catch(e) { console.warn("Salvataggio locale fallito."); } }
 
-        const day = 86400000;
-        updateDelta('delta24h_1', last.peso1, findAgo(day, 'peso1'));
-        updateDelta('delta24h_2', last.peso2, findAgo(day, 'peso2'));
-        updateDelta('delta7d_1', last.peso1, findAgo(day * 7, 'peso1'));
-        updateDelta('delta7d_2', last.peso2, findAgo(day * 7, 'peso2'));
-        updateDelta('delta15d_1', last.peso1, findAgo(day * 15, 'peso1'));
-        updateDelta('delta15d_2', last.peso2, findAgo(day * 15, 'peso2'));
-        updateDelta('deltaMaint_1', last.peso1, weightAtMaint1);
-        updateDelta('deltaMaint_2', last.peso2, weightAtMaint2);
-    }
+        // --- FILTRI INTERVALLO DI TEMPO ---
+        function initRanges() { const container = document.getElementById('rangeContainer'); container.innerHTML = ''; ranges.forEach(r => { const btn = document.createElement('button'); btn.className = `range-btn ${r === currentRange ? 'active' : ''}`; btn.textContent = r; btn.onclick = () => setRange(r); container.appendChild(btn); }); }
+        function setRange(range) { if (range === 'SET') { openModal(); return; } currentRange = range; customStart = null; customEnd = null; updateRangeButtons(); renderCharts(); }
+        function updateRangeButtons() { document.querySelectorAll('.range-btn').forEach(b => { if(b.textContent === currentRange) b.classList.add('active'); else b.classList.remove('active'); }); }
+        function openModal() { const now = new Date(); if (!document.getElementById('customEndInput').value) { document.getElementById('customEndInput').value = now.toISOString().slice(0, 16); document.getElementById('customStartInput').value = new Date(now.getTime() - 604800000).toISOString().slice(0, 16); } modal.classList.remove('hidden'); }
+        function closeModal() { modal.classList.add('hidden'); }
+        function applyCustomDate() { const sV = document.getElementById('customStartInput').value; const eV = document.getElementById('customEndInput').value; if (!sV || !eV) { alert("Seleziona date."); return; } const s = new Date(sV).getTime(); const e = new Date(eV).getTime(); if (e <= s) { alert("Date errate."); return; } customStart = s; customEnd = e; currentRange = 'SET'; updateRangeButtons(); renderCharts(); closeModal(); }
 
-    function updateDelta(id, curr, old) {
-        const el = document.getElementById(id);
-        if (old === null || old === undefined) { el.innerText = "N/A"; el.className = "val-neutral"; return; }
-        const diff = curr - old; const sign = diff > 0 ? "+" : "";
-        el.innerText = `${sign}${diff.toFixed(2)} Kg`;
-        el.className = diff > 0.05 ? 'val-pos' : (diff < -0.05 ? 'val-neg' : 'val-neutral');
-    }
+        // --- AUTENTICAZIONE E LOGICHE DI RETE ---
+        function checkAutoLogin() { try { const savedEmail = localStorage.getItem('userEmail'); if (savedEmail) { document.getElementById('emailInput').value = savedEmail; doLoginProcess(savedEmail); } } catch(e) {} }
+        function handleLogin() { const email = document.getElementById('emailInput').value.trim(); if (!email) { showLoginError("Inserisci un'email valida."); return; } doLoginProcess(email); }
+        function logout() { try { localStorage.removeItem('userEmail'); } catch(e) {} location.reload(); }
 
-    // ================================================================
-    //  LOG MANUTENZIONE
-    // ================================================================
-    function updateLogs() {
-        const tMaint = document.querySelector('#maintTable tbody'); tMaint.innerHTML = '';
-        const maints = allData.filter(d => d.maintInizio && d.maintInizio !== "").reverse().slice(0, 10);
-        if (maints.length === 0) tMaint.innerHTML = '<tr><td colspan="3">Nessuna manutenzione</td></tr>';
-        else maints.forEach(l => {
-            const tr = document.createElement('tr');
-            const fmt = d => d ? new Date(d).toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}) : '-';
-            tr.innerHTML = `<td>${fmt(l.maintInizio)}</td><td>${fmt(l.maintFine)}</td><td>${l.durata}</td>`;
-            tMaint.appendChild(tr);
-        });
-    }
-
-    // ================================================================
-    //  LEGENDA
-    // ================================================================
-    function generateHtmlLegend(chart, containerId) {
-        const container = document.getElementById(containerId); container.innerHTML = '';
-        chart.data.datasets.forEach((ds, i) => {
-            const el = document.createElement('div');
-            const isHidden = !chart.isDatasetVisible(i);
-            el.className = `legend-item ${isHidden ? 'hidden-dataset' : ''}`;
-            const colorBox = document.createElement('span'); colorBox.className = 'legend-color-box'; colorBox.style.backgroundColor = ds.borderColor;
-            const text = document.createTextNode(ds.label);
-            el.appendChild(colorBox); el.appendChild(text);
-            el.onclick = () => {
-                if (chart.isDatasetVisible(i)) { chart.hide(i); el.classList.add('hidden-dataset'); }
-                else { chart.show(i); el.classList.remove('hidden-dataset'); }
-            };
-            container.appendChild(el);
-        });
-    }
-
-    // ================================================================
-    //  GRAFICI
-    // ================================================================
-    function renderCharts() {
-        if (allData.length === 0) return;
-        const now = Date.now();
-        let minTime, maxTime = (currentRange === 'SET') ? customEnd : now;
-
-        if (currentRange === 'SET' && customStart && customEnd) minTime = customStart;
-        else {
-            const timeMap = { '6H':21600000, '1D':86400000, '1W':604800000, '2W':1209600000, '1M':2592000000, '3M':7776000000, '6M':15552000000, '1Y':31536000000, '5Y':157680000000 };
-            minTime = now - (timeMap[currentRange] || 86400000);
-        }
-
-        const subset = allData.filter(d => d.x >= minTime && d.x <= maxTime);
-
-        const maintenanceAnnotations = subset.filter(d => d.maintInizio && d.maintInizio !== "").map(d => ({
-            type: 'line', mode: 'vertical', scaleID: 'x', value: d.x, borderColor: '#ff453a', borderWidth: 2, borderDash: [5, 5], label: { enabled: false }
-        }));
-
-        const commonOpts = {
-            responsive: true, maintainAspectRatio: false, animation: false, spanGaps: true,
-            scales: {
-                x: { type: 'time', time: { displayFormats: { hour: 'HH:mm', day: 'dd/MM' }, tooltipFormat: 'dd/MM HH:mm' }, grid: { color: '#3a3a3c' }, ticks: { color: '#aeaeb2', maxRotation: 0, autoSkip: true, font: {size: 11} }, min: minTime, max: maxTime },
-                y: { grid: { color: '#3a3a3c' }, ticks: { color: '#aeaeb2', font: {size: 11} }, position: 'left' }
-            },
-            plugins: {
-                // Rimosso l'algoritmo di decimation nativo poiché va in errore su scale 'time' in alcune versioni di Chart.js v4
-                legend: { display: false }, tooltip: { mode: 'index', intersect: false },
-                zoom: { pan: { enabled: true, mode: 'x', threshold: 10 }, zoom: { wheel: { enabled: true }, pinch: { enabled: true }, mode: 'x' } },
-                annotation: { annotations: maintenanceAnnotations }
-            },
-            interaction: { mode: 'nearest', axis: 'x', intersect: false }
-        };
-
-        const ctxPeso = document.getElementById('chartPeso').getContext('2d');
-        const dsPeso1 = { label: 'Arnia 1', data: subset.map(d=>({x:d.x, y:d.peso1})), borderColor: '#ffffff', borderWidth: 2, pointRadius: 0, tension: 0.2, parsing: false, normalized: true, yAxisID: 'y' };
-        const dsPeso2 = { label: 'Arnia 2', data: subset.map(d=>({x:d.x, y:d.peso2})), borderColor: '#4a90e2', borderWidth: 2, pointRadius: 0, tension: 0.2, parsing: false, normalized: true, yAxisID: 'y1' };
-
-        let pesoVisibility = [true, true];
-        if (charts.peso) { pesoVisibility = charts.peso.data.datasets.map((d, i) => charts.peso.isDatasetVisible(i)); charts.peso.destroy(); }
-        dsPeso1.hidden = !pesoVisibility[0]; dsPeso2.hidden = !pesoVisibility[1];
-
-        charts.peso = new Chart(ctxPeso, {
-            type: 'line', data: { datasets: [dsPeso1, dsPeso2] },
-            options: { ...commonOpts, scales: { x: commonOpts.scales.x, y: { ...commonOpts.scales.y, position: 'left' }, y1: { position: 'right', grid: { display: false }, ticks: { color: '#4a90e2', font: {size: 11} }, display: true } } }
-        });
-        generateHtmlLegend(charts.peso, 'legendPeso');
-
-        const ctxMulti = document.getElementById('chartMulti').getContext('2d');
-        const multiData = [
-            { label: 'Temp Amb.', data: subset.map(d=>({x:d.x, y:d.tempEnv})), borderColor: '#ff9f0a', borderWidth: 2, pointRadius: 0, yAxisID: 'y', parsing: false, normalized: true },
-            { label: 'Umidità', data: subset.map(d=>({x:d.x, y:d.hum})), borderColor: '#0a84ff', borderWidth: 2, pointRadius: 0, yAxisID: 'y1', parsing: false, normalized: true },
-            { label: 'Temp 1', data: subset.map(d=>({x:d.x, y:d.temp1})), borderColor: '#ff453a', borderWidth: 1.5, pointRadius: 0, yAxisID: 'y', hidden: true, parsing: false, normalized: true },
-            { label: 'Temp 2', data: subset.map(d=>({x:d.x, y:d.temp2})), borderColor: '#bf5af2', borderWidth: 1.5, pointRadius: 0, yAxisID: 'y', hidden: true, parsing: false, normalized: true },
-            { label: 'Batteria', data: subset.map(d=>({x:d.x, y:d.batt})), borderColor: '#32d74b', borderWidth: 1.5, pointRadius: 0, yAxisID: 'y', hidden: true, parsing: false, normalized: true }
-        ];
-
-        let multiVisibility = [true, true, false, false, false];
-        if (charts.multi) { multiVisibility = charts.multi.data.datasets.map((d, i) => charts.multi.isDatasetVisible(i)); charts.multi.destroy(); }
-        multiData.forEach((d, i) => { if (i < multiVisibility.length) d.hidden = !multiVisibility[i]; });
-
-        charts.multi = new Chart(ctxMulti, {
-            type: 'line', data: { datasets: multiData },
-            options: { ...commonOpts, plugins: { ...commonOpts.plugins, annotation: { annotations: [] }, legend: { display: false } }, scales: { x: commonOpts.scales.x, y: { ...commonOpts.scales.y, position: 'left' }, y1: { position: 'right', grid: { display: false }, ticks: { color: '#0a84ff', font: {size: 11} } } } }
-        });
-        generateHtmlLegend(charts.multi, 'legendMulti');
-    }
-
-    // ================================================================
-    //  AUTO-REFRESH & MANUALE
-    // ================================================================
-    function startAutoRefresh() {
-        if (refreshTimer) clearInterval(refreshTimer);
-        refreshTimer = setInterval(async () => {
+        async function doLoginProcess(email) {
+            showLoader(true, "Accesso in corso...");
             try {
-                const csvText = await fetchSheetCsv();
-                const rows = parseCSV(csvText);
-                allSheetData = csvToObjects(rows);
-                const chipId = document.getElementById('deviceSelector').value;
-                if (chipId) { await loadDeviceData(chipId); showToast("Dati aggiornati"); }
-            } catch(e) { console.warn("Auto-refresh fallito:", e); }
-        }, CONFIG.REFRESH_INTERVAL);
-    }
+                let requestEmail = email; let isMaster = false;
+                if (email.toLowerCase() === SECRET_KEY) { requestEmail = ""; isMaster = true; }
+                const res = await fetch(`${scriptUrl}?action=listDevices&email=${encodeURIComponent(requestEmail)}`);
+                const json = await res.json();
+                if (json.status === "error") throw new Error(json.message);
+                if (!json.data || json.data.length === 0) throw new Error("Nessun dispositivo trovato.");
+                
+                try { localStorage.setItem('userEmail', email); } catch(e) {}
+                populateDeviceSelector(json.data);
+                
+                const badge = document.getElementById('accountBadge');
+                if (isMaster) { badge.innerText = "MASTER KEY"; badge.className = "badge master"; } else { badge.innerText = "FREE"; badge.className = "badge"; }
+                loginPage.classList.add('hidden'); dashboardPage.classList.remove('hidden');
+                
+                if (json.data.length > 0) { const firstId = json.data[0].id || json.data[0]; document.getElementById('deviceSelector').value = firstId; await loadDeviceData(firstId); }
+            } catch (e) { console.error(e); showLoginError(e.message); loginPage.classList.remove('hidden'); dashboardPage.classList.add('hidden'); } finally { showLoader(false); }
+        }
 
-    async function manualRefresh() {
-        const btn = document.getElementById('refreshBtn');
-        btn.style.opacity = '0.5'; btn.style.pointerEvents = 'none';
-        try {
-            const csvText = await fetchSheetCsv();
-            const rows = parseCSV(csvText);
-            allSheetData = csvToObjects(rows);
-            const chipId = document.getElementById('deviceSelector').value;
-            if (chipId) { await loadDeviceData(chipId); showToast("Dati aggiornati con successo"); }
-        } catch(e) { alert("Errore aggiornamento: " + e.message); }
-        finally { btn.style.opacity = '1'; btn.style.pointerEvents = 'auto'; }
-    }
+        function showLoginError(msg) { const el = document.getElementById('loginError'); el.innerText = msg; el.style.display = 'block'; }
+        function populateDeviceSelector(devices) { const sel = document.getElementById('deviceSelector'); sel.innerHTML = ''; devices.forEach(d => { const opt = document.createElement('option'); const deviceId = d.id || d; const deviceEmail = d.email || ''; opt.value = deviceId; opt.textContent = deviceEmail ? `${deviceId} - ${deviceEmail}` : `${deviceId}`; sel.appendChild(opt); }); }
+        async function onDeviceChanged() { const id = document.getElementById('deviceSelector').value; if(id) await loadDeviceData(id); }
 
-    function showToast(msg) {
-        const existing = document.querySelector('.update-toast'); if (existing) existing.remove();
-        const toast = document.createElement('div'); toast.className = 'update-toast'; toast.textContent = msg;
-        document.body.appendChild(toast); setTimeout(() => { if (toast.parentNode) toast.remove(); }, 3000);
-    }
+        // --- SINCRONIZZAZIONE DATI CLOUD ---
+        async function loadDeviceData(chipId) {
+            showLoader(true, "Verifica database locale...");
+            try {
+                fetch(`${scriptUrl}?action=getDeviceConfig&chipId=${chipId}`).then(r=>r.json()).then(d=>{ const isM = document.getElementById('accountBadge').classList.contains('master'); const oB = document.getElementById('ownerBadge'); if(isM&&d.data?.email){oB.innerText=d.data.email;oB.style.display='inline-block';}else{oB.style.display='none';} if(!isM){const t=d.data?.tipologia||'Standard';const b=document.getElementById('accountBadge');b.innerText=t;b.style.color=t==='Demo'?'#e67e22':'#2ecc71';} }).catch(e=>{});
+                
+                let localData = await getLocalData(chipId); let lastTs = 0;
+                if (localData.length > 0) { localData.sort((a, b) => a.x - b.x); lastTs = localData[localData.length - 1].x; showLoader(true, "Sincronizzazione nuovi dati..."); } else { showLoader(true, "Scaricamento dati completi..."); }
+                
+                const res = await fetch(`${scriptUrl}?action=getDeviceHistory&chipId=${chipId}&after=${lastTs}`);
+                const json = await res.json();
+                if (json.status === 'error') throw new Error(json.message);
+                
+                if (json.data && json.data.length > 0) {
+                    const newData = json.data.map(row => { const ts = row.Timestamp ? new Date(row.Timestamp).getTime() : null; if (!ts) return null; return { x: ts, peso1: parseFloat(row['Peso 1'])||0, peso2: parseFloat(row['Peso 2'])||0, tempEnv: parseFloat(row['Temp SHT4x'])||0, hum: parseFloat(row.Umidità)||0, batt: parseFloat(row.Batteria)||0, temp1: parseFloat(row['Temp 1'])||0, temp2: parseFloat(row['Temp 2'])||0, maintInizio: row['Maint Inizio'] ? new Date(row['Maint Inizio']) : null, maintFine: row['Maint Fine'] ? new Date(row['Maint Fine']) : null, durata: row['Durata (min)'] || 0, firmware: row['Firmware'] || '' }; }).filter(d => d !== null);
+                    localData = localData.concat(newData);
+                }
+                
+                const uniqueMap = new Map(); localData.forEach(item => uniqueMap.set(item.x, item)); localData = Array.from(uniqueMap.values()); localData.sort((a, b) => a.x - b.x);
+                if (json.data && json.data.length > 0) { await saveLocalData(chipId, localData); }
+                
+                allData = localData; updateStatsCards(); updateLogs(); renderCharts();
+            } catch (e) { alert("Errore caricamento dati: " + e.message); } finally { showLoader(false); }
+        }
 
-    function showLoader(show, text) {
-        loader.classList.toggle('hidden', !show);
-        if(text) loaderText.innerText = text;
-    }
+        // --- CALCOLO KPI E LOG TABELLA ---
+        function updateStatsCards() {
+            if (allData.length === 0) return; const last = allData[allData.length - 1];
+            document.getElementById('currWeight1').innerText = `${last.peso1.toFixed(2)} Kg`; document.getElementById('currWeight2').innerText = `${last.peso2.toFixed(2)} Kg`;
+            const lastWithFw = [...allData].reverse().find(d => d.firmware && d.firmware !== ""); const fwBadge = document.getElementById('fwBadge'); if (lastWithFw) { fwBadge.innerText = 'FW: ' + lastWithFw.firmware; fwBadge.style.display = 'inline-block'; } else { fwBadge.style.display = 'none'; }
+            const findAgo = (ms, key) => { const target = last.x - ms; let ci = -1; for (let i = allData.length - 1; i >= 0; i--) { if (allData[i].x <= target) { ci = i; break; } } return ci === -1 ? (allData.length > 0 ? allData[0][key] : null) : allData[ci][key]; };
+            const lmp = [...allData].reverse().find(d => d.maintInizio !== null && d.maintInizio !== ""); let wm1=null,wm2=null; if(lmp){wm1=lmp.peso1;wm2=lmp.peso2;} const day=86400000;
+            updateDelta('delta24h_1', last.peso1, findAgo(day, 'peso1')); updateDelta('delta24h_2', last.peso2, findAgo(day, 'peso2'));
+            updateDelta('delta7d_1', last.peso1, findAgo(day*7, 'peso1')); updateDelta('delta7d_2', last.peso2, findAgo(day*7, 'peso2'));
+            updateDelta('delta15d_1', last.peso1, findAgo(day*15, 'peso1')); updateDelta('delta15d_2', last.peso2, findAgo(day*15, 'peso2'));
+            updateDelta('deltaMaint_1', last.peso1, wm1); updateDelta('deltaMaint_2', last.peso2, wm2);
+        }
+        function updateDelta(id, curr, old) { const el = document.getElementById(id); if (old === null) { el.innerText="N/A"; el.className="val-neutral"; return; } const diff = curr - old; const sign = diff > 0 ? "+" : ""; el.innerText = `${sign}${diff.toFixed(2)} Kg`; el.className = diff > 0.05 ? 'val-pos' : (diff < -0.05 ? 'val-neg' : 'val-neutral'); }
+        function updateLogs() { const tM = document.querySelector('#maintTable tbody'); tM.innerHTML = ''; const m = allData.filter(d => d.maintInizio).reverse().slice(0, 10); if(m.length === 0) tM.innerHTML = '<tr><td colspan="3">Nessuna manutenzione</td></tr>'; else m.forEach(l => { const tr = document.createElement('tr'); const fmt = d => d ? new Date(d).toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}) : '-'; tr.innerHTML = `<td>${fmt(l.maintInizio)}</td><td>${fmt(l.maintFine)}</td><td>${l.durata}</td></tr>`; tM.appendChild(tr); }); }
+
+        // --- LOGICHE GENERAZIONE GRAFICI ---
+        function generateHtmlLegend(chart, containerId) { const c = document.getElementById(containerId); c.innerHTML = ''; chart.data.datasets.map((ds, i) => { const el = document.createElement('div'); const isH = !chart.isDatasetVisible(i); el.className = `legend-item ${isH ? 'hidden-dataset' : ''}`; const cb = document.createElement('span'); cb.className = 'legend-color-box'; cb.style.backgroundColor = ds.borderColor; const t = document.createTextNode(ds.label); el.appendChild(cb); el.appendChild(t); el.onclick = () => { if (chart.isDatasetVisible(i)) { chart.hide(i); el.classList.add('hidden-dataset'); } else { chart.show(i); el.classList.remove('hidden-dataset'); } }; c.appendChild(el); }); }
+        
+        function renderCharts() {
+            if (allData.length === 0) return; const now = Date.now(); let minTime, maxTime = (currentRange === 'SET') ? customEnd : now;
+            if (currentRange === 'SET' && customStart && customEnd) { minTime = customStart; } else { const tm = { '6H': 21600000, '1D': 86400000, '1W': 604800000, '2W': 1209600000, '1M': 2592000000, '3M': 7776000000, '6M': 15552000000, '1Y': 31536000000, '5Y': 157680000000 }; minTime = now - (tm[currentRange] || 86400000); }
+            const subset = allData.filter(d => d.x >= minTime && d.x <= maxTime);
+            const mA = subset.filter(d => d.maintInizio).map(d => ({ type: 'line', mode: 'vertical', scaleID: 'x', value: d.x, borderColor: '#ff453a', borderWidth: 2, borderDash: [5, 5], label: { enabled: false } }));
+            const cO = { responsive: true, maintainAspectRatio: false, animation: false, spanGaps: true, scales: { x: { type: 'time', time: { displayFormats: { hour: 'HH:mm', day: 'dd/MM' }, tooltipFormat: 'dd/MM HH:mm' }, grid: { color: '#3a3a3c' }, ticks: { color: '#aeaeb2', maxRotation: 0, autoSkip: true, font: {size: 11} }, min: minTime, max: maxTime }, y: { grid: { color: '#3a3a3c' }, ticks: { color: '#aeaeb2', font: {size: 11} }, position: 'left' } }, plugins: { decimation: { enabled: true, algorithm: 'lttb', samples: 200, threshold: 200 }, legend: { display: false }, tooltip: { mode: 'index', intersect: false }, zoom: { pan: { enabled: true, mode: 'x', threshold: 10 }, zoom: { wheel: { enabled: true }, pinch: { enabled: true }, mode: 'x' } }, annotation: { annotations: mA } }, interaction: { mode: 'nearest', axis: 'x', intersect: false } };
+
+            const ctxP = document.getElementById('chartPeso').getContext('2d');
+            const dP1 = { label: 'Arnia 1', data: subset.map(d=>({x:d.x, y:d.peso1})), borderColor: '#ffffff', borderWidth: 2, pointRadius:0, tension: 0.2, parsing: false, normalized: true, yAxisID: 'y' };
+            const dP2 = { label: 'Arnia 2', data: subset.map(d=>({x:d.x, y:d.peso2})), borderColor: '#4a90e2', borderWidth: 2, pointRadius:0, tension: 0.2, parsing: false, normalized: true, yAxisID: 'y1' };
+            let pV = [true, true]; if(charts.peso) { pV = charts.peso.data.datasets.map((d, i) => charts.peso.isDatasetVisible(i)); charts.peso.destroy(); } dP1.hidden = !pV[0]; dP2.hidden = !pV[1];
+            charts.peso = new Chart(ctxP, { type: 'line', data: { datasets: [ dP1, dP2 ] }, options: { ...cO, scales: { x: cO.scales.x, y: { ...cO.scales.y, position: 'left', grid: { color: '#3a3a3c' }, ticks: { color: '#aeaeb2', font: {size: 11} } }, y1: { position: 'right', grid: { display: false }, ticks: { color: '#4a90e2', font: {size: 11} }, display: true } } } });
+            generateHtmlLegend(charts.peso, 'legendPeso');
+
+            const ctxM = document.getElementById('chartMulti').getContext('2d');
+            const mD = [ { label: 'Temp Amb.', data: subset.map(d=>({x:d.x, y:d.tempEnv})), borderColor: '#ff9f0a', borderWidth: 2, pointRadius:0, yAxisID:'y', parsing: false, normalized: true }, { label: 'Umidità', data: subset.map(d=>({x:d.x, y:d.hum})), borderColor: '#0a84ff', borderWidth: 2, pointRadius:0, yAxisID:'y1', parsing: false, normalized: true }, { label: 'Temp 1', data: subset.map(d=>({x:d.x, y:d.temp1})), borderColor: '#ff453a', borderWidth: 1.5, pointRadius:0, yAxisID:'y', hidden: true, parsing: false, normalized: true }, { label: 'Temp 2', data: subset.map(d=>({x:d.x, y:d.temp2})), borderColor: '#bf5af2', borderWidth: 1.5, pointRadius:0, yAxisID:'y', hidden: true, parsing: false, normalized: true }, { label: 'Batteria', data: subset.map(d=>({x:d.x, y:d.batt})), borderColor: '#32d74b', borderWidth: 1.5, pointRadius:0, yAxisID:'y', hidden: true, parsing: false, normalized: true } ];
+            let mV = [true, true, false, false, false]; if(charts.multi) { mV = charts.multi.data.datasets.map((d, i) => charts.multi.isDatasetVisible(i)); charts.multi.destroy(); } mD.forEach((d, i) => { if (i < mV.length) d.hidden = !mV[i]; });
+            charts.multi = new Chart(ctxM, { type: 'line', data: { datasets: mD }, options: { ...cO, plugins: { ...cO.plugins, annotation: { annotations: [] }, legend: { display: false } }, scales: { x: cO.scales.x, y: { ...cO.scales.y, position: 'left', title: {display: false}, grid: { color: '#3a3a3c' } }, y1: { position: 'right', grid: { display: false }, ticks: { color: '#0a84ff', font: {size: 11} }, title: {display: false} } } } });
+            generateHtmlLegend(charts.multi, 'legendMulti');
+        }
+
+        function showLoader(show, text) { loader.classList.toggle('hidden', !show); if(text) loaderText.innerText = text; }
     </script>
 </body>
 </html>

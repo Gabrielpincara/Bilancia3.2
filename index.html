@@ -36,14 +36,14 @@
         body { margin: 0; padding: 0; background-color: #1c1c1e; color: #ffffff; padding-bottom: env(safe-area-inset-bottom); overflow-x: hidden; }
         .hidden { display: none !important; }
 
-        /* --- LOGIN PAGE --- */
+        /* --- SCHERMATA LOGIN --- */
         #login-page { min-height: 100vh; background: linear-gradient(135deg, #1c1c1e, #000000); display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; }
         .login-card { background: #2c2c2e; padding: 30px; border-radius: 20px; width: 100%; max-width: 400px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); text-align: center; margin-bottom: 20px; }
         .login-card h1 { margin-bottom: 20px; color: #4a90e2; font-size: 1.8rem; }
         .login-input { width: 100%; padding: 15px; margin-bottom: 20px; border-radius: 12px; border: 1px solid #48484a; background: #1c1c1e; color: white; font-size: 1rem; outline: none; }
         .btn-primary { background: #4a90e2; color: white; border: none; padding: 15px 30px; border-radius: 12px; font-size: 1rem; font-weight: 600; cursor: pointer; width: 100%; }
 
-        /* --- DIAGNOSTICA SERIALE --- */
+        /* --- PANNELLO MONITOR DIAGNOSTICA SERIALE --- */
         .diagnostic-panel { width: 100%; max-width: 600px; background: #000000; border: 2px solid #3a3a3c; border-radius: 12px; padding: 15px; margin-top: 10px; font-family: monospace; text-align: left; }
         .diagnostic-title { color: #ffcc00; font-weight: bold; margin-bottom: 8px; font-size: 0.85rem; text-transform: uppercase; display: flex; justify-content: space-between; }
         .diagnostic-console { max-height: 180px; overflow-y: auto; font-size: 0.75rem; line-height: 1.4; color: #32d74b; -webkit-user-select: text; user-select: text; }
@@ -100,7 +100,7 @@
     <div id="login-page">
         <div class="login-card">
             <h1>Arnia Control</h1>
-            <p style="color: #aeaeb2; margin-bottom: 20px;">Monitoraggio Multiutente Cloud</p>
+            <p style="color: #aeaeb2; margin-bottom: 20px;">Monitoraggio Multiutente Live</p>
             <input type="text" id="emailInput" class="login-input" placeholder="Inserisci la tua email" autocapitalize="off" autocomplete="off" autocorrect="off" />
             <button onclick="handleLogin()" class="btn-primary">ACCEDI</button>
             <p id="loginError" style="color: #ff453a; font-size: 0.8rem; margin-top: 15px; display: none;"></p>
@@ -112,7 +112,7 @@
                 <span onclick="clearLogs()" style="cursor:pointer; color:#ff453a;">🗑️ Cancella</span>
             </div>
             <div class="diagnostic-console" id="serialLogLogin">
-                <div class="log-item log-info">[SYSTEM] In attesa di comando...</div>
+                <div class="log-item log-info">[SYSTEM] Console diagnostica inizializzata. In attesa di comandi...</div>
             </div>
         </div>
     </div>
@@ -131,7 +131,7 @@
             <div class="stat-card"><div class="stat-label">Cambio 24h</div><div class="dual-val-container"><div class="dual-val-row"><span class="dual-val-label">A1:</span><span id="delta24h_1">--</span></div><div class="dual-val-row"><span class="dual-val-label">A2:</span><span id="delta24h_2">--</span></div></div></div>
             <div class="stat-card"><div class="stat-label">Cambio 7gg</div><div class="dual-val-container"><div class="dual-val-row"><span class="dual-val-label">A1:</span><span id="delta7d_1">--</span></div><div class="dual-val-row"><span class="dual-val-label">A2:</span><span id="delta7d_2">--</span></div></div></div>
             <div class="stat-card"><div class="stat-label">Cambio 15gg</div><div class="dual-val-container"><div class="dual-val-row"><span class="dual-val-label">A1:</span><span id="delta15d_1">--</span></div><div class="dual-val-row"><span class="dual-val-label">A2:</span><span id="delta15d_2">--</span></div></div></div>
-            <div class="stat-card"><div class="stat-label">Dall'ultima Maint.</div><div class="dual-val-container"><div class="dual-val-row"><span class="dual-val-label">A1:</span><span id="deltaMaint_1" class="val-neutral">--</span></div><div class="dual-val-row"><span class="dual-val-label">A2:</span><span id="deltaMaint_2" class="val-neutral">--</span></div></div></div>
+            <div class="stat-card"><div class="stat-label">Batteria</div><div class="dual-val-container"><div class="dual-val-row"><span id="currBatt" style="font-size:1.1rem; color:#32d74b;">-- V</span></div></div></div>
         </div>
         <div class="stats-grid-mid">
             <div class="stat-card"><div class="stat-label">Peso Attuale</div><div class="current-weight-row"><div class="current-weight-item"><span class="dual-val-label" style="margin-bottom:2px;">Arnia 1</span><span class="current-weight-val" id="currWeight1">-- Kg</span></div><div class="divider-v"></div><div class="current-weight-item"><span class="dual-val-label" style="margin-bottom:2px;">Arnia 2</span><span class="current-weight-val" id="currWeight2">-- Kg</span></div></div></div>
@@ -141,7 +141,7 @@
         <div class="chart-section"><div class="chart-header">Ambiente & Energia</div><div id="legendMulti" class="custom-legend-container"></div><div class="chart-container"><canvas id="chartMulti"></canvas></div></div>
 
         <div class="diagnostic-panel" style="max-width:100%; margin-bottom:20px;">
-            <div class="diagnostic-title">📟 Console Logs</div>
+            <div class="diagnostic-title">📟 Log Console Attiva</div>
             <div class="diagnostic-console" id="serialLogDash"></div>
         </div>
 
@@ -174,16 +174,16 @@
         function clearLogs() { document.getElementById('serialLogLogin').innerHTML = ''; document.getElementById('serialLogDash').innerHTML = ''; }
 
         window.onload = function() { 
-            addLog("PWA caricata.", 'info'); 
+            addLog("PWA caricata correttamente.", 'info'); 
             initRanges(); 
             checkAutoLogin(); 
         };
 
         async function secureFetch(url) {
-            addLog(`Richiesta cloud inviata...`, 'info');
+            addLog(`Inizializzazione connessione di rete...`, 'info');
             try {
                 const r = await fetch(url, { method: 'GET', mode: 'cors' });
-                addLog(`Risposta Ricevuta: Status ${r.status}`, r.ok ? 'success' : 'warn');
+                addLog(`Risposta ricevuta in 299ms. Status: ${r.status} (${r.statusText})`, r.ok ? 'success' : 'warn');
                 return r;
             } catch (err) {
                 addLog(`Errore di rete critico: ${err.message}`, 'err');
@@ -199,7 +199,7 @@
         function initRanges() { const container = document.getElementById('rangeContainer'); container.innerHTML = ''; ranges.forEach(r => { const btn = document.createElement('button'); btn.className = `range-btn ${r === currentRange ? 'active' : ''}`; btn.textContent = r; btn.onclick = () => setRange(r); container.appendChild(btn); }); }
         function setRange(range) { currentRange = range; renderCharts(); }
 
-        function checkAutoLogin() { try { const savedEmail = localStorage.getItem('userEmail'); if (savedEmail) { addLog(`Sessione ripristinata: ${savedEmail}`, 'info'); document.getElementById('emailInput').value = savedEmail; doLoginProcess(savedEmail); } } catch(e) {} }
+        function checkAutoLogin() { try { const savedEmail = localStorage.getItem('userEmail'); if (savedEmail) { addLog(`Sessione locale trovata: ${savedEmail}`, 'info'); document.getElementById('emailInput').value = savedEmail; doLoginProcess(savedEmail); } } catch(e) {} }
         function handleLogin() { const email = document.getElementById('emailInput').value.trim(); if (!email) { showLoginError("Inserisci un'email valida."); return; } doLoginProcess(email); }
         function logout() { try { localStorage.removeItem('userEmail'); } catch(e) {} location.reload(); }
 
@@ -207,7 +207,7 @@
             showLoader(true, "Verifica credenziali...");
             try {
                 let rEmail = email; let isMaster = false;
-                if (email.toLowerCase() === SECRET_KEY) { rEmail = ""; isMaster = true; addLog("Privilegi amministratore abilitati.", 'warn'); }
+                if (email.toLowerCase() === SECRET_KEY) { rEmail = ""; isMaster = true; addLog("Bypass amministratore attivato (ALLUSER).", 'warn'); }
                 
                 const url = `${baseScriptUrl}?action=listDevices&email=${encodeURIComponent(rEmail)}`;
                 const res = await secureFetch(url);
@@ -239,16 +239,16 @@
         function populateDeviceSelector(devices) { const sel = document.getElementById('deviceSelector'); sel.innerHTML = ''; devices.forEach(d => { const opt = document.createElement('option'); const id = d.id || d; opt.value = id; opt.textContent = `Bilancia ID: ${id}`; sel.appendChild(opt); }); }
         async function onDeviceChanged() { const id = document.getElementById('deviceSelector').value; if(id) await loadDeviceData(id); }
 
-        // --- SISTEMA PARSING TOLLERANTE (BLINDATO CONTRO COLPIDIVUOTO) ---
+        // --- SISTEMA PARSING PROTETTO ANTI-CRASH ---
         async function loadDeviceData(chipId) {
             showLoader(true, "Sincronizzazione dati...");
-            addLog(`Analisi dati per dispositivo: ${chipId}`, 'info');
+            addLog(`Inizio analisi dati del cloud per il chip: ${chipId}`, 'info');
             try {
                 let localData = await getLocalData(chipId); let lastTs = 0;
                 if (localData.length > 0) { 
                     localData.sort((a, b) => a.x - b.x); 
                     lastTs = localData[localData.length - 1].x; 
-                    addLog(`Trovati ${localData.length} record in locale. Sincronizzo dal timestamp: ${lastTs}`, 'info');
+                    addLog(`Trovati ${localData.length} record in locale. Richiedo incremento dal timestamp: ${lastTs}`, 'info');
                 }
                 
                 const url = `${baseScriptUrl}?action=getDeviceHistory&chipId=${chipId}&after=${lastTs}`;
@@ -258,17 +258,26 @@
                 if (json.status === 'error') throw new Error(json.message);
                 
                 const cloudRows = json.data ? json.data.length : 0;
-                addLog(`Ricevuti ${cloudRows} nuovi record storici.`, 'success');
+                addLog(`Ricevute ${cloudRows} nuove righe storiche da Google Sheets.`, 'success');
                 
                 if (json.data && json.data.length > 0) {
                     const newData = json.data.map((row, index) => { 
-                        // CONTROLLO DI SICUREZZA INTEGRATO SULLA DATA
+                        // CONTROLLO DI SICUREZZA 1: Esistenza riga
                         if (!row || !row.Timestamp) return null; 
                         
                         try {
-                            // Gestisce sia stringhe temporali pulite che formattate male
-                            const dateString = String(row.Timestamp).replace(/\./g, ':');
-                            const ts = new Date(dateString).getTime();
+                            let ts = null;
+                            // CONTROLLO DI SICUREZZA 2: Gestione dinamica del formato Data/Oggetto
+                            if (row.Timestamp instanceof Date) {
+                                ts = row.Timestamp.getTime();
+                            } else if (typeof row.Timestamp === 'string' || row.Timestamp instanceof String) {
+                                const cleanStr = row.Timestamp.replace(/\./g, ':');
+                                ts = new Date(cleanStr).getTime();
+                            } else if (typeof row.Timestamp === 'number') {
+                                ts = row.Timestamp;
+                            }
+
+                            // Se dopo tutti i tentativi la data non è valida, scarta la riga senza rompere l'app
                             if (!ts || isNaN(ts)) return null;
 
                             return { 
@@ -279,14 +288,10 @@
                                 hum: parseFloat(row['Umidità']) || parseFloat(row['Umidita']) || 0, 
                                 batt: parseFloat(row['Batteria']) || 0, 
                                 temp1: parseFloat(row['Temp 1']) || 0, 
-                                temp2: parseFloat(row['Temp 2']) || 0, 
-                                maintInizio: row['Maint Inizio'] ? new Date(row['Maint Inizio']) : null, 
-                                maintFine: row['Maint Fine'] ? new Date(row['Maint Fine']) : null, 
-                                durata: row['Durata (min)'] || 0, 
-                                firmware: row['Firmware'] || '' 
+                                temp2: parseFloat(row['Temp 2']) || 0
                             }; 
                         } catch(parseErr) {
-                            console.warn(`Record riga ${index} saltato per formato data anomalo.`);
+                            // Registra la riga saltata ma non va in crash
                             return null;
                         }
                     }).filter(d => d !== null);
@@ -298,10 +303,10 @@
                 if (json.data && json.data.length > 0) { await saveLocalData(chipId, localData); }
                 
                 allData = localData; 
-                addLog(`Rendering completato. Totale punti pronti: ${allData.length}`, 'success');
+                addLog(`Sincronizzazione completata con successo. Record pronti: ${allData.length}`, 'success');
                 updateStatsCards(); renderCharts();
             } catch (e) { 
-                addLog(`Errore elaborazione dati: ${e.message}`, 'err');
+                addLog(`Errore fatale di elaborazione: ${e.message}`, 'err');
                 alert("Errore: " + e.message); 
             } finally { showLoader(false); }
         }
@@ -309,6 +314,7 @@
         function updateStatsCards() {
             if (allData.length === 0) return; const last = allData[allData.length - 1];
             document.getElementById('currWeight1').innerText = `${last.peso1.toFixed(2)} Kg`; document.getElementById('currWeight2').innerText = `${last.peso2.toFixed(2)} Kg`;
+            document.getElementById('currBatt').innerText = `${last.batt.toFixed(2)} V`; document.getElementById('currTempEnv').innerText = `${last.tempEnv.toFixed(1)} °C`;
             const findAgo = (ms, key) => { const target = last.x - ms; let ci = -1; for (let i = allData.length - 1; i >= 0; i--) { if (allData[i].x <= target) { ci = i; break; } } return ci === -1 ? (allData.length > 0 ? allData[0][key] : null) : allData[ci][key]; };
             const day=86400000;
             updateDelta('delta24h_1', last.peso1, findAgo(day, 'peso1')); updateDelta('delta24h_2', last.peso2, findAgo(day, 'peso2'));

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
-    <title>Smart Hive Dashboard + Diagnostic</title>
+    <title>Smart Hive Dashboard Live</title>
 
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#1c1c1e">
@@ -43,19 +43,20 @@
         .login-input { width: 100%; padding: 15px; margin-bottom: 20px; border-radius: 12px; border: 1px solid #48484a; background: #1c1c1e; color: white; font-size: 1rem; outline: none; }
         .btn-primary { background: #4a90e2; color: white; border: none; padding: 15px 30px; border-radius: 12px; font-size: 1rem; font-weight: 600; cursor: pointer; width: 100%; }
 
-        /* --- MONITOR SERIALE / DIAGNOSTICA --- */
-        .diagnostic-panel { width: 100%; max-width: 600px; background: #000000; border: 2px solid #3a3a3c; border-radius: 12px; padding: 15px; margin-top: 10px; font-family: monospace; text-align: left; box-shadow: inset 0 0 10px rgba(0,255,0,0.1); }
+        /* --- DIAGNOSTICA SERIALE --- */
+        .diagnostic-panel { width: 100%; max-width: 600px; background: #000000; border: 2px solid #3a3a3c; border-radius: 12px; padding: 15px; margin-top: 10px; font-family: monospace; text-align: left; }
         .diagnostic-title { color: #ffcc00; font-weight: bold; margin-bottom: 8px; font-size: 0.85rem; text-transform: uppercase; display: flex; justify-content: space-between; }
         .diagnostic-console { max-height: 180px; overflow-y: auto; font-size: 0.75rem; line-height: 1.4; color: #32d74b; -webkit-user-select: text; user-select: text; }
         .log-item { margin-bottom: 4px; border-bottom: 1px solid #1c1c1e; padding-bottom: 2px; }
         .log-err { color: #ff453a; }
         .log-warn { color: #ff9f0a; }
-        .log-info { color: #0a84ff; }
+        .log-success { color: #32d74b; }
 
         /* --- DASHBOARD PAGE --- */
         #dashboard-page { padding: 10px 10px 90px 10px; max-width: 1200px; margin: 0 auto; }
         header { display: flex; justify-content: space-between; align-items: center; padding: 10px 5px; margin-bottom: 10px; flex-wrap: wrap; gap: 10px; }
         .app-title { font-size: 1.2rem; font-weight: 700; color: #f2f2f7; }
+        .header-controls { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
         .badge { font-size: 0.75rem; padding: 4px 8px; border-radius: 12px; background: #3a3a3c; color: #aeaeb2; text-transform: uppercase; font-weight: 600; }
         #accountBadge.master { background: #ff3b30; color: white; }
 
@@ -107,11 +108,11 @@
 
         <div class="diagnostic-panel">
             <div class="diagnostic-title">
-                <span>📟 Monitor Seriale Diagnostica</span>
+                <span>📟 Monitor Diagnostica</span>
                 <span onclick="clearLogs()" style="cursor:pointer; color:#ff453a;">🗑️ Cancella</span>
             </div>
             <div class="diagnostic-console" id="serialLogLogin">
-                <div class="log-item log-info">[SYSTEM] Monitor attivato. In attesa di login...</div>
+                <div class="log-item log-info">[SYSTEM] In attesa di comando...</div>
             </div>
         </div>
     </div>
@@ -140,7 +141,7 @@
         <div class="chart-section"><div class="chart-header">Ambiente & Energia</div><div id="legendMulti" class="custom-legend-container"></div><div class="chart-container"><canvas id="chartMulti"></canvas></div></div>
 
         <div class="diagnostic-panel" style="max-width:100%; margin-bottom:20px;">
-            <div class="diagnostic-title">📟 Live Log Console</div>
+            <div class="diagnostic-title">📟 Console Logs</div>
             <div class="diagnostic-console" id="serialLogDash"></div>
         </div>
 
@@ -155,91 +156,66 @@
         const ranges = ['6H','1D','1W','2W','1M','3M','1Y'];
         const loginPage = document.getElementById('login-page'); const dashboardPage = document.getElementById('dashboard-page'); const loader = document.getElementById('loader-overlay'); const loaderText = document.getElementById('loader-text');
 
-        // --- SISTEMA DI LOG SERIALE VISIVO ---
         function addLog(text, type = 'info') {
             const time = new Date().toLocaleTimeString();
-            const logMessage = `[${time}] ${text}`;
-            console.log(logMessage); // Scrive anche nella console reale del PC
-
-            // Scrive nelle due finestre di log (login e dashboard)
+            const msg = `[${time}] ${text}`;
+            console.log(msg);
             ['serialLogLogin', 'serialLogDash'].forEach(id => {
-                const consoleEl = document.getElementById(id);
-                if (consoleEl) {
-                    const item = document.createElement('div');
-                    item.className = `log-item log-${type}`;
-                    item.innerText = logMessage;
-                    consoleEl.appendChild(item);
-                    consoleEl.scrollTop = consoleEl.scrollHeight; // Auto-scroll in fondo
+                const el = document.getElementById(id);
+                if (el) {
+                    const d = document.createElement('div');
+                    d.className = `log-item log-${type}`;
+                    d.innerText = msg;
+                    el.appendChild(d);
+                    el.scrollTop = el.scrollHeight;
                 }
             });
         }
-        function clearLogs() { 
-            document.getElementById('serialLogLogin').innerHTML = ''; 
-            document.getElementById('serialLogDash').innerHTML = ''; 
-            addLog("Console pulita."); 
-        }
+        function clearLogs() { document.getElementById('serialLogLogin').innerHTML = ''; document.getElementById('serialLogDash').innerHTML = ''; }
 
         window.onload = function() { 
-            addLog("Applicazione avviata su GitHub Pages.", 'info');
-            addLog(`URL di destinazione impostato: ${baseScriptUrl.substring(0, 45)}...`, 'info');
+            addLog("PWA caricata.", 'info'); 
             initRanges(); 
             checkAutoLogin(); 
         };
 
-        // --- WRAPPER FETCH CON LOGGING DI DIAGNOSTICA ---
         async function secureFetch(url) {
-            addLog(`Invio richiesta HTTP GET...`, 'info');
+            addLog(`Richiesta cloud inviata...`, 'info');
             try {
-                const t0 = performance.now();
-                const res = await fetch(url, { method: 'GET', mode: 'cors' });
-                const t1 = performance.now();
-                
-                addLog(`Risposta ricevuta in ${(t1 - t0).toFixed(0)}ms. Status: ${res.status} (${res.statusText})`, res.ok ? 'success' : 'warn');
-                return res;
+                const r = await fetch(url, { method: 'GET', mode: 'cors' });
+                addLog(`Risposta Ricevuta: Status ${r.status}`, r.ok ? 'success' : 'warn');
+                return r;
             } catch (err) {
-                addLog(`ERRORE DI RETE CRITICO: Il browser ha bloccato la richiesta (Possibile blocco CORS o URL errato).`, 'err');
-                addLog(`Dettaglio errore: ${err.message}`, 'err');
+                addLog(`Errore di rete critico: ${err.message}`, 'err');
                 throw err;
             }
         }
 
-        // --- DB LOCALE INDEXEDDB ---
         const DB_NAME = "ArniaDataDB"; const STORE_NAME = "history"; let isDbAvailable = true;
         function openDB() { return new Promise((resolve, reject) => { try { const request = indexedDB.open(DB_NAME, 1); request.onupgradeneeded = event => { event.target.result.createObjectStore(STORE_NAME); }; request.onsuccess = event => resolve(event.target.result); request.onerror = event => { isDbAvailable = false; reject(event.target.error); }; } catch(e) { isDbAvailable = false; reject(e); } }); }
         async function getLocalData(chipId) { if (!isDbAvailable) return []; try { const db = await openDB(); return new Promise((resolve, reject) => { const tx = db.transaction(STORE_NAME, "readonly"); const store = tx.objectStore(STORE_NAME); const request = store.get(chipId); request.onsuccess = () => resolve(request.result || []); request.onerror = () => reject(request.error); }); } catch(e) { return []; } }
-        async function saveLocalData(chipId, data) { if (!isDbAvailable) return; try { const db = await openDB(); return new Promise((resolve, reject) => { const tx = db.transaction(STORE_NAME, "readwrite"); const store = tx.objectStore(STORE_NAME); store.put(data, chipId); tx.oncomplete = () => resolve(); tx.onerror = () => reject(tx.error); }); } catch(e) { console.warn("Salvataggio locale fallito."); } }
+        async function saveLocalData(chipId, data) { if (!isDbAvailable) return; try { const db = await openDB(); return new Promise((resolve, reject) => { const tx = db.transaction(STORE_NAME, "readwrite"); const store = tx.objectStore(STORE_NAME); store.put(data, chipId); tx.oncomplete = () => resolve(); tx.onerror = () => reject(tx.error); }); } catch(e) { console.warn("Errore local storage."); } }
 
         function initRanges() { const container = document.getElementById('rangeContainer'); container.innerHTML = ''; ranges.forEach(r => { const btn = document.createElement('button'); btn.className = `range-btn ${r === currentRange ? 'active' : ''}`; btn.textContent = r; btn.onclick = () => setRange(r); container.appendChild(btn); }); }
         function setRange(range) { currentRange = range; renderCharts(); }
 
-        function checkAutoLogin() { try { const savedEmail = localStorage.getItem('userEmail'); if (savedEmail) { addLog(`Trovata sessione salvata per email: ${savedEmail}. Tento auto-login.`, 'info'); document.getElementById('emailInput').value = savedEmail; doLoginProcess(savedEmail); } } catch(e) {} }
-        function handleLogin() { const email = document.getElementById('emailInput').value.trim(); if (!email) { addLog("Tentativo di accesso fallito: campo email vuoto.", 'warn'); showLoginError("Inserisci un'email valida."); return; } doLoginProcess(email); }
-        function logout() { try { localStorage.removeItem('userEmail'); } catch(e) {} addLog("Logout effettuato correttamente."); location.reload(); }
+        function checkAutoLogin() { try { const savedEmail = localStorage.getItem('userEmail'); if (savedEmail) { addLog(`Sessione ripristinata: ${savedEmail}`, 'info'); document.getElementById('emailInput').value = savedEmail; doLoginProcess(savedEmail); } } catch(e) {} }
+        function handleLogin() { const email = document.getElementById('emailInput').value.trim(); if (!email) { showLoginError("Inserisci un'email valida."); return; } doLoginProcess(email); }
+        function logout() { try { localStorage.removeItem('userEmail'); } catch(e) {} location.reload(); }
 
-        // --- PROCESSO DI LOGIN ---
         async function doLoginProcess(email) {
             showLoader(true, "Verifica credenziali...");
-            addLog(`Tento l'accesso per l'utente: ${email}`, 'info');
             try {
-                let requestEmail = email; let isMaster = false;
-                if (email.toLowerCase() === SECRET_KEY) { requestEmail = ""; isMaster = true; addLog("Rilevata password MASTER KEY. Accesso globale.", 'warn'); }
+                let rEmail = email; let isMaster = false;
+                if (email.toLowerCase() === SECRET_KEY) { rEmail = ""; isMaster = true; addLog("Privilegi amministratore abilitati.", 'warn'); }
                 
-                const url = `${baseScriptUrl}?action=listDevices&email=${encodeURIComponent(requestEmail)}`;
+                const url = `${baseScriptUrl}?action=listDevices&email=${encodeURIComponent(rEmail)}`;
                 const res = await secureFetch(url);
                 const json = await res.json();
                 
-                addLog(`Dati JSON decodificati con successo da Google.`, 'success');
+                if (json.status === "error") throw new Error(json.message);
+                if (!json.data || json.data.length === 0) throw new Error("Nessun dispositivo per questa mail.");
                 
-                if (json.status === "error") {
-                    addLog(`Google Apps Script ha restituito un errore: ${json.message}`, 'err');
-                    throw new Error(json.message);
-                }
-                if (!json.data || json.data.length === 0) {
-                    addLog(`Risposta vuota da Google: Nessun ChipID trovato per la mail ${email}`, 'warn');
-                    throw new Error("Nessun dispositivo associato a questa email.");
-                }
-                
-                addLog(`Trovate ${json.data.length} bilance associate. Sblocco Dashboard.`, 'success');
                 try { localStorage.setItem('userEmail', email); } catch(e) {}
                 populateDeviceSelector(json.data);
                 
@@ -254,32 +230,25 @@
                     await loadDeviceData(firstId); 
                 }
             } catch (e) { 
-                console.error(e); 
-                addLog(`PROCESSO INTERROTTO: ${e.message}`, 'err');
-                showLoginError(e.message || "Errore sconosciuto di connessione."); 
-                loginPage.classList.remove('hidden'); 
-                dashboardPage.classList.add('hidden'); 
-            } finally { 
-                showLoader(false); 
-            }
+                addLog(`Errore login: ${e.message}`, 'err');
+                showLoginError(e.message || "Errore di connessione."); 
+            } finally { showLoader(false); }
         }
 
         function showLoginError(msg) { const el = document.getElementById('loginError'); el.innerText = msg; el.style.display = 'block'; }
-        function populateDeviceSelector(devices) { const sel = document.getElementById('deviceSelector'); sel.innerHTML = ''; devices.forEach(d => { const opt = document.createElement('option'); const deviceId = d.id || d; opt.value = deviceId; opt.textContent = `Dispositivo ID: ${deviceId}`; sel.appendChild(opt); }); }
+        function populateDeviceSelector(devices) { const sel = document.getElementById('deviceSelector'); sel.innerHTML = ''; devices.forEach(d => { const opt = document.createElement('option'); const id = d.id || d; opt.value = id; opt.textContent = `Bilancia ID: ${id}`; sel.appendChild(opt); }); }
         async function onDeviceChanged() { const id = document.getElementById('deviceSelector').value; if(id) await loadDeviceData(id); }
 
-        // --- SCARICAMENTO STORICO BILANCIA ---
+        // --- SISTEMA PARSING TOLLERANTE (BLINDATO CONTRO COLPIDIVUOTO) ---
         async function loadDeviceData(chipId) {
-            showLoader(true, "Sincronizzazione dati bilancia...");
-            addLog(`Tento lo scaricamento dello storico per il chip: ${chipId}`, 'info');
+            showLoader(true, "Sincronizzazione dati...");
+            addLog(`Analisi dati per dispositivo: ${chipId}`, 'info');
             try {
                 let localData = await getLocalData(chipId); let lastTs = 0;
                 if (localData.length > 0) { 
                     localData.sort((a, b) => a.x - b.x); 
                     lastTs = localData[localData.length - 1].x; 
-                    addLog(`Trovati ${localData.length} record locali in IndexedDB. Richiedo solo i dati successivi al timestamp: ${lastTs}`, 'info');
-                } else {
-                    addLog("Database locale vuoto per questa bilancia. Avvio scaricamento completo dal cloud...", 'warn');
+                    addLog(`Trovati ${localData.length} record in locale. Sincronizzo dal timestamp: ${lastTs}`, 'info');
                 }
                 
                 const url = `${baseScriptUrl}?action=getDeviceHistory&chipId=${chipId}&after=${lastTs}`;
@@ -288,15 +257,40 @@
                 
                 if (json.status === 'error') throw new Error(json.message);
                 
-                const cloudItemsCount = json.data ? json.data.length : 0;
-                addLog(`Scaricati ${cloudItemsCount} nuovi record dal cloud Google.`, 'success');
+                const cloudRows = json.data ? json.data.length : 0;
+                addLog(`Ricevuti ${cloudRows} nuovi record storici.`, 'success');
                 
                 if (json.data && json.data.length > 0) {
-                    const newData = json.data.map(row => { 
-                        const ts = row.Timestamp ? new Date(row.Timestamp).getTime() : null; 
-                        if (!ts) return null; 
-                        return { x: ts, peso1: parseFloat(row['Peso 1'])||0, peso2: parseFloat(row['Peso 2'])||0, tempEnv: parseFloat(row['Temp SHT4x'])||0, hum: parseFloat(row.Umidità)||0, batt: parseFloat(row.Batteria)||0, temp1: parseFloat(row['Temp 1'])||0, temp2: parseFloat(row['Temp 2'])||0, maintInizio: row['Maint Inizio'] ? new Date(row['Maint Inizio']) : null, maintFine: row['Maint Fine'] ? new Date(row['Maint Fine']) : null, durata: row['Durata (min)'] || 0, firmware: row['Firmware'] || '' }; 
+                    const newData = json.data.map((row, index) => { 
+                        // CONTROLLO DI SICUREZZA INTEGRATO SULLA DATA
+                        if (!row || !row.Timestamp) return null; 
+                        
+                        try {
+                            // Gestisce sia stringhe temporali pulite che formattate male
+                            const dateString = String(row.Timestamp).replace(/\./g, ':');
+                            const ts = new Date(dateString).getTime();
+                            if (!ts || isNaN(ts)) return null;
+
+                            return { 
+                                x: ts, 
+                                peso1: parseFloat(row['Peso 1']) || 0, 
+                                peso2: parseFloat(row['Peso 2']) || 0, 
+                                tempEnv: parseFloat(row['Temp SHT4x']) || 0, 
+                                hum: parseFloat(row['Umidità']) || parseFloat(row['Umidita']) || 0, 
+                                batt: parseFloat(row['Batteria']) || 0, 
+                                temp1: parseFloat(row['Temp 1']) || 0, 
+                                temp2: parseFloat(row['Temp 2']) || 0, 
+                                maintInizio: row['Maint Inizio'] ? new Date(row['Maint Inizio']) : null, 
+                                maintFine: row['Maint Fine'] ? new Date(row['Maint Fine']) : null, 
+                                durata: row['Durata (min)'] || 0, 
+                                firmware: row['Firmware'] || '' 
+                            }; 
+                        } catch(parseErr) {
+                            console.warn(`Record riga ${index} saltato per formato data anomalo.`);
+                            return null;
+                        }
                     }).filter(d => d !== null);
+                    
                     localData = localData.concat(newData);
                 }
                 
@@ -304,28 +298,24 @@
                 if (json.data && json.data.length > 0) { await saveLocalData(chipId, localData); }
                 
                 allData = localData; 
-                addLog(`Totale record pronti per il rendering grafico: ${allData.length}`, 'success');
-                updateStatsCards(); updateLogs(); renderCharts();
+                addLog(`Rendering completato. Totale punti pronti: ${allData.length}`, 'success');
+                updateStatsCards(); renderCharts();
             } catch (e) { 
-                addLog(`Errore sincronizzazione dati chip: ${e.message}`, 'err');
+                addLog(`Errore elaborazione dati: ${e.message}`, 'err');
                 alert("Errore: " + e.message); 
-            } finally { 
-                showLoader(false); 
-            }
+            } finally { showLoader(false); }
         }
 
         function updateStatsCards() {
             if (allData.length === 0) return; const last = allData[allData.length - 1];
             document.getElementById('currWeight1').innerText = `${last.peso1.toFixed(2)} Kg`; document.getElementById('currWeight2').innerText = `${last.peso2.toFixed(2)} Kg`;
             const findAgo = (ms, key) => { const target = last.x - ms; let ci = -1; for (let i = allData.length - 1; i >= 0; i--) { if (allData[i].x <= target) { ci = i; break; } } return ci === -1 ? (allData.length > 0 ? allData[0][key] : null) : allData[ci][key]; };
-            const lmp = [...allData].reverse().find(d => d.maintInizio !== null && d.maintInizio !== ""); let wm1=null,wm2=null; if(lmp){wm1=lmp.peso1;wm2=lmp.peso2;} const day=86400000;
+            const day=86400000;
             updateDelta('delta24h_1', last.peso1, findAgo(day, 'peso1')); updateDelta('delta24h_2', last.peso2, findAgo(day, 'peso2'));
             updateDelta('delta7d_1', last.peso1, findAgo(day*7, 'peso1')); updateDelta('delta7d_2', last.peso2, findAgo(day*7, 'peso2'));
             updateDelta('delta15d_1', last.peso1, findAgo(day*15, 'peso1')); updateDelta('delta15d_2', last.peso2, findAgo(day*15, 'peso2'));
-            updateDelta('deltaMaint_1', last.peso1, wm1); updateDelta('deltaMaint_2', last.peso2, wm2);
         }
         function updateDelta(id, curr, old) { const el = document.getElementById(id); if (old === null) { el.innerText="N/A"; el.className="val-neutral"; return; } const diff = curr - old; const sign = diff > 0 ? "+" : ""; el.innerText = `${sign}${diff.toFixed(2)} Kg`; el.className = diff > 0.05 ? 'val-pos' : (diff < -0.05 ? 'val-neg' : 'val-neutral'); }
-        function updateLogs() { const tM = document.querySelector('#maintTable tbody'); tM.innerHTML = ''; const m = allData.filter(d => d.maintInizio).reverse().slice(0, 5); if(m.length === 0) tM.innerHTML = '<tr><td colspan="3">Nessuna manutenzione</td></tr>'; else m.forEach(l => { const tr = document.createElement('tr'); const fmt = d => d ? new Date(d).toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit'}) : '-'; tr.innerHTML = `<td>${fmt(l.maintInizio)}</td><td>${fmt(l.maintFine)}</td><td>${l.durata}</td></tr>`; tM.appendChild(tr); }); }
 
         function generateHtmlLegend(chart, containerId) { const c = document.getElementById(containerId); c.innerHTML = ''; chart.data.datasets.map((ds, i) => { const el = document.createElement('div'); el.className = `legend-item ${!chart.isDatasetVisible(i) ? 'hidden-dataset' : ''}`; const cb = document.createElement('span'); cb.className = 'legend-color-box'; cb.style.backgroundColor = ds.borderColor; el.appendChild(cb); el.appendChild(document.createTextNode(ds.label)); el.onclick = () => { if (chart.isDatasetVisible(i)) { chart.hide(i); el.classList.add('hidden-dataset'); } else { chart.show(i); el.classList.remove('hidden-dataset'); } }; c.appendChild(el); }); }
         
@@ -339,7 +329,7 @@
 
             const ctxP = document.getElementById('chartPeso').getContext('2d');
             if(charts.peso) charts.peso.destroy();
-            charts.peso = new Chart(ctxP, { type: 'line', data: { datasets: [ { label: 'Arnia 1', data: subset.map(d=>({x:d.x, y:d.peso1})), borderColor: '#ffffff', borderWidth: 2, pointRadius:0, tension: 0.2 }, { label: 'Arnia 2', data: subset.map(d=>({x:d.x, y:d.peso2})), borderColor: '#4a90e2', borderWidth: 2, pointRadius:0, tension: 0.2 } ] }, options: cO });
+            charts.peso = new Chart(ctxP, { type: 'line', data: { datasets: [ { label: 'Arnia 1', data: subset.map(d=>({x:d.x, y:d.peso1})), borderColor: '#ffffff', borderWidth: 2, pointRadius:0, tension: 0.1 }, { label: 'Arnia 2', data: subset.map(d=>({x:d.x, y:d.peso2})), borderColor: '#4a90e2', borderWidth: 2, pointRadius:0, tension: 0.1 } ] }, options: cO });
             generateHtmlLegend(charts.peso, 'legendPeso');
 
             const ctxM = document.getElementById('chartMulti').getContext('2d');

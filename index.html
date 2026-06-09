@@ -9,17 +9,92 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"></script>
-    <style>/* stesso stile di prima, lo puoi copiare dal precedente messaggio */</style>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { background-color: #0B1120; font-family: 'Inter', sans-serif; color: #F1F5F9; padding-bottom: 80px; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #1E293B; border-radius: 8px; }
+        ::-webkit-scrollbar-thumb { background: #3B82F6; border-radius: 8px; }
+        .container { max-width: 1280px; margin: 0 auto; padding: 16px 20px 32px 20px; }
+        #loader-overlay { position: fixed; inset: 0; background: rgba(11,17,32,0.94); backdrop-filter: blur(8px); z-index: 9999; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 16px; font-weight: 500; color: #60A5FA; }
+        .spinner { width: 44px; height: 44px; border: 3px solid rgba(59,130,246,0.2); border-top: 3px solid #3B82F6; border-radius: 50%; animation: spin 0.8s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .login-card { background: #1E293B; border-radius: 32px; padding: 32px 24px; max-width: 420px; width: 90%; box-shadow: 0 25px 40px -12px rgba(0,0,0,0.5); border: 1px solid #334155; text-align: center; }
+        .login-input { width: 100%; background: #0F172A; border: 1px solid #334155; padding: 14px 18px; border-radius: 24px; color: white; font-size: 1rem; margin-bottom: 20px; outline: none; }
+        .login-input:focus { border-color: #3B82F6; box-shadow: 0 0 0 2px rgba(59,130,246,0.3); }
+        .btn-primary { background: #3B82F6; width: 100%; padding: 14px; border: none; border-radius: 40px; font-weight: 700; font-size: 1rem; color: white; cursor: pointer; transition: 0.2s; }
+        .btn-primary:active { transform: scale(0.97); background: #2563EB; }
+        .hidden { display: none !important; }
+        .dashboard-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 24px; }
+        .logo-area h2 { font-weight: 700; font-size: 1.5rem; background: linear-gradient(135deg, #FFF, #60A5FA); -webkit-background-clip: text; background-clip: text; color: transparent; }
+        .badge { background: #1E293B; padding: 6px 14px; border-radius: 40px; font-size: 0.75rem; font-weight: 600; color: #94A3B8; }
+        .badge.master { background: #F97316; color: #0F172A; }
+        #ownerBadge { background: #0F172A; border: 1px solid #3B82F6; color: #60A5FA; }
+        .device-selector { background: #1E293B; border-radius: 40px; padding: 12px 20px; width: 100%; border: 1px solid #334155; color: white; font-weight: 500; margin-bottom: 28px; font-size: 0.95rem; cursor: pointer; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 28px; }
+        .stat-card { background: #1E293B; border-radius: 24px; padding: 16px 12px; border: 1px solid #334155; }
+        .stat-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px; color: #94A3B8; margin-bottom: 6px; }
+        .dual-val { display: flex; justify-content: space-between; gap: 12px; margin-top: 8px; }
+        .val-item { flex: 1; text-align: center; }
+        .val-number { font-weight: 800; font-size: 1.2rem; }
+        .positive { color: #22C55E; } .negative { color: #EF4444; } .neutral { color: #CBD5E1; }
+        .current-weight { display: flex; justify-content: space-evenly; padding: 8px 0; }
+        .weight-value { font-weight: 800; font-size: 1.6rem; }
+        .legend-group { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; justify-content: center; }
+        .legend-btn { background: #1E293B; padding: 6px 16px; border-radius: 40px; display: inline-flex; align-items: center; gap: 8px; font-size: 0.75rem; font-weight: 600; cursor: pointer; border: 1px solid #334155; }
+        .legend-btn.hidden-dataset { opacity: 0.45; background: #0F172A; }
+        .legend-color { width: 12px; height: 12px; border-radius: 20px; }
+        .chart-container canvas { max-height: 340px; width: 100%; }
+        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: rgba(15,23,42,0.92); backdrop-filter: blur(16px); padding: 12px 16px 24px; display: flex; gap: 8px; overflow-x: auto; border-top: 1px solid #334155; z-index: 1000; }
+        .range-btn { background: #1E293B; border: none; padding: 8px 18px; border-radius: 32px; color: #CBD5E1; font-weight: 600; font-size: 0.8rem; white-space: nowrap; cursor: pointer; }
+        .range-btn.active { background: #3B82F6; color: white; }
+        .log-table { background: #1E293B; border-radius: 24px; overflow: hidden; margin-top: 16px; }
+        .log-table table { width: 100%; border-collapse: collapse; font-size: 0.75rem; }
+        .log-table th, .log-table td { padding: 12px 10px; text-align: left; border-bottom: 1px solid #334155; }
+        .log-table th { background: #0F172A; color: #94A3B8; }
+        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(6px); z-index: 5000; display: flex; align-items: center; justify-content: center; }
+        .modal-card { background: #1E293B; border-radius: 32px; padding: 24px; width: 90%; max-width: 360px; border: 1px solid #3B82F6; }
+        .modal-card input { width: 100%; background: #0F172A; border: 1px solid #334155; padding: 12px; border-radius: 28px; color: white; margin: 8px 0 16px; }
+        .action-btn { background: transparent; border: none; font-weight: 600; font-size: 0.8rem; cursor: pointer; padding: 6px 10px; border-radius: 40px; transition: 0.1s; }
+        .guide-btn { color: #60A5FA; } .logout-btn { color: #F87171; } .debug-btn { color: #A78BFA; }
+        /* Pannello debug */
+        .debug-panel { position: fixed; bottom: 80px; right: 16px; width: 90%; max-width: 420px; background: #0F172A; border: 1px solid #3B82F6; border-radius: 20px; z-index: 1100; box-shadow: 0 8px 20px black; transition: 0.2s; }
+        .debug-header { background: #1E293B; padding: 12px 16px; border-radius: 20px 20px 0 0; display: flex; justify-content: space-between; cursor: pointer; font-weight: bold; color: #A78BFA; }
+        .debug-content { max-height: 400px; overflow-y: auto; padding: 12px; font-size: 11px; font-family: monospace; color: #CBD5E1; background: #0F172A; border-radius: 0 0 20px 20px; }
+        .debug-log { border-bottom: 1px solid #334155; margin-bottom: 8px; padding-bottom: 6px; word-break: break-word; }
+        .debug-error { color: #F87171; }
+        /* Manuale */
+        #manual-page { background: #0B1120; min-height: 100vh; display: flex; flex-direction: row; flex-wrap: wrap; }
+        .manual-sidebar { width: 260px; background: #0F172A; padding: 24px 0; border-right: 1px solid #1E293B; }
+        .manual-sidebar button { background: transparent; border: none; color: #CBD5E1; padding: 12px 24px; text-align: left; width: 100%; font-weight: 500; cursor: pointer; }
+        .manual-sidebar button.active { background: #1E293B; color: #3B82F6; border-left: 3px solid #3B82F6; }
+        .manual-content { flex: 1; padding: 32px; overflow-y: auto; max-height: 100vh; }
+        .manual-tab { display: none; }
+        .manual-tab.active { display: block; animation: fade 0.2s; }
+        @keyframes fade { from { opacity: 0; transform: translateY(6px);} to { opacity: 1; } }
+        @media (max-width: 720px) { .manual-sidebar { width: 100%; display: flex; overflow-x: auto; padding: 12px; gap: 8px; border-right: 0; border-bottom: 1px solid #1E293B; } .manual-sidebar button { width: auto; padding: 8px 16px; border-radius: 40px; } .manual-sidebar button.active { border-left: none; background: #3B82F6; color: white; } }
+    </style>
 </head>
 <body>
-    <!-- stessi div di prima: loader, login, dashboard, manuale -->
     <div id="loader-overlay" class="hidden"><div class="spinner"></div><div id="loaderText">Caricamento...</div></div>
     <div id="customModal" class="modal hidden"><div class="modal-card"><h3>Intervallo personalizzato</h3><label>Inizio</label><input type="datetime-local" id="customStart"><label>Fine</label><input type="datetime-local" id="customEnd"><div style="display:flex;gap:12px;margin-top:20px"><button onclick="closeCustomModal()" style="flex:1;background:#334155;border:none;padding:10px;border-radius:40px;color:white">Annulla</button><button onclick="applyCustomRange()" style="flex:1;background:#3B82F6;border:none;border-radius:40px;color:white;font-weight:bold">Applica</button></div></div></div>
     <div id="login-page" style="display:flex;align-items:center;justify-content:center;min-height:100vh;background:radial-gradient(circle at 20% 30%,#0B1120,#030712)"><div class="login-card"><h1>🐝 Arnia Control</h1><p style="margin-bottom:28px;color:#94A3B8">Monitoraggio intelligente</p><input type="email" id="emailLogin" class="login-input" placeholder="La tua email"><button onclick="handleLogin()" class="btn-primary">ACCEDI</button><p id="loginErrorMsg" style="color:#EF4444;font-size:0.75rem;margin-top:16px;display:none"></p></div></div>
-    <div id="dashboard-page" class="hidden"><div class="container"><div class="dashboard-header"><div class="logo-area"><h2>📡 SMART HIVE</h2></div><div style="display:flex;gap:8px"><span id="ownerBadge" class="badge" style="display:none"></span><span id="accountBadge" class="badge">FREE</span><button class="action-btn guide-btn" onclick="openManual()">📖 Guida</button><button class="action-btn logout-btn" onclick="logout()">⏻ Esci</button></div></div><select id="deviceSelector" class="device-selector" onchange="switchDevice()"><option value="">— Seleziona arnia —</option></select><div class="stats-grid"><div class="stat-card"><div class="stat-label">Variazione 24h</div><div class="dual-val"><div class="val-item">A1: <span id="d24_1">--</span></div><div class="val-item">A2: <span id="d24_2">--</span></div></div></div><div class="stat-card"><div class="stat-label">Variazione 7gg</div><div class="dual-val"><div class="val-item">A1: <span id="d7_1">--</span></div><div class="val-item">A2: <span id="d7_2">--</span></div></div></div><div class="stat-card"><div class="stat-label">Variazione 15gg</div><div class="dual-val"><div class="val-item">A1: <span id="d15_1">--</span></div><div class="val-item">A2: <span id="d15_2">--</span></div></div></div><div class="stat-card"><div class="stat-label">Dall'ultima Manut.</div><div class="dual-val"><div class="val-item">A1: <span id="maint1">--</span></div><div class="val-item">A2: <span id="maint2">--</span></div></div></div></div><div class="stat-card" style="margin-bottom:28px"><div class="stat-label">📊 Peso Attuale</div><div class="current-weight"><div><span class="weight-value" id="currW1">--</span> Kg</div><div><span class="weight-value" id="currW2">--</span> Kg</div></div></div><div style="margin-top:12px;background:#1E293B;border-radius:28px;padding:16px;margin-bottom:32px"><div style="font-weight:600;margin-bottom:10px">⚖️ Andamento Peso (Kg)</div><div id="legendPeso" class="legend-group"></div><div style="height:320px"><canvas id="pesoChart"></canvas></div></div><div style="background:#1E293B;border-radius:28px;padding:16px;margin-bottom:32px"><div style="font-weight:600;margin-bottom:10px">🌡️ Ambiente & Energia</div><div id="legendMulti" class="legend-group"></div><div style="height:320px"><canvas id="multiChart"></canvas></div></div><div class="log-table"><div style="padding:16px;font-weight:700">🔧 Cronologia Manutenzioni</div><div style="overflow-x:auto"><table id="maintTable"><thead><tr><th>Inizio</th><th>Fine</th><th>Durata (min)</th></tr></thead><tbody><tr><td colspan="3">Nessuna manutenzione</td></tr></tbody></table></div></div></div><div class="bottom-nav" id="rangeContainer"></div></div>
+    <div id="dashboard-page" class="hidden"><div class="container"><div class="dashboard-header"><div class="logo-area"><h2>📡 SMART HIVE</h2></div><div style="display:flex;gap:8px"><span id="ownerBadge" class="badge" style="display:none"></span><span id="accountBadge" class="badge">FREE</span><button class="action-btn guide-btn" onclick="openManual()">📖 Guida</button><button class="action-btn debug-btn" id="debugToggleBtn">🛠️ Debug</button><button class="action-btn logout-btn" onclick="logout()">⏻ Esci</button></div></div><select id="deviceSelector" class="device-selector" onchange="switchDevice()"><option value="">— Seleziona arnia —</option></select><div class="stats-grid"><div class="stat-card"><div class="stat-label">Variazione 24h</div><div class="dual-val"><div class="val-item">A1: <span id="d24_1">--</span></div><div class="val-item">A2: <span id="d24_2">--</span></div></div></div><div class="stat-card"><div class="stat-label">Variazione 7gg</div><div class="dual-val"><div class="val-item">A1: <span id="d7_1">--</span></div><div class="val-item">A2: <span id="d7_2">--</span></div></div></div><div class="stat-card"><div class="stat-label">Variazione 15gg</div><div class="dual-val"><div class="val-item">A1: <span id="d15_1">--</span></div><div class="val-item">A2: <span id="d15_2">--</span></div></div></div><div class="stat-card"><div class="stat-label">Dall'ultima Manut.</div><div class="dual-val"><div class="val-item">A1: <span id="maint1">--</span></div><div class="val-item">A2: <span id="maint2">--</span></div></div></div></div><div class="stat-card" style="margin-bottom:28px"><div class="stat-label">📊 Peso Attuale</div><div class="current-weight"><div><span class="weight-value" id="currW1">--</span> Kg</div><div><span class="weight-value" id="currW2">--</span> Kg</div></div></div><div style="margin-top:12px;background:#1E293B;border-radius:28px;padding:16px;margin-bottom:32px"><div style="font-weight:600;margin-bottom:10px">⚖️ Andamento Peso (Kg)</div><div id="legendPeso" class="legend-group"></div><div style="height:320px"><canvas id="pesoChart"></canvas></div></div><div style="background:#1E293B;border-radius:28px;padding:16px;margin-bottom:32px"><div style="font-weight:600;margin-bottom:10px">🌡️ Ambiente & Energia</div><div id="legendMulti" class="legend-group"></div><div style="height:320px"><canvas id="multiChart"></canvas></div></div><div class="log-table"><div style="padding:16px;font-weight:700">🔧 Cronologia Manutenzioni</div><div style="overflow-x:auto"><table id="maintTable"><thead><tr><th>Inizio</th><th>Fine</th><th>Durata (min)</th></tr></thead><tbody><tr><td colspan="3">Nessuna manutenzione</td></tr></tbody></table></div></div></div><div class="bottom-nav" id="rangeContainer"></div></div>
     <div id="manual-page" class="hidden"><div class="manual-sidebar" id="manualNav"><div style="padding:0 16px 16px 16px;font-weight:800">📘 GUIDA RAPIDA</div><button class="manual-btn active" data-tab="intro">1️⃣ Accesso</button><button class="manual-btn" data-tab="dashboard">2️⃣ Dashboard</button><button class="manual-btn" data-tab="bilance">3️⃣ Calibrazione</button><button class="manual-btn" data-tab="costante">4️⃣ Peso Costante</button><button class="manual-btn" data-tab="rete">5️⃣ Nomadismo</button><button class="manual-btn" data-tab="ota">6️⃣ Aggiornamenti</button><button class="manual-btn" onclick="hideManual()" style="color:#F97316">✕ Chiudi</button></div><div class="manual-content"><div id="intro" class="manual-tab active"><h2>🔐 Accesso al Sistema</h2><p>Utilizza l'email registrata per visualizzare i tuoi dispositivi. La modalità MASTER (codice `alluser`) sblocca la visualizzazione delle email associate.</p><p>Premi e tieni premuto il pulsante fisico per entrare in manutenzione (LED acceso).</p></div><div id="dashboard" class="manual-tab"><h2>📊 Dashboard</h2><p>Visualizza trend di peso, temperatura esterna, umidità, tensione batteria. Utilizza i bottoni in basso per selezionare intervalli (6H fino a 5Y).</p></div><div id="bilance" class="manual-tab"><h2>⚖️ Gestione Bilance</h2><p>Taratura e calibrazione: utilizza un peso noto per ricalibrare. I dati di configurazione sono centralizzati sull'ESP32.</p></div><div id="costante" class="manual-tab"><h2>⚙️ Peso Costante (Melari)</h2><p>Attiva la modalità prima di lavorare sull'arnia. Il sistema compensa i pesi aggiunti/tolti in automatico.</p></div><div id="rete" class="manual-tab"><h2>🚚 Trasloco & Nomadismo</h2><p>Usa la Modalità Standby durante il trasporto per preservare i dati storici. Attivala dal pannello Wi-Fi 192.168.4.1.</p></div><div id="ota" class="manual-tab"><h2>⬆ Aggiornamenti OTA</h2><p>Scarica il firmware .bin e caricalo dall’interfaccia locale per aggiornare la scheda.</p></div></div></div>
 
+    <!-- Pannello debug -->
+    <div id="debugPanel" class="debug-panel hidden">
+        <div class="debug-header" id="debugHeader">
+            <span>🔍 DIAGNOSTICA</span>
+            <span style="font-size:16px">▼</span>
+        </div>
+        <div id="debugContent" class="debug-content">
+            <div class="debug-log">✨ Pannello debug attivo. Premi "Debug" per aggiornare.</div>
+        </div>
+    </div>
+
     <script>
+        // ---------- COSTANTI ----------
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzbyM_8DLqOMBtGzVyqfiNNukCsSl3UesDV2Ui74jSjV3vIqcaMZLddpa8uwAZAkI_r/exec";
         const SECRET_KEY = "alluser";
         let currentChipId = null;
@@ -28,7 +103,29 @@
         let customStartTs = null, customEndTs = null;
         let pesoChart, multiChart;
         const DB_NAME = "ArniaSmartDB", STORE_NAME = "historyV2";
+        let debugLogs = [];
 
+        // ---------- DEBUG ----------
+        function addDebug(message, isError = false) {
+            const timestamp = new Date().toLocaleTimeString();
+            debugLogs.unshift({ time: timestamp, msg: message, error: isError });
+            if (debugLogs.length > 50) debugLogs.pop();
+            const debugDiv = document.getElementById("debugContent");
+            if (debugDiv) {
+                debugDiv.innerHTML = debugLogs.map(log => `<div class="debug-log ${log.error ? 'debug-error' : ''}">[${log.time}] ${log.msg}</div>`).join('');
+            }
+            console.log(isError ? "❌ " + message : "🔍 " + message);
+        }
+
+        function toggleDebugPanel() {
+            const panel = document.getElementById("debugPanel");
+            panel.classList.toggle("hidden");
+            if (!panel.classList.contains("hidden")) {
+                addDebug("Pannello diagnostica aperto");
+            }
+        }
+
+        // ---------- INDEXEDDB ----------
         function openDB() {
             return new Promise((resolve, reject) => {
                 const req = indexedDB.open(DB_NAME, 1);
@@ -47,7 +144,7 @@
                     req.onsuccess = () => resolve(req.result || []);
                     req.onerror = () => resolve([]);
                 });
-            } catch(e) { return []; }
+            } catch(e) { addDebug(`IndexedDB read error: ${e.message}`, true); return []; }
         }
         async function saveLocalCache(chipId, data) {
             try {
@@ -55,34 +152,51 @@
                 const tx = db.transaction(STORE_NAME, "readwrite");
                 tx.objectStore(STORE_NAME).put(data, chipId);
                 tx.commit();
-            } catch(e) { console.warn(e); }
+                addDebug(`Salvati ${data.length} records in cache per ${chipId}`);
+            } catch(e) { addDebug(`Cache save error: ${e.message}`, true); }
         }
+
         function showLoader(show, text = "Sincronizzazione...") {
             const overlay = document.getElementById("loader-overlay");
             if(show) { document.getElementById("loaderText").innerText = text; overlay.classList.remove("hidden"); }
             else overlay.classList.add("hidden");
         }
+
         async function apiFetch(params) {
             const url = new URL(SCRIPT_URL);
             Object.keys(params).forEach(k => url.searchParams.append(k, params[k]));
-            const res = await fetch(url);
-            return res.json();
+            addDebug(`API Request: ${url.toString()}`);
+            try {
+                const res = await fetch(url);
+                const json = await res.json();
+                addDebug(`API Response (${params.action}): status=${json.status}, dataLength=${json.data?.length || 0}`);
+                if (json.status !== "success") addDebug(`API error: ${json.message}`, true);
+                return json;
+            } catch(e) {
+                addDebug(`Fetch fallita: ${e.message}`, true);
+                throw e;
+            }
         }
+
         function showLoginError(msg) {
             const errDiv = document.getElementById("loginErrorMsg");
             errDiv.innerText = msg; errDiv.style.display = "block";
             setTimeout(()=> errDiv.style.display = "none", 3000);
+            addDebug(`Login error: ${msg}`, true);
         }
+
         async function handleLogin() {
             const email = document.getElementById("emailLogin").value.trim();
             if(!email) { showLoginError("Inserisci un'email"); return; }
             showLoader(true, "Verifica credenziali...");
+            addDebug(`Tentativo login con email: ${email}`);
             try {
                 let requestEmail = email;
                 let isMaster = email.toLowerCase() === SECRET_KEY;
                 if(isMaster) requestEmail = "";
                 const json = await apiFetch({ action: "listDevices", email: requestEmail });
-                if(json.status !== "success" || !json.data || json.data.length === 0) throw new Error("Nessun dispositivo trovato");
+                if(json.status !== "success" || !json.data || json.data.length === 0) throw new Error("Nessun dispositivo trovato per questa email");
+                addDebug(`Dispositivi trovati: ${json.data.join(", ")}`);
                 localStorage.setItem("userEmail", email);
                 localStorage.setItem("isMaster", isMaster ? "1" : "0");
                 const deviceSelector = document.getElementById("deviceSelector");
@@ -101,18 +215,21 @@
                 if(json.data.length) await loadDeviceData(json.data[0]);
             } catch(err) {
                 showLoginError(err.message);
-                console.error(err);
+                addDebug(`Login fallito: ${err.message}`, true);
             } finally { showLoader(false); }
         }
+
         function logout() { localStorage.clear(); location.reload(); }
         async function switchDevice() {
             const sel = document.getElementById("deviceSelector");
             if(sel.value && sel.value !== "") await loadDeviceData(sel.value);
         }
+
         async function loadDeviceData(chipId) {
             if(!chipId) return;
             currentChipId = chipId;
             showLoader(true, "Caricamento storico...");
+            addDebug(`Caricamento dispositivo: ${chipId}`);
             try {
                 const cfg = await apiFetch({ action: "getDeviceConfig", chipId });
                 if(cfg.status === "success" && cfg.data) {
@@ -120,8 +237,11 @@
                     const ownerBadge = document.getElementById("ownerBadge");
                     if(isMaster && cfg.data.email) { ownerBadge.innerText = cfg.data.email; ownerBadge.style.display = "inline-block"; }
                     else ownerBadge.style.display = "none";
-                }
+                    addDebug(`Config device: tolleranza=${cfg.data.tolleranza}, tipologia=${cfg.data.tipologia}`);
+                } else { addDebug(`Config non ricevuta o errata`, true); }
+                
                 let local = await getLocalCache(chipId);
+                addDebug(`Cache locale: ${local.length} records`);
                 let lastTs = local.length ? Math.max(...local.map(p => p.x)) : 0;
                 const remote = await apiFetch({ action: "getDeviceHistory", chipId, after: lastTs });
                 let newEntries = [];
@@ -139,20 +259,26 @@
                         maintFine: row["Maint Fine"] ? new Date(row["Maint Fine"]) : null,
                         durata: row["Durata (min)"] || 0
                     })).filter(d => !isNaN(d.x));
-                }
+                    addDebug(`Nuovi record da remoto: ${newEntries.length}`);
+                } else { addDebug(`Nessun nuovo dato remoto o risposta vuota`, false); }
                 const merged = [...local, ...newEntries];
                 const uniqueMap = new Map();
                 merged.forEach(item => uniqueMap.set(item.x, item));
                 const finalData = Array.from(uniqueMap.values()).sort((a,b)=> a.x - b.x);
                 if(newEntries.length) await saveLocalCache(chipId, finalData);
                 rawDataArray = finalData;
-                if(rawDataArray.length === 0) console.warn("Nessun dato disponibile per questo dispositivo");
+                addDebug(`Totale dati finali: ${rawDataArray.length} records`);
+                if(rawDataArray.length === 0) addDebug("⚠️ NESSUN DATO DISPONIBILE! Verifica che il foglio Google contenga righe.", true);
                 updateStatsAndTables();
                 renderCharts();
                 initRangeButtons();
-            } catch(e) { console.error(e); alert("Errore caricamento: "+e.message); }
+            } catch(e) { 
+                addDebug(`Errore loadDeviceData: ${e.message}`, true);
+                alert("Errore caricamento: "+e.message); 
+            }
             finally { showLoader(false); }
         }
+
         function updateStatsAndTables() {
             if(!rawDataArray.length) return;
             const last = rawDataArray[rawDataArray.length-1];
@@ -184,6 +310,7 @@
             if(!maintRows.length) tbody.innerHTML = "<tr><td colspan='3'>Nessuna manutenzione</td></tr>";
             else tbody.innerHTML = maintRows.map(m => `<tr><td>${new Date(m.maintInizio).toLocaleString()}</td><td>${m.maintFine ? new Date(m.maintFine).toLocaleString() : '-'}</td><td>${m.durata}</td></tr>`).join("");
         }
+
         function buildLegend(chart, containerId) {
             const container = document.getElementById(containerId);
             if(!container) return;
@@ -196,8 +323,9 @@
                 container.appendChild(btn);
             });
         }
+
         function renderCharts() {
-            if(!rawDataArray.length) { console.log("Nessun dato, grafici vuoti"); return; }
+            if(!rawDataArray.length) { addDebug("renderCharts: nessun dato, grafici vuoti", true); return; }
             let startTime, endTime = Date.now();
             if(currentRange === "SET" && customStartTs && customEndTs) { startTime = customStartTs; endTime = customEndTs; }
             else {
@@ -205,6 +333,7 @@
                 startTime = endTime - (map[currentRange] || 604800000);
             }
             const filtered = rawDataArray.filter(d => d.x >= startTime && d.x <= endTime);
+            addDebug(`Grafico: intervallo ${currentRange}, punti filtrati = ${filtered.length}`);
             const commonOpts = { responsive: true, maintainAspectRatio: true, animation: false, spanGaps: true,
                 scales: { x: { type: "time", time: { tooltipFormat: "dd/MM HH:mm" }, grid: { color: "#334155" }, ticks: { color: "#CBD5E1" } },
                           y: { grid: { color: "#334155" }, ticks: { color: "#CBD5E1" } } },
@@ -227,6 +356,7 @@
             ] }, options: { ...commonOpts, scales: { ...commonOpts.scales, y1: { position: "right", grid: { display: false }, ticks: { color: "#06B6D4" } } } } });
             buildLegend(multiChart, "legendMulti");
         }
+
         function initRangeButtons() {
             const rangesList = ["6H","1D","1W","2W","1M","3M","6M","1Y","5Y","SET"];
             const container = document.getElementById("rangeContainer");
@@ -262,6 +392,7 @@
         }
         function openManual() { document.getElementById("dashboard-page").classList.add("hidden"); document.getElementById("manual-page").classList.remove("hidden"); }
         function hideManual() { document.getElementById("manual-page").classList.add("hidden"); document.getElementById("dashboard-page").classList.remove("hidden"); }
+        
         document.querySelectorAll(".manual-btn").forEach(btn => {
             if(btn.getAttribute("data-tab")) btn.addEventListener("click", (e) => {
                 document.querySelectorAll(".manual-tab").forEach(t => t.classList.remove("active"));
@@ -270,10 +401,16 @@
                 btn.classList.add("active");
             });
         });
+
         window.onload = () => {
+            const debugBtn = document.getElementById("debugToggleBtn");
+            if(debugBtn) debugBtn.onclick = toggleDebugPanel;
+            const debugHeader = document.getElementById("debugHeader");
+            if(debugHeader) debugHeader.onclick = toggleDebugPanel;
             const savedEmail = localStorage.getItem("userEmail");
             if(savedEmail) { document.getElementById("emailLogin").value = savedEmail; handleLogin(); }
             initRangeButtons();
+            addDebug("App avviata. Premi Debug per monitorare.");
         };
     </script>
 </body>

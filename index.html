@@ -707,7 +707,7 @@
 
                         <text x="200" y="90" fill="#3aa3ff" font-family="sans-serif" font-size="38" font-weight="800" text-anchor="middle">45.230 kg</text>
 
-                        <text x="200" y="120" fill="#7a8b9c" font-family="sans-serif" font-size="12" text-anchor="middle">Off: <tspan fill="#e7eef7">82553</tspan>   Fatt: <tspan fill="#e7eef7">29293.96</tspan>   Adj: <tspan fill="#e7eef7">0.000</tspan></text>
+                        <text x="200" y="120" fill="#7a8b9c" font-family="sans-serif" font-size="12" text-anchor="middle">Off: <tspan fill="#e7eef7">82555</tspan>   Fatt: <tspan fill="#e7eef7">29293.96</tspan>   Adj: <tspan fill="#e7eef7">0.000</tspan></text>
 
                         <rect x="20" y="140" width="360" height="40" rx="8" fill="transparent" stroke="#f5a623" stroke-width="2"/>
                         <text x="200" y="165" fill="#f5a623" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="middle">⚡ ESEGUI TARA</text>
@@ -816,7 +816,7 @@
                     <li>Assicurati di aver effettuato l'accesso al sistema.</li>
                     <li>Scorri in fondo alla pagina principale e clicca sul bottone verde <strong>⬆ AGGIORNA</strong>.</li>
                     <li>Nella schermata che si apre, tocca su "Scegli file" e seleziona il file <code>.bin</code> dell'aggiornamento.</li>
-                    <li>Premi <strong>AVVIA AGGIORNAMENTO</strong>.</li>
+                    <li>Prema <strong>AVVIA AGGIORNAMENTO</strong>.</li>
                     <li>Attendi senza chiudere la pagina. La barra indicherà il progresso e, a operazione conclusa, l'arnia si riavvierà da sola con la nuova versione installata.</li>
                 </ol>
 
@@ -854,10 +854,12 @@
         // ============================================================
         // CONFIGURAZIONE DINAMICA E BACKUP
         // ============================================================
-        let scriptUrl = 'https://script.google.com/macros/s/AKfycbzbyM_8DLqOMBtGzVyqfiNNukCsSl3UesDV2Ui74jSjV3vIqcaMZLddpa8uwAZAkI_r/exec';
+        
+        // NUOVO LINK API AGGIORNATO (Fallback)
+        let scriptUrl = 'https://script.google.com/macros/s/AKfycbwd34jx3BCdqJ5Zyrm_O2znWzZIe45cenEb8KxsOnj6U5wvysIjc-vfwDdA_mm5cz4P/exec';
         const SECRET_KEY = "alluser";
 
-        // Link scriptUrl aggiornato
+        // Link scriptUrl aggiornato dal Foglio Google (Importante: il foglio deve essere pubblico!)
         const DYNAMIC_URL_SHEET = "https://docs.google.com/spreadsheets/d/1v2QYh6ZYvMKCxBI0mt7nHSS2btbmDRtP018k8Yj0Lfg/export?format=csv&gid=1773702506&range=B1";
 
         const CONFIG_SHEET_URL = "";
@@ -904,10 +906,10 @@
                     scriptUrl = fetchedUrl;
                     console.log("🌐 URL dell'App Script aggiornato dal Foglio Google!");
                 } else {
-                    console.warn("La cella B1 non contiene un URL valido.");
+                    console.warn("La cella B1 non contiene un URL valido. Uso il fallback.");
                 }
             } catch(e) {
-                console.warn("⚠️ Impossibile raggiungere il foglio, uso l'URL locale.", e);
+                console.warn("⚠️ Impossibile raggiungere il foglio per l'URL dinamico, uso il fallback.", e);
             }
         }
 

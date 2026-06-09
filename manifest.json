@@ -1,16 +1,25 @@
 {
   "name": "Smart Hive Dashboard",
-  "short_name": "ArniaIoT",
-  "description": "Pannello Cloud Bilance Arnia",
-  "start_url": "index.html",
+  "short_name": "ArniaControl",
+  "description": "Monitoraggio bilance arnia e gestione apiario",
+  "start_url": ".",
   "display": "standalone",
-  "background_color": "#1c1c1e",
-  "theme_color": "#1c1c1e",
+  "theme_color": "#0B1120",
+  "background_color": "#0B1120",
+  "orientation": "portrait",
   "icons": [
     {
-      "src": "https://cdn-icons-png.flaticon.com/512/527/527014.png",
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }
+//💡 Puoi generare icone facilmente su https://www.pwabuilder.com/imageGenerator o con qualsiasi tool online.

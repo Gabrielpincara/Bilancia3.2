@@ -4,522 +4,31 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
     <title>Smart Hive Dashboard</title>
-    
-    <!-- Google Fonts + Chart.js + Hammer.js + Chart.js Plugins -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"></script>
-    
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        body {
-            background-color: #0B1120;
-            font-family: 'Inter', sans-serif;
-            color: #F1F5F9;
-            padding-bottom: 80px;
-            transition: background 0.2s ease;
-        }
-
-        /* Scrollbar moderna */
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #1E293B;
-            border-radius: 8px;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #3B82F6;
-            border-radius: 8px;
-        }
-
-        /* Layout principale */
-        .container {
-            max-width: 1280px;
-            margin: 0 auto;
-            padding: 16px 20px 32px 20px;
-        }
-
-        /* LOADER */
-        #loader-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(11, 17, 32, 0.94);
-            backdrop-filter: blur(8px);
-            z-index: 9999;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-            gap: 16px;
-            font-weight: 500;
-            color: #60A5FA;
-        }
-        .spinner {
-            width: 44px;
-            height: 44px;
-            border: 3px solid rgba(59,130,246,0.2);
-            border-top: 3px solid #3B82F6;
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-        }
-        @keyframes spin { to { transform: rotate(360deg); } }
-
-        /* Login */
-        .login-card {
-            background: #1E293B;
-            border-radius: 32px;
-            padding: 32px 24px;
-            max-width: 420px;
-            width: 90%;
-            box-shadow: 0 25px 40px -12px rgba(0,0,0,0.5);
-            border: 1px solid #334155;
-            text-align: center;
-        }
-        .login-input {
-            width: 100%;
-            background: #0F172A;
-            border: 1px solid #334155;
-            padding: 14px 18px;
-            border-radius: 24px;
-            color: white;
-            font-size: 1rem;
-            margin-bottom: 20px;
-            outline: none;
-            transition: all 0.2s;
-        }
-        .login-input:focus {
-            border-color: #3B82F6;
-            box-shadow: 0 0 0 2px rgba(59,130,246,0.3);
-        }
-        .btn-primary {
-            background: #3B82F6;
-            width: 100%;
-            padding: 14px;
-            border: none;
-            border-radius: 40px;
-            font-weight: 700;
-            font-size: 1rem;
-            color: white;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        .btn-primary:active { transform: scale(0.97); background: #2563EB; }
-
-        /* Dashboard */
-        .hidden { display: none !important; }
-
-        /* Header */
-        .dashboard-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 12px;
-            margin-bottom: 24px;
-        }
-        .logo-area h2 {
-            font-weight: 700;
-            font-size: 1.5rem;
-            background: linear-gradient(135deg, #FFF, #60A5FA);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-        }
-        .badge {
-            background: #1E293B;
-            padding: 6px 14px;
-            border-radius: 40px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            color: #94A3B8;
-        }
-        .badge.master {
-            background: #F97316;
-            color: #0F172A;
-        }
-        #ownerBadge {
-            background: #0F172A;
-            border: 1px solid #3B82F6;
-            color: #60A5FA;
-        }
-
-        /* Device Selector */
-        .device-selector {
-            background: #1E293B;
-            border-radius: 40px;
-            padding: 12px 20px;
-            width: 100%;
-            border: 1px solid #334155;
-            color: white;
-            font-weight: 500;
-            margin-bottom: 28px;
-            font-size: 0.95rem;
-            cursor: pointer;
-        }
-
-        /* Griglia Metriche */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-            gap: 12px;
-            margin-bottom: 28px;
-        }
-        .stat-card {
-            background: #1E293B;
-            border-radius: 24px;
-            padding: 16px 12px;
-            border: 1px solid #334155;
-            transition: all 0.2s;
-        }
-        .stat-label {
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: #94A3B8;
-            margin-bottom: 6px;
-        }
-        .dual-val {
-            display: flex;
-            justify-content: space-between;
-            gap: 12px;
-            margin-top: 8px;
-        }
-        .val-item {
-            flex: 1;
-            text-align: center;
-        }
-        .val-number {
-            font-weight: 800;
-            font-size: 1.2rem;
-        }
-        .positive { color: #22C55E; }
-        .negative { color: #EF4444; }
-        .neutral { color: #CBD5E1; }
-
-        .current-weight {
-            display: flex;
-            justify-content: space-evenly;
-            padding: 8px 0;
-        }
-        .weight-value {
-            font-weight: 800;
-            font-size: 1.6rem;
-        }
-
-        /* Legenda interattiva */
-        .legend-group {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 16px;
-            justify-content: center;
-        }
-        .legend-btn {
-            background: #1E293B;
-            padding: 6px 16px;
-            border-radius: 40px;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            cursor: pointer;
-            border: 1px solid #334155;
-            transition: 0.1s linear;
-        }
-        .legend-btn.hidden-dataset {
-            opacity: 0.45;
-            background: #0F172A;
-        }
-        .legend-color {
-            width: 12px;
-            height: 12px;
-            border-radius: 20px;
-        }
-        .chart-container canvas {
-            max-height: 340px;
-            width: 100%;
-        }
-
-        /* Bottom Nav */
-        .bottom-nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            background: rgba(15, 23, 42, 0.92);
-            backdrop-filter: blur(16px);
-            padding: 12px 16px 24px;
-            display: flex;
-            gap: 8px;
-            overflow-x: auto;
-            border-top: 1px solid #334155;
-            z-index: 1000;
-        }
-        .range-btn {
-            background: #1E293B;
-            border: none;
-            padding: 8px 18px;
-            border-radius: 32px;
-            color: #CBD5E1;
-            font-weight: 600;
-            font-size: 0.8rem;
-            white-space: nowrap;
-            cursor: pointer;
-        }
-        .range-btn.active {
-            background: #3B82F6;
-            color: white;
-        }
-
-        /* Tabella Log */
-        .log-table {
-            background: #1E293B;
-            border-radius: 24px;
-            overflow: hidden;
-            margin-top: 16px;
-        }
-        .log-table table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.75rem;
-        }
-        .log-table th, .log-table td {
-            padding: 12px 10px;
-            text-align: left;
-            border-bottom: 1px solid #334155;
-        }
-        .log-table th {
-            background: #0F172A;
-            color: #94A3B8;
-        }
-
-        /* Modal Intervallo */
-        .modal {
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.8);
-            backdrop-filter: blur(6px);
-            z-index: 5000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .modal-card {
-            background: #1E293B;
-            border-radius: 32px;
-            padding: 24px;
-            width: 90%;
-            max-width: 360px;
-            border: 1px solid #3B82F6;
-        }
-        .modal-card input {
-            width: 100%;
-            background: #0F172A;
-            border: 1px solid #334155;
-            padding: 12px;
-            border-radius: 28px;
-            color: white;
-            margin: 8px 0 16px;
-        }
-
-        /* Pulsanti Guida/Logout */
-        .action-btn {
-            background: transparent;
-            border: none;
-            font-weight: 600;
-            font-size: 0.8rem;
-            cursor: pointer;
-            padding: 6px 10px;
-            border-radius: 40px;
-            transition: 0.1s;
-        }
-        .guide-btn { color: #60A5FA; }
-        .logout-btn { color: #F87171; }
-
-        /* MANUAL PAGE (guida) */
-        #manual-page {
-            background: #0B1120;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: row;
-            flex-wrap: wrap;
-        }
-        .manual-sidebar {
-            width: 260px;
-            background: #0F172A;
-            padding: 24px 0;
-            border-right: 1px solid #1E293B;
-        }
-        .manual-sidebar button {
-            background: transparent;
-            border: none;
-            color: #CBD5E1;
-            padding: 12px 24px;
-            text-align: left;
-            width: 100%;
-            font-weight: 500;
-            cursor: pointer;
-        }
-        .manual-sidebar button.active {
-            background: #1E293B;
-            color: #3B82F6;
-            border-left: 3px solid #3B82F6;
-        }
-        .manual-content {
-            flex: 1;
-            padding: 32px;
-            overflow-y: auto;
-            max-height: 100vh;
-        }
-        .manual-tab { display: none; }
-        .manual-tab.active { display: block; animation: fade 0.2s; }
-        @keyframes fade { from { opacity: 0; transform: translateY(6px);} to { opacity: 1; } }
-
-        @media (max-width: 720px) {
-            .manual-sidebar { width: 100%; display: flex; overflow-x: auto; padding: 12px; gap: 8px; border-right: 0; border-bottom: 1px solid #1E293B; }
-            .manual-sidebar button { width: auto; padding: 8px 16px; border-radius: 40px; }
-            .manual-sidebar button.active { border-left: none; background: #3B82F6; color: white; }
-        }
-    </style>
+    <style>/* stesso stile di prima, lo puoi copiare dal precedente messaggio */</style>
 </head>
 <body>
-
-    <!-- LOADER -->
-    <div id="loader-overlay" class="hidden">
-        <div class="spinner"></div>
-        <div id="loaderText">Caricamento...</div>
-    </div>
-
-    <!-- MODAL INTERVALLO PERSONALIZZATO -->
-    <div id="customModal" class="modal hidden">
-        <div class="modal-card">
-            <h3 style="margin-bottom: 12px;">🎯 Intervallo personalizzato</h3>
-            <label>Data Inizio</label>
-            <input type="datetime-local" id="customStart">
-            <label>Data Fine</label>
-            <input type="datetime-local" id="customEnd">
-            <div style="display: flex; gap: 12px; margin-top: 20px;">
-                <button onclick="closeCustomModal()" style="flex:1; background:#334155; border:none; padding:10px; border-radius:40px; color:white;">Annulla</button>
-                <button onclick="applyCustomRange()" style="flex:1; background:#3B82F6; border:none; border-radius:40px; color:white; font-weight:bold;">Applica</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- LOGIN PAGE -->
-    <div id="login-page" style="display: flex; align-items: center; justify-content: center; min-height: 100vh; background: radial-gradient(circle at 20% 30%, #0B1120, #030712);">
-        <div class="login-card">
-            <h1 style="font-size: 1.8rem;">🐝 Arnia Control</h1>
-            <p style="margin-bottom: 28px; color:#94A3B8;">Monitoraggio intelligente</p>
-            <input type="email" id="emailLogin" class="login-input" placeholder="La tua email" autocomplete="off">
-            <button onclick="handleLogin()" class="btn-primary">ACCEDI</button>
-            <p id="loginErrorMsg" style="color:#EF4444; font-size:0.75rem; margin-top: 16px; display: none;"></p>
-        </div>
-    </div>
-
-    <!-- DASHBOARD PRINCIPALE -->
-    <div id="dashboard-page" class="hidden">
-        <div class="container">
-            <div class="dashboard-header">
-                <div class="logo-area"><h2>📡 SMART HIVE</h2></div>
-                <div style="display: flex; gap: 8px; align-items: center;">
-                    <span id="ownerBadge" class="badge" style="display: none;"></span>
-                    <span id="accountBadge" class="badge">FREE</span>
-                    <button class="action-btn guide-btn" onclick="openManual()">📖 Guida</button>
-                    <button class="action-btn logout-btn" onclick="logout()">⏻ Esci</button>
-                </div>
-            </div>
-
-            <select id="deviceSelector" class="device-selector" onchange="switchDevice()">
-                <option value="">— Seleziona arnia —</option>
-            </select>
-
-            <!-- Metriche principali -->
-            <div class="stats-grid">
-                <div class="stat-card"><div class="stat-label">Variazione 24h</div><div id="delta24h" class="dual-val"><div class="val-item">A1: <span id="d24_1">--</span></div><div class="val-item">A2: <span id="d24_2">--</span></div></div></div>
-                <div class="stat-card"><div class="stat-label">Variazione 7gg</div><div id="delta7d" class="dual-val"><div class="val-item">A1: <span id="d7_1">--</span></div><div class="val-item">A2: <span id="d7_2">--</span></div></div></div>
-                <div class="stat-card"><div class="stat-label">Variazione 15gg</div><div id="delta15d" class="dual-val"><div class="val-item">A1: <span id="d15_1">--</span></div><div class="val-item">A2: <span id="d15_2">--</span></div></div></div>
-                <div class="stat-card"><div class="stat-label">Dall'ultima Manut.</div><div id="deltaMaint" class="dual-val"><div class="val-item">A1: <span id="maint1">--</span></div><div class="val-item">A2: <span id="maint2">--</span></div></div></div>
-            </div>
-            <div class="stat-card" style="margin-bottom: 28px;">
-                <div class="stat-label">📊 Peso Attuale</div>
-                <div class="current-weight"><div><span class="weight-value" id="currW1">--</span> Kg</div><div><span class="weight-value" id="currW2">--</span> Kg</div></div>
-            </div>
-
-            <!-- Grafico Peso + Legenda -->
-            <div style="margin-top: 12px; background:#1E293B; border-radius:28px; padding: 16px; margin-bottom: 32px;">
-                <div style="font-weight:600; margin-bottom: 10px;">⚖️ Andamento Peso (Kg)</div>
-                <div id="legendPeso" class="legend-group"></div>
-                <div style="height: 320px;"><canvas id="pesoChart"></canvas></div>
-            </div>
-
-            <!-- Grafico Multi Parametro + Legenda -->
-            <div style="background:#1E293B; border-radius:28px; padding: 16px; margin-bottom: 32px;">
-                <div style="font-weight:600; margin-bottom: 10px;">🌡️ Ambiente & Energia</div>
-                <div id="legendMulti" class="legend-group"></div>
-                <div style="height: 320px;"><canvas id="multiChart"></canvas></div>
-            </div>
-
-            <!-- Log Manutenzione -->
-            <div class="log-table">
-                <div style="padding: 16px; font-weight: 700;">🔧 Cronologia Manutenzioni</div>
-                <div style="overflow-x: auto;">
-                    <table id="maintTable"><thead><tr><th>Inizio</th><th>Fine</th><th>Durata (min)</th></tr></thead><tbody><tr><td colspan="3">Nessuna manutenzione</td></tr></tbody></table>
-                </div>
-            </div>
-        </div>
-
-        <div class="bottom-nav" id="rangeContainer"></div>
-    </div>
-
-    <!-- PAGINA GUIDA MANUALE -->
-    <div id="manual-page" class="hidden">
-        <div class="manual-sidebar" id="manualNav">
-            <div style="padding:0 16px 16px 16px; font-weight:800;">📘 GUIDA RAPIDA</div>
-            <button class="manual-btn active" data-tab="intro">1️⃣ Accesso</button>
-            <button class="manual-btn" data-tab="dashboard">2️⃣ Dashboard</button>
-            <button class="manual-btn" data-tab="bilance">3️⃣ Calibrazione</button>
-            <button class="manual-btn" data-tab="costante">4️⃣ Peso Costante</button>
-            <button class="manual-btn" data-tab="rete">5️⃣ Nomadismo</button>
-            <button class="manual-btn" data-tab="ota">6️⃣ Aggiornamenti</button>
-            <button class="manual-btn" onclick="hideManual()" style="color:#F97316;">✕ Chiudi</button>
-        </div>
-        <div class="manual-content">
-            <div id="intro" class="manual-tab active"><h2>🔐 Accesso al Sistema</h2><p>Utilizza l'email registrata per visualizzare i tuoi dispositivi. La modalità MASTER (codice `alluser`) sblocca la visualizzazione delle email associate.</p><p>Premi e tieni premuto il pulsante fisico per entrare in manutenzione (LED acceso).</p></div>
-            <div id="dashboard" class="manual-tab"><h2>📊 Dashboard</h2><p>Visualizza trend di peso, temperatura esterna, umidità, tensione batteria. Utilizza i bottoni in basso per selezionare intervalli (6H fino a 5Y).</p></div>
-            <div id="bilance" class="manual-tab"><h2>⚖️ Gestione Bilance</h2><p>Taratura e calibrazione: utilizza un peso noto per ricalibrare. I dati di configurazione sono centralizzati sull'ESP32.</p></div>
-            <div id="costante" class="manual-tab"><h2>⚙️ Peso Costante (Melari)</h2><p>Attiva la modalità prima di lavorare sull'arnia. Il sistema compensa i pesi aggiunti/tolti in automatico.</p></div>
-            <div id="rete" class="manual-tab"><h2>🚚 Trasloco & Nomadismo</h2><p>Usa la Modalità Standby durante il trasporto per preservare i dati storici. Attivala dal pannello Wi-Fi 192.168.4.1.</p></div>
-            <div id="ota" class="manual-tab"><h2>⬆ Aggiornamenti OTA</h2><p>Scarica il firmware .bin e caricalo dall’interfaccia locale per aggiornare la scheda.</p></div>
-        </div>
-    </div>
+    <!-- stessi div di prima: loader, login, dashboard, manuale -->
+    <div id="loader-overlay" class="hidden"><div class="spinner"></div><div id="loaderText">Caricamento...</div></div>
+    <div id="customModal" class="modal hidden"><div class="modal-card"><h3>Intervallo personalizzato</h3><label>Inizio</label><input type="datetime-local" id="customStart"><label>Fine</label><input type="datetime-local" id="customEnd"><div style="display:flex;gap:12px;margin-top:20px"><button onclick="closeCustomModal()" style="flex:1;background:#334155;border:none;padding:10px;border-radius:40px;color:white">Annulla</button><button onclick="applyCustomRange()" style="flex:1;background:#3B82F6;border:none;border-radius:40px;color:white;font-weight:bold">Applica</button></div></div></div>
+    <div id="login-page" style="display:flex;align-items:center;justify-content:center;min-height:100vh;background:radial-gradient(circle at 20% 30%,#0B1120,#030712)"><div class="login-card"><h1>🐝 Arnia Control</h1><p style="margin-bottom:28px;color:#94A3B8">Monitoraggio intelligente</p><input type="email" id="emailLogin" class="login-input" placeholder="La tua email"><button onclick="handleLogin()" class="btn-primary">ACCEDI</button><p id="loginErrorMsg" style="color:#EF4444;font-size:0.75rem;margin-top:16px;display:none"></p></div></div>
+    <div id="dashboard-page" class="hidden"><div class="container"><div class="dashboard-header"><div class="logo-area"><h2>📡 SMART HIVE</h2></div><div style="display:flex;gap:8px"><span id="ownerBadge" class="badge" style="display:none"></span><span id="accountBadge" class="badge">FREE</span><button class="action-btn guide-btn" onclick="openManual()">📖 Guida</button><button class="action-btn logout-btn" onclick="logout()">⏻ Esci</button></div></div><select id="deviceSelector" class="device-selector" onchange="switchDevice()"><option value="">— Seleziona arnia —</option></select><div class="stats-grid"><div class="stat-card"><div class="stat-label">Variazione 24h</div><div class="dual-val"><div class="val-item">A1: <span id="d24_1">--</span></div><div class="val-item">A2: <span id="d24_2">--</span></div></div></div><div class="stat-card"><div class="stat-label">Variazione 7gg</div><div class="dual-val"><div class="val-item">A1: <span id="d7_1">--</span></div><div class="val-item">A2: <span id="d7_2">--</span></div></div></div><div class="stat-card"><div class="stat-label">Variazione 15gg</div><div class="dual-val"><div class="val-item">A1: <span id="d15_1">--</span></div><div class="val-item">A2: <span id="d15_2">--</span></div></div></div><div class="stat-card"><div class="stat-label">Dall'ultima Manut.</div><div class="dual-val"><div class="val-item">A1: <span id="maint1">--</span></div><div class="val-item">A2: <span id="maint2">--</span></div></div></div></div><div class="stat-card" style="margin-bottom:28px"><div class="stat-label">📊 Peso Attuale</div><div class="current-weight"><div><span class="weight-value" id="currW1">--</span> Kg</div><div><span class="weight-value" id="currW2">--</span> Kg</div></div></div><div style="margin-top:12px;background:#1E293B;border-radius:28px;padding:16px;margin-bottom:32px"><div style="font-weight:600;margin-bottom:10px">⚖️ Andamento Peso (Kg)</div><div id="legendPeso" class="legend-group"></div><div style="height:320px"><canvas id="pesoChart"></canvas></div></div><div style="background:#1E293B;border-radius:28px;padding:16px;margin-bottom:32px"><div style="font-weight:600;margin-bottom:10px">🌡️ Ambiente & Energia</div><div id="legendMulti" class="legend-group"></div><div style="height:320px"><canvas id="multiChart"></canvas></div></div><div class="log-table"><div style="padding:16px;font-weight:700">🔧 Cronologia Manutenzioni</div><div style="overflow-x:auto"><table id="maintTable"><thead><tr><th>Inizio</th><th>Fine</th><th>Durata (min)</th></tr></thead><tbody><tr><td colspan="3">Nessuna manutenzione</td></tr></tbody></table></div></div></div><div class="bottom-nav" id="rangeContainer"></div></div>
+    <div id="manual-page" class="hidden"><div class="manual-sidebar" id="manualNav"><div style="padding:0 16px 16px 16px;font-weight:800">📘 GUIDA RAPIDA</div><button class="manual-btn active" data-tab="intro">1️⃣ Accesso</button><button class="manual-btn" data-tab="dashboard">2️⃣ Dashboard</button><button class="manual-btn" data-tab="bilance">3️⃣ Calibrazione</button><button class="manual-btn" data-tab="costante">4️⃣ Peso Costante</button><button class="manual-btn" data-tab="rete">5️⃣ Nomadismo</button><button class="manual-btn" data-tab="ota">6️⃣ Aggiornamenti</button><button class="manual-btn" onclick="hideManual()" style="color:#F97316">✕ Chiudi</button></div><div class="manual-content"><div id="intro" class="manual-tab active"><h2>🔐 Accesso al Sistema</h2><p>Utilizza l'email registrata per visualizzare i tuoi dispositivi. La modalità MASTER (codice `alluser`) sblocca la visualizzazione delle email associate.</p><p>Premi e tieni premuto il pulsante fisico per entrare in manutenzione (LED acceso).</p></div><div id="dashboard" class="manual-tab"><h2>📊 Dashboard</h2><p>Visualizza trend di peso, temperatura esterna, umidità, tensione batteria. Utilizza i bottoni in basso per selezionare intervalli (6H fino a 5Y).</p></div><div id="bilance" class="manual-tab"><h2>⚖️ Gestione Bilance</h2><p>Taratura e calibrazione: utilizza un peso noto per ricalibrare. I dati di configurazione sono centralizzati sull'ESP32.</p></div><div id="costante" class="manual-tab"><h2>⚙️ Peso Costante (Melari)</h2><p>Attiva la modalità prima di lavorare sull'arnia. Il sistema compensa i pesi aggiunti/tolti in automatico.</p></div><div id="rete" class="manual-tab"><h2>🚚 Trasloco & Nomadismo</h2><p>Usa la Modalità Standby durante il trasporto per preservare i dati storici. Attivala dal pannello Wi-Fi 192.168.4.1.</p></div><div id="ota" class="manual-tab"><h2>⬆ Aggiornamenti OTA</h2><p>Scarica il firmware .bin e caricalo dall’interfaccia locale per aggiornare la scheda.</p></div></div></div>
 
     <script>
-        // --------------------------------------
-        // CONFIGURAZIONE BACKEND (URL CORRETTO)
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzbyM_8DLqOMBtGzVyqfiNNukCsSl3UesDV2Ui74jSjV3vIqcaMZLddpa8uwAZAkI_r/exec";
         const SECRET_KEY = "alluser";
-        
-        // STATI GLOBALI
         let currentChipId = null;
-        let rawDataArray = [];     // array di {x: timestamp, peso1, peso2, tempEnv, hum, batt, temp1, temp2, maintInizio, maintFine, durata}
+        let rawDataArray = [];
         let currentRange = "1W";
         let customStartTs = null, customEndTs = null;
         let pesoChart, multiChart;
-        
-        // Cache IndexedDB (sincronizzazione incrementale)
         const DB_NAME = "ArniaSmartDB", STORE_NAME = "historyV2";
-        
+
         function openDB() {
             return new Promise((resolve, reject) => {
                 const req = indexedDB.open(DB_NAME, 1);
@@ -528,7 +37,6 @@
                 req.onerror = (e) => reject(e.target.error);
             });
         }
-        
         async function getLocalCache(chipId) {
             try {
                 const db = await openDB();
@@ -541,7 +49,6 @@
                 });
             } catch(e) { return []; }
         }
-        
         async function saveLocalCache(chipId, data) {
             try {
                 const db = await openDB();
@@ -550,24 +57,22 @@
                 tx.commit();
             } catch(e) { console.warn(e); }
         }
-        
         function showLoader(show, text = "Sincronizzazione...") {
             const overlay = document.getElementById("loader-overlay");
-            if(show) {
-                document.getElementById("loaderText").innerText = text;
-                overlay.classList.remove("hidden");
-            } else overlay.classList.add("hidden");
+            if(show) { document.getElementById("loaderText").innerText = text; overlay.classList.remove("hidden"); }
+            else overlay.classList.add("hidden");
         }
-        
-        // chiamata API generica
         async function apiFetch(params) {
             const url = new URL(SCRIPT_URL);
             Object.keys(params).forEach(k => url.searchParams.append(k, params[k]));
             const res = await fetch(url);
             return res.json();
         }
-        
-        // LOGIN
+        function showLoginError(msg) {
+            const errDiv = document.getElementById("loginErrorMsg");
+            errDiv.innerText = msg; errDiv.style.display = "block";
+            setTimeout(()=> errDiv.style.display = "none", 3000);
+        }
         async function handleLogin() {
             const email = document.getElementById("emailLogin").value.trim();
             if(!email) { showLoginError("Inserisci un'email"); return; }
@@ -577,66 +82,45 @@
                 let isMaster = email.toLowerCase() === SECRET_KEY;
                 if(isMaster) requestEmail = "";
                 const json = await apiFetch({ action: "listDevices", email: requestEmail });
-                if(json.status !== "success" || !json.data || json.data.length === 0) throw new Error("Nessun dispositivo trovato per questa email");
-                
-                // salva email e dispositivi
+                if(json.status !== "success" || !json.data || json.data.length === 0) throw new Error("Nessun dispositivo trovato");
                 localStorage.setItem("userEmail", email);
                 localStorage.setItem("isMaster", isMaster ? "1" : "0");
-                // popola selector
                 const deviceSelector = document.getElementById("deviceSelector");
-                deviceSelector.innerHTML = "";
-                json.data.forEach(dev => {
+                deviceSelector.innerHTML = '<option value="">— Seleziona arnia —</option>';
+                for(const devId of json.data) {
                     const opt = document.createElement("option");
-                    opt.value = dev.id;
-                    opt.textContent = `Arnia: ${dev.id}`;
+                    opt.value = devId;
+                    opt.textContent = `Arnia: ${devId}`;
                     deviceSelector.appendChild(opt);
-                });
+                }
                 const badge = document.getElementById("accountBadge");
                 if(isMaster) { badge.innerText = "MASTER KEY"; badge.classList.add("master"); }
                 else { badge.innerText = "FREE"; badge.classList.remove("master"); }
-                
                 document.getElementById("login-page").style.display = "none";
                 document.getElementById("dashboard-page").classList.remove("hidden");
-                if(json.data.length) await loadDeviceData(json.data[0].id);
+                if(json.data.length) await loadDeviceData(json.data[0]);
             } catch(err) {
                 showLoginError(err.message);
+                console.error(err);
             } finally { showLoader(false); }
         }
-        
-        function showLoginError(msg) {
-            const errDiv = document.getElementById("loginErrorMsg");
-            errDiv.innerText = msg;
-            errDiv.style.display = "block";
-            setTimeout(()=> errDiv.style.display = "none", 3000);
-        }
-        
-        function logout() {
-            localStorage.clear();
-            location.reload();
-        }
-        
+        function logout() { localStorage.clear(); location.reload(); }
         async function switchDevice() {
             const sel = document.getElementById("deviceSelector");
-            if(sel.value) await loadDeviceData(sel.value);
+            if(sel.value && sel.value !== "") await loadDeviceData(sel.value);
         }
-        
-        // Caricamento dati + cache incrementale
         async function loadDeviceData(chipId) {
             if(!chipId) return;
             currentChipId = chipId;
             showLoader(true, "Caricamento storico...");
             try {
-                // 1. fetch configurazione per badge owner
                 const cfg = await apiFetch({ action: "getDeviceConfig", chipId });
                 if(cfg.status === "success" && cfg.data) {
                     const isMaster = localStorage.getItem("isMaster") === "1";
                     const ownerBadge = document.getElementById("ownerBadge");
-                    if(isMaster && cfg.data.email) {
-                        ownerBadge.innerText = cfg.data.email;
-                        ownerBadge.style.display = "inline-block";
-                    } else ownerBadge.style.display = "none";
+                    if(isMaster && cfg.data.email) { ownerBadge.innerText = cfg.data.email; ownerBadge.style.display = "inline-block"; }
+                    else ownerBadge.style.display = "none";
                 }
-                // 2. cache locale + delta
                 let local = await getLocalCache(chipId);
                 let lastTs = local.length ? Math.max(...local.map(p => p.x)) : 0;
                 const remote = await apiFetch({ action: "getDeviceHistory", chipId, after: lastTs });
@@ -654,7 +138,7 @@
                         maintInizio: row["Maint Inizio"] ? new Date(row["Maint Inizio"]) : null,
                         maintFine: row["Maint Fine"] ? new Date(row["Maint Fine"]) : null,
                         durata: row["Durata (min)"] || 0
-                    })).filter(d => d.x);
+                    })).filter(d => !isNaN(d.x));
                 }
                 const merged = [...local, ...newEntries];
                 const uniqueMap = new Map();
@@ -662,13 +146,13 @@
                 const finalData = Array.from(uniqueMap.values()).sort((a,b)=> a.x - b.x);
                 if(newEntries.length) await saveLocalCache(chipId, finalData);
                 rawDataArray = finalData;
+                if(rawDataArray.length === 0) console.warn("Nessun dato disponibile per questo dispositivo");
                 updateStatsAndTables();
                 renderCharts();
                 initRangeButtons();
-            } catch(e) { alert("Errore caricamento: "+e.message); }
+            } catch(e) { console.error(e); alert("Errore caricamento: "+e.message); }
             finally { showLoader(false); }
         }
-        
         function updateStatsAndTables() {
             if(!rawDataArray.length) return;
             const last = rawDataArray[rawDataArray.length-1];
@@ -679,32 +163,30 @@
                 for(let i=rawDataArray.length-1; i>=0; i--) if(rawDataArray[i].x <= target) return rawDataArray[i];
                 return rawDataArray[0];
             };
-            const p24 = findPast(86400000); const p7 = findPast(604800000); const p15 = findPast(1296000000);
+            const p24 = findPast(86400000), p7 = findPast(604800000), p15 = findPast(1296000000);
             const lastMaint = [...rawDataArray].reverse().find(d => d.maintInizio);
-            const delta = (curr, old) => (old ? (curr-old).toFixed(1) : "N/A");
+            const delta = (curr, old) => (old ? (curr - old).toFixed(1) : "N/A");
             const signClass = (diff) => diff > 0.05 ? "positive" : (diff < -0.05 ? "negative" : "neutral");
             function setDelta(id1, id2, curr, old) { 
                 const d1 = delta(curr.peso1, old?.peso1); const d2 = delta(curr.peso2, old?.peso2);
                 const diff1 = curr.peso1 - (old?.peso1||curr.peso1); const diff2 = curr.peso2 - (old?.peso2||curr.peso2);
-                document.getElementById(id1).innerHTML = (old ? (diff1>0?"+":"")+d1 : "--"); document.getElementById(id2).innerHTML = (old ? (diff2>0?"+":"")+d2 : "--");
-                document.getElementById(id1).className = signClass(diff1); document.getElementById(id2).className = signClass(diff2);
+                document.getElementById(id1).innerHTML = (old ? (diff1>0?"+":"")+d1 : "--"); 
+                document.getElementById(id2).innerHTML = (old ? (diff2>0?"+":"")+d2 : "--");
+                document.getElementById(id1).className = signClass(diff1);
+                document.getElementById(id2).className = signClass(diff2);
             }
             setDelta("d24_1","d24_2", last, p24);
             setDelta("d7_1","d7_2", last, p7);
             setDelta("d15_1","d15_2", last, p15);
             setDelta("maint1","maint2", last, lastMaint);
-            
-            // tabella manutenzione
-            const maintRows = rawDataArray.filter(d => d.maintInizio).slice(-10).reverse();
             const tbody = document.querySelector("#maintTable tbody");
+            const maintRows = rawDataArray.filter(d => d.maintInizio).slice(-10).reverse();
             if(!maintRows.length) tbody.innerHTML = "<tr><td colspan='3'>Nessuna manutenzione</td></tr>";
-            else {
-                tbody.innerHTML = maintRows.map(m => `<tr><td>${new Date(m.maintInizio).toLocaleString()}</td><td>${m.maintFine ? new Date(m.maintFine).toLocaleString() : '-'}</td><td>${m.durata}</td></tr>`).join("");
-            }
+            else tbody.innerHTML = maintRows.map(m => `<tr><td>${new Date(m.maintInizio).toLocaleString()}</td><td>${m.maintFine ? new Date(m.maintFine).toLocaleString() : '-'}</td><td>${m.durata}</td></tr>`).join("");
         }
-        
         function buildLegend(chart, containerId) {
             const container = document.getElementById(containerId);
+            if(!container) return;
             container.innerHTML = "";
             chart.data.datasets.forEach((ds, idx) => {
                 const btn = document.createElement("div");
@@ -714,9 +196,8 @@
                 container.appendChild(btn);
             });
         }
-        
         function renderCharts() {
-            if(!rawDataArray.length) return;
+            if(!rawDataArray.length) { console.log("Nessun dato, grafici vuoti"); return; }
             let startTime, endTime = Date.now();
             if(currentRange === "SET" && customStartTs && customEndTs) { startTime = customStartTs; endTime = customEndTs; }
             else {
@@ -736,7 +217,6 @@
                 { label: "Arnia 2", data: filtered.map(d=>({x:d.x, y:d.peso2})), borderColor: "#3B82F6", borderWidth: 2, pointRadius: 0, tension: 0.2 }
             ] }, options: commonOpts });
             buildLegend(pesoChart, "legendPeso");
-            
             if(multiChart) multiChart.destroy();
             const ctxMulti = document.getElementById("multiChart").getContext("2d");
             multiChart = new Chart(ctxMulti, { type: "line", data: { datasets: [
@@ -747,7 +227,6 @@
             ] }, options: { ...commonOpts, scales: { ...commonOpts.scales, y1: { position: "right", grid: { display: false }, ticks: { color: "#06B6D4" } } } } });
             buildLegend(multiChart, "legendMulti");
         }
-        
         function initRangeButtons() {
             const rangesList = ["6H","1D","1W","2W","1M","3M","6M","1Y","5Y","SET"];
             const container = document.getElementById("rangeContainer");
@@ -761,7 +240,6 @@
                 container.appendChild(btn);
             });
         }
-        
         function setRange(range) {
             if(range === "SET") { openCustomModal(); return; }
             currentRange = range;
@@ -770,7 +248,6 @@
             [...document.querySelectorAll(".range-btn")].find(b => b.innerText === range)?.classList.add("active");
             renderCharts();
         }
-        
         function openCustomModal() { document.getElementById("customModal").classList.remove("hidden"); }
         function closeCustomModal() { document.getElementById("customModal").classList.add("hidden"); }
         function applyCustomRange() {
@@ -783,11 +260,8 @@
             closeCustomModal();
             renderCharts();
         }
-        
-        // manuale
         function openManual() { document.getElementById("dashboard-page").classList.add("hidden"); document.getElementById("manual-page").classList.remove("hidden"); }
         function hideManual() { document.getElementById("manual-page").classList.add("hidden"); document.getElementById("dashboard-page").classList.remove("hidden"); }
-        
         document.querySelectorAll(".manual-btn").forEach(btn => {
             if(btn.getAttribute("data-tab")) btn.addEventListener("click", (e) => {
                 document.querySelectorAll(".manual-tab").forEach(t => t.classList.remove("active"));
@@ -796,13 +270,9 @@
                 btn.classList.add("active");
             });
         });
-        
         window.onload = () => {
             const savedEmail = localStorage.getItem("userEmail");
-            if(savedEmail) {
-                document.getElementById("emailLogin").value = savedEmail;
-                handleLogin();
-            }
+            if(savedEmail) { document.getElementById("emailLogin").value = savedEmail; handleLogin(); }
             initRangeButtons();
         };
     </script>

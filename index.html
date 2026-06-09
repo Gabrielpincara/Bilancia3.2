@@ -2,15 +2,22 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8"/>
+    <!-- Viewport ottimizzata per mobile -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
     <title>Smart Hive Dashboard</title>
+
+    <!-- Font Montserrat -->
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+
+    <!-- Chart.js e Plugin -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@2.2.1/dist/chartjs-plugin-annotation.min.js"></script>
+
     <style>
+        /* --- RESET E BASE --- */
         * {
             box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
@@ -18,18 +25,24 @@
             user-select: none;
             -webkit-user-select: none;
         }
+
         input, select { user-select: text; -webkit-user-select: text; }
+
         body {
             margin: 0;
             padding: 0;
-            background-color: #1c1c1e;
+            background-color: #1c1c1e; /* Dark Mode */
             color: #ffffff;
             padding-bottom: env(safe-area-inset-bottom);
             overflow-x: hidden;
         }
+
+        /* --- UTILITÀ --- */
         .hidden { display: none !important; }
         .flex { display: flex; }
         .text-center { text-align: center; }
+
+        /* --- LOGIN PAGE --- */
         #login-page {
             height: 100vh;
             background: linear-gradient(135deg, #1c1c1e, #000000);
@@ -39,6 +52,7 @@
             align-items: center;
             padding: 20px;
         }
+
         .login-card {
             background: #2c2c2e;
             padding: 30px;
@@ -48,7 +62,9 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
             text-align: center;
         }
+
         .login-card h1 { margin-bottom: 20px; color: #4a90e2; font-size: 1.8rem; }
+
         .login-input {
             width: 100%;
             padding: 15px;
@@ -61,6 +77,7 @@
             outline: none;
         }
         .login-input:focus { border-color: #4a90e2; }
+
         .btn-primary {
             background: #4a90e2;
             color: white;
@@ -72,37 +89,52 @@
             cursor: pointer;
             width: 100%;
         }
+
+        /* --- DASHBOARD PAGE --- */
         #dashboard-page {
             padding: 10px 10px 90px 10px;
             max-width: 1200px;
             margin: 0 auto;
         }
+
+        /* HEADER */
         header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             padding: 10px 5px;
             margin-bottom: 10px;
-            flex-wrap: wrap;
+            flex-wrap: wrap; /* Permette a capo se troppi badge */
             gap: 10px;
         }
         .app-title { font-size: 1.2rem; font-weight: 700; color: #f2f2f7; }
+
         .header-controls {
             display: flex;
             align-items: center;
             gap: 8px;
         }
+
         .badge {
             font-size: 0.75rem; padding: 4px 8px; border-radius: 12px;
             background: #3a3a3c; color: #aeaeb2; text-transform: uppercase;
             font-weight: 600;
         }
-        .badge.master { background: #ff3b30; color: white; box-shadow: 0 0 10px rgba(255, 59, 48, 0.5); }
+
+        /* Stile speciale per Master Key */
+        #accountBadge.master {
+            background: #ff3b30; color: white;
+            box-shadow: 0 0 10px rgba(255, 59, 48, 0.5);
+        }
+
+        /* Stile speciale per Owner Email Badge */
         #ownerBadge {
             background: #0a84ff; color: white;
-            text-transform: none;
-            display: none;
+            text-transform: none; /* Mantieni email minuscola */
+            display: none; /* Nascosto di default */
         }
+
+        /* SELETTORE DISPOSITIVO */
         .device-selector-container { margin-bottom: 15px; }
         select#deviceSelector {
             width: 100%;
@@ -119,24 +151,32 @@
             background-position: right 15px top 50%;
             background-size: 12px auto;
         }
+
+        /* CARD STATISTICHE */
         .stats-grid-top { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 8px; margin-bottom: 8px; }
         .stats-grid-mid { display: grid; grid-template-columns: 1fr; gap: 8px; margin-bottom: 20px; }
+
         .stat-card {
             background: #2c2c2e; border-radius: 12px; padding: 12px 6px; text-align: center;
             display: flex; flex-direction: column; justify-content: center; min-height: 80px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.2);
         }
         .stat-label { font-size: 0.7rem; color: #aeaeb2; margin-bottom: 6px; line-height: 1.2; font-weight: 600; }
+
         .dual-val-container { display: flex; flex-direction: column; gap: 4px; align-items: center; }
         .dual-val-row { font-size: 0.85rem; font-weight: 700; display: flex; align-items: center; gap: 4px; }
         .dual-val-label { color: #aeaeb2; font-size: 0.7rem; font-weight: 500; }
+
         .current-weight-row { display: flex; justify-content: space-around; align-items: center; width: 100%; }
         .current-weight-item { display: flex; flex-direction: column; align-items: center; }
         .current-weight-val { font-size: 1.4rem; font-weight: 700; color: #fff; }
         .divider-v { width: 1px; height: 40px; background: #48484a; }
+
         .val-pos { color: #32d74b; }
         .val-neg { color: #ff453a; }
         .val-neutral { color: #ffffff; }
+
+        /* LEGENDA ESTERNA */
         .custom-legend-container { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 15px; justify-content: center; padding: 0 5px; }
         .legend-item {
             display: flex; align-items: center; background: #3a3a3c; padding: 10px 18px;
@@ -147,6 +187,8 @@
         .legend-item:active { transform: scale(0.95); }
         .legend-item.hidden-dataset { opacity: 0.4; background: #252525; box-shadow: none; border: 2px solid #3a3a3c; }
         .legend-color-box { width: 14px; height: 14px; border-radius: 50%; margin-right: 10px; display: inline-block; border: 1px solid rgba(255,255,255,0.2); }
+
+        /* GRAFICI */
         .chart-section { margin-bottom: 30px; }
         .chart-header { padding: 0 5px; margin-bottom: 5px; color: #aeaeb2; font-size: 0.9rem; font-weight: 600; }
         .chart-container {
@@ -158,6 +200,8 @@
             .chart-header { padding-left: 0; }
             canvas { touch-action: pan-y !important; }
         }
+
+        /* BOTTOM NAV */
         .bottom-nav {
             position: fixed; bottom: 0; left: 0; width: 100%;
             background: rgba(28, 28, 30, 0.95); backdrop-filter: blur(10px);
@@ -167,12 +211,15 @@
             overflow-x: auto; -webkit-overflow-scrolling: touch;
         }
         .bottom-nav::-webkit-scrollbar { display: none; }
+
         .range-btn {
             background: #3a3a3c; color: #fff; border: none; padding: 10px 16px;
             border-radius: 20px; font-size: 0.85rem; font-weight: 600;
             flex-shrink: 0; cursor: pointer; transition: 0.2s; white-space: nowrap;
         }
         .range-btn.active { background: #ffcc00; color: #000; transform: scale(1.05); }
+
+        /* LOG TABLES */
         .log-section { margin-top: 20px; margin-bottom: 20px; }
         .log-header { background: #2c2c2e; padding: 12px; border-radius: 12px 12px 0 0; font-weight: 600; color: #4a90e2; font-size: 0.9rem; }
         .log-table-container { max-height: 250px; overflow-y: auto; background: #2c2c2e; border-radius: 0 0 12px 12px; margin-bottom: 15px; }
@@ -180,6 +227,8 @@
         th, td { padding: 10px; text-align: left; border-bottom: 1px solid #3a3a3c; color: #d1d1d6; }
         th { position: sticky; top: 0; background: #3a3a3c; color: #fff; z-index: 10; }
         tr:last-child td { border-bottom: none; }
+
+        /* MODAL CUSTOM RANGE */
         #customRangeModal {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.85); z-index: 2000;
@@ -206,6 +255,8 @@
         }
         .btn-modal-cancel { background: #3a3a3c; color: #fff; }
         .btn-modal-apply { background: #ffcc00; color: #000; }
+
+        /* LOADER */
         #loader-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.8); z-index: 9999;
@@ -219,10 +270,13 @@
     </style>
 </head>
 <body>
+
     <div id="loader-overlay" class="hidden">
         <div class="spinner"></div>
         <div id="loader-text">Caricamento...</div>
     </div>
+
+    <!-- MODALE CUSTOM RANGE -->
     <div id="customRangeModal" class="hidden">
         <div class="modal-content">
             <h3>Seleziona Intervallo</h3>
@@ -240,6 +294,8 @@
             </div>
         </div>
     </div>
+
+    <!-- PAGINA 1: LOGIN -->
     <div id="login-page">
         <div class="login-card">
             <h1>Arnia Control</h1>
@@ -249,115 +305,172 @@
             <p id="loginError" style="color: #ff453a; font-size: 0.8rem; margin-top: 15px; display: none;"></p>
         </div>
     </div>
+
+    <!-- PAGINA 2: DASHBOARD -->
     <div id="dashboard-page" class="hidden">
+
         <header>
             <div class="app-title">BILANCIA ARNIA 3.2</div>
             <div class="header-controls">
-                <span id="ownerBadge" class="badge"></span>
+                <span id="ownerBadge" class="badge"></span> <!-- BADGE MAIL PROPRIETARIO -->
                 <span id="accountBadge" class="badge">FREE</span>
                 <button onclick="logout()" style="background:none; border:none; color:#ff453a; font-size:0.8rem; font-weight:600;">Esci</button>
             </div>
         </header>
+
         <div class="device-selector-container">
             <select id="deviceSelector" onchange="onDeviceChanged()">
                 <option value="">Caricamento dispositivi...</option>
             </select>
         </div>
-        <div class="stats-grid-top">
-            <div class="stat-card"><div class="stat-label">Cambio 24h</div><div class="dual-val-container"><div class="dual-val-row"><span class="dual-val-label">A1:</span><span id="delta24h_1">--</span></div><div class="dual-val-row"><span class="dual-val-label">A2:</span><span id="delta24h_2">--</span></div></div></div>
-            <div class="stat-card"><div class="stat-label">Cambio 7gg</div><div class="dual-val-container"><div class="dual-val-row"><span class="dual-val-label">A1:</span><span id="delta7d_1">--</span></div><div class="dual-val-row"><span class="dual-val-label">A2:</span><span id="delta7d_2">--</span></div></div></div>
-            <div class="stat-card"><div class="stat-label">Cambio 15gg</div><div class="dual-val-container"><div class="dual-val-row"><span class="dual-val-label">A1:</span><span id="delta15d_1">--</span></div><div class="dual-val-row"><span class="dual-val-label">A2:</span><span id="delta15d_2">--</span></div></div></div>
-            <div class="stat-card"><div class="stat-label">Dall'ultima Maint.</div><div class="dual-val-container"><div class="dual-val-row"><span class="dual-val-label">A1:</span><span id="deltaMaint_1" class="val-neutral">--</span></div><div class="dual-val-row"><span class="dual-val-label">A2:</span><span id="deltaMaint_2" class="val-neutral">--</span></div></div></div>
+
+        <!-- KPI TOP -->
+       <div class="stats-grid-top">
+    <div class="stat-card">
+        <div class="stat-label">Cambio 24h</div>
+        <div class="dual-val-container">
+            <div class="dual-val-row"><span class="dual-val-label">A1:</span><span id="delta24h_1">--</span></div>
+            <div class="dual-val-row"><span class="dual-val-label">A2:</span><span id="delta24h_2">--</span></div>
         </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Cambio 7gg</div>
+        <div class="dual-val-container">
+            <div class="dual-val-row"><span class="dual-val-label">A1:</span><span id="delta7d_1">--</span></div>
+            <div class="dual-val-row"><span class="dual-val-label">A2:</span><span id="delta7d_2">--</span></div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Cambio 15gg</div>
+        <div class="dual-val-container">
+            <div class="dual-val-row"><span class="dual-val-label">A1:</span><span id="delta15d_1">--</span></div>
+            <div class="dual-val-row"><span class="dual-val-label">A2:</span><span id="delta15d_2">--</span></div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Dall'ultima Maint.</div>
+        <div class="dual-val-container">
+            <div class="dual-val-row"><span class="dual-val-label">A1:</span><span id="deltaMaint_1" class="val-neutral">--</span></div>
+            <div class="dual-val-row"><span class="dual-val-label">A2:</span><span id="deltaMaint_2" class="val-neutral">--</span></div>
+        </div>
+    </div>
+</div>
+
+        <!-- KPI MID -->
         <div class="stats-grid-mid">
             <div class="stat-card">
                 <div class="stat-label">Peso Attuale</div>
                 <div class="current-weight-row">
-                    <div class="current-weight-item"><span class="dual-val-label" style="margin-bottom:2px;">Arnia 1</span><span class="current-weight-val" id="currWeight1">-- Kg</span></div>
+                    <div class="current-weight-item">
+                        <span class="dual-val-label" style="margin-bottom:2px;">Arnia 1</span>
+                        <span class="current-weight-val" id="currWeight1">-- Kg</span>
+                    </div>
                     <div class="divider-v"></div>
-                    <div class="current-weight-item"><span class="dual-val-label" style="margin-bottom:2px;">Arnia 2</span><span class="current-weight-val" id="currWeight2">-- Kg</span></div>
+                    <div class="current-weight-item">
+                        <span class="dual-val-label" style="margin-bottom:2px;">Arnia 2</span>
+                        <span class="current-weight-val" id="currWeight2">-- Kg</span>
+                    </div>
                 </div>
             </div>
         </div>
+
+        <!-- GRAFICO 1: PESO -->
         <div class="chart-section">
             <div class="chart-header">Andamento Peso (Kg)</div>
             <div id="legendPeso" class="custom-legend-container"></div>
             <div class="chart-container"><canvas id="chartPeso"></canvas></div>
         </div>
+
+        <!-- GRAFICO 2: AMBIENTE -->
         <div class="chart-section">
             <div class="chart-header">Ambiente & Energia</div>
             <div id="legendMulti" class="custom-legend-container"></div>
             <div class="chart-container"><canvas id="chartMulti"></canvas></div>
         </div>
+
+        <!-- LOGS -->
         <div class="log-section">
             <div class="log-header">Storico Manutenzione</div>
-            <div class="log-table-container"><table id="maintTable"><thead><tr><th>Inizio</th><th>Fine</th><th>Min</th></tr></thead><tbody></tbody></table></div>
+            <div class="log-table-container">
+                <table id="maintTable"><thead><tr><th>Inizio</th><th>Fine</th><th>Min</th></tr></thead><tbody></tbody></table>
+            </div>
         </div>
+
         <div class="log-section">
             <div class="log-header">Messaggi Dispositivo</div>
-            <div class="log-table-container"><table id="logTable"><thead><tr><th>Data</th><th>Messaggio</th></tr></thead><tbody></tbody></table></div>
+            <div class="log-table-container">
+                <table id="logTable"><thead><tr><th>Data</th><th>Messaggio</th></tr></thead><tbody></tbody></table>
+            </div>
         </div>
-        <div class="bottom-nav" id="rangeContainer"></div>
-    </div>
-    <script>
-        // ======================== REGISTRAZIONE PLUGIN CHART.JS ========================
-        Chart.register(ChartZoom);
-        Chart.register(ChartAnnotation);
 
-        // ======================== CONFIGURAZIONE ========================
-        let scriptUrl = 'https://script.google.com/macros/s/AKfycbwJqzTgmmidqv9oz0sAe8fiKG6j74-MsWJ-wNF-TbeVN5HV0R0J0VHH2e1pLzX0DOuA/exec';
+        <!-- NAVIGAZIONE RANGE -->
+        <div class="bottom-nav" id="rangeContainer"></div>
+
+    </div>
+<script>
+        // CONFIGURAZIONE DINAMICA
+        // Questo URL fisso ora serve solo come "Piano B" in caso non ci sia internet
+        let scriptUrl = 'https://script.google.com/macros/s/AKfycbwJqzTgmmidqv9oz0sAe8fiKG6j74-MsWJ-wNF-TbeVN5HV0R0J0VHH2e1pLzX0DOuA/exec'; 
         const SECRET_KEY = "alluser";
+        
+        // Link per scaricare il contenuto della cella B1 come fa l'ESP32
         const DYNAMIC_URL_SHEET = "https://docs.google.com/spreadsheets/d/1v2QYh6ZYvMKCxBI0mt7nHSS2btbmDRtP018k8Yj0Lfg/export?format=csv&gid=1773702506&range=B1";
 
-        // ======================== STATO ========================
+        // STATO
         let charts = {};
         let allData = [];
         let currentRange = '1W';
         let customStart = null;
         let customEnd = null;
-        const ranges = ['6H','1D','1W','2W','1M','3M','6M','1Y','5Y','SET'];
 
-        // Elementi DOM
+        const ranges = ['6H','1D','1W','2W','1M','3M','6M','1Y','5Y', 'SET'];
+
+        // ELEMENTI
         const loginPage = document.getElementById('login-page');
         const dashboardPage = document.getElementById('dashboard-page');
         const loader = document.getElementById('loader-overlay');
         const loaderText = document.getElementById('loader-text');
         const modal = document.getElementById('customRangeModal');
 
-        // ======================== FUNZIONI UTILI ========================
+        // AVVIO DELLA PAGINA (Ora aspetta di aver letto la nuova URL)
+        window.onload = async function() {
+            await syncDynamicUrl(); // Passaggio 1: Aggiorna l'URL
+            initRanges();           // Passaggio 2: Disegna i bottoni
+            checkAutoLogin();       // Passaggio 3: Effettua il login
+        };
+
+        // FUNZIONE PER LEGGERE GOOGLE SHEET
         async function syncDynamicUrl() {
             try {
                 const res = await fetch(DYNAMIC_URL_SHEET);
                 const text = await res.text();
-                let firstLine = text.split(/\r?\n/)[0];
-                let url = firstLine.replace(/^["']|["']$/g, '').trim();
-                if (url.startsWith('http')) {
-                    scriptUrl = url;
-                    console.log("✅ URL dinamico aggiornato:", scriptUrl);
-                } else {
-                    console.warn("⚠️ Cella B1 non contiene URL valido, uso backup.");
+                const fetchedUrl = text.trim();
+                
+                // Controlla che dentro ci sia davvero un link valido
+                if (fetchedUrl.startsWith('http')) {
+                    scriptUrl = fetchedUrl;
+                    console.log("🌐 URL dell'App sincronizzato con successo dal Foglio Google!");
                 }
             } catch(e) {
-                console.warn("⚠️ Impossibile recuperare URL dinamico, uso backup.");
+                console.warn("⚠️ Impossibile raggiungere il foglio, uso l'URL di backup.");
             }
         }
 
-        function showLoader(show, text) {
-            loader.classList.toggle('hidden', !show);
-            if(text) loaderText.innerText = text;
-        }
-
-        // IndexedDB per cache incrementale
+        // --- DATABASE LOCALE (IndexedDB) PER CACHE INCREMENTALE ---
         const DB_NAME = "ArniaDataDB";
         const STORE_NAME = "history";
+
         function openDB() {
             return new Promise((resolve, reject) => {
                 const request = indexedDB.open(DB_NAME, 1);
-                request.onupgradeneeded = event => { event.target.result.createObjectStore(STORE_NAME); };
+                request.onupgradeneeded = event => {
+                    event.target.result.createObjectStore(STORE_NAME);
+                };
                 request.onsuccess = event => resolve(event.target.result);
                 request.onerror = event => reject(event.target.error);
             });
         }
+
         async function getLocalData(chipId) {
             try {
                 const db = await openDB();
@@ -370,6 +483,7 @@
                 });
             } catch(e) { return []; }
         }
+
         async function saveLocalData(chipId, data) {
             try {
                 const db = await openDB();
@@ -383,6 +497,7 @@
             } catch(e) { console.error("Errore salvataggio locale", e); }
         }
 
+
         function initRanges() {
             const container = document.getElementById('rangeContainer');
             container.innerHTML = '';
@@ -395,6 +510,7 @@
             });
         }
 
+        // --- GESTIONE RANGE ---
         function setRange(range) {
             if (range === 'SET') { openModal(); return; }
             currentRange = range;
@@ -419,7 +535,9 @@
             }
             modal.classList.remove('hidden');
         }
+
         function closeModal() { modal.classList.add('hidden'); }
+
         function applyCustomDate() {
             const startVal = document.getElementById('customStartInput').value;
             const endVal = document.getElementById('customEndInput').value;
@@ -430,31 +548,47 @@
             updateRangeButtons(); renderCharts(); closeModal();
         }
 
-        // Login e gestione dispositivi
+        // --- LOGIN ---
+        function checkAutoLogin() {
+            const savedEmail = localStorage.getItem('userEmail');
+            if (savedEmail) {
+                document.getElementById('emailInput').value = savedEmail;
+                doLoginProcess(savedEmail);
+            }
+        }
+
         function handleLogin() {
             const email = document.getElementById('emailInput').value.trim();
             if (!email) { showLoginError("Inserisci un'email valida."); return; }
             doLoginProcess(email);
         }
-        function logout() { localStorage.removeItem('userEmail'); location.reload(); }
-        function showLoginError(msg) {
-            const el = document.getElementById('loginError');
-            el.innerText = msg;
-            el.style.display = 'block';
+
+        function logout() {
+            localStorage.removeItem('userEmail');
+            location.reload();
         }
+
         async function doLoginProcess(email) {
             showLoader(true, "Accesso in corso...");
             try {
                 let requestEmail = email;
                 let isMaster = false;
-                if (email.toLowerCase() === SECRET_KEY) { requestEmail = ""; isMaster = true; }
+
+                if (email.toLowerCase() === SECRET_KEY) {
+                    requestEmail = "";
+                    isMaster = true;
+                }
+
                 const url = `${scriptUrl}?action=listDevices&email=${encodeURIComponent(requestEmail)}`;
                 const res = await fetch(url);
                 const json = await res.json();
+
                 if (json.status === "error") throw new Error(json.message);
                 if (!json.data || json.data.length === 0) throw new Error("Nessun dispositivo trovato.");
+
                 localStorage.setItem('userEmail', email);
                 populateDeviceSelector(json.data);
+
                 const badge = document.getElementById('accountBadge');
                 if (isMaster) {
                     badge.innerText = "MASTER KEY";
@@ -463,19 +597,31 @@
                     badge.innerText = "FREE";
                     badge.className = "badge";
                 }
+
                 loginPage.classList.add('hidden');
                 dashboardPage.classList.remove('hidden');
+
                 if (json.data.length > 0) {
                     document.getElementById('deviceSelector').value = json.data[0];
                     await loadDeviceData(json.data[0]);
                 }
+
             } catch (e) {
                 console.error(e);
                 showLoginError(e.message);
                 loginPage.classList.remove('hidden');
                 dashboardPage.classList.add('hidden');
-            } finally { showLoader(false); }
+            } finally {
+                showLoader(false);
+            }
         }
+
+        function showLoginError(msg) {
+            const el = document.getElementById('loginError');
+            el.innerText = msg;
+            el.style.display = 'block';
+        }
+
         function populateDeviceSelector(devices) {
             const sel = document.getElementById('deviceSelector');
             sel.innerHTML = '';
@@ -484,16 +630,20 @@
                 opt.value = d; opt.textContent = `Arnia: ${d}`; sel.appendChild(opt);
             });
         }
+
         async function onDeviceChanged() {
             const id = document.getElementById('deviceSelector').value;
             if(id) await loadDeviceData(id);
         }
 
-        // Caricamento dati incrementale con deduplicazione
+        // --- CARICAMENTO DATI (INCREMENTALE) ---
+
+//sostituisco da qui Gabriel 
+// --- CARICAMENTO DATI (INCREMENTALE & ANTI-DIAGONALE) ---
         async function loadDeviceData(chipId) {
             showLoader(true, "Verifica database locale...");
             try {
-                // Configurazione in background
+                // 1. Fetch Configurazione in background
                 fetch(`${scriptUrl}?action=getDeviceConfig&chipId=${chipId}`)
                     .then(r => r.json())
                     .then(d => {
@@ -502,25 +652,36 @@
                         if (isMaster && d.data?.email) {
                             ownerBadge.innerText = d.data.email;
                             ownerBadge.style.display = 'inline-block';
-                        } else { ownerBadge.style.display = 'none'; }
+                        } else {
+                            ownerBadge.style.display = 'none';
+                        }
                         if (!isMaster) {
                             const type = d.data?.tipologia || 'Standard';
-                            document.getElementById('accountBadge').innerText = type;
+                            const badge = document.getElementById('accountBadge');
+                            badge.innerText = type;
+                            badge.style.color = type === 'Demo' ? '#e67e22' : '#2ecc71';
                         }
                     }).catch(e => {});
 
+                // 2. Carica i dati vecchi dalla memoria del telefono
                 let localData = await getLocalData(chipId);
                 let lastTs = 0;
+                
                 if (localData.length > 0) {
-                    localData.sort((a,b) => a.x - b.x);
-                    lastTs = localData[localData.length-1].x;
+                    // Ordina preventivamente i dati locali per trovare l'ultima data reale
+                    localData.sort((a, b) => a.x - b.x);
+                    lastTs = localData[localData.length - 1].x; 
                     showLoader(true, "Sincronizzazione nuovi dati...");
                 } else {
-                    showLoader(true, "Scaricamento dati completi...");
+                    showLoader(true, "Scaricamento dati completi (solo la prima volta)...");
                 }
+
+                // 3. Scarica SOLO i dati successivi all'ultimo salvato
                 const res = await fetch(`${scriptUrl}?action=getDeviceHistory&chipId=${chipId}&after=${lastTs}`);
                 const json = await res.json();
                 if (json.status === 'error') throw new Error(json.message);
+
+                // 4. Se ci sono dati nuovi, li processa e li aggiunge
                 if (json.data && json.data.length > 0) {
                     const newData = json.data.map(row => {
                         const ts = row.Timestamp ? new Date(row.Timestamp).getTime() : null;
@@ -540,49 +701,82 @@
                             logMsg: row['Messaggio log'] || ''
                         };
                     }).filter(d => d !== null);
+
+                    // Unisce i vecchi dati con i nuovi
                     localData = localData.concat(newData);
                 }
-                // Deduplica per timestamp
+
+                // --- FIX DIAGONALE E DUPLICATI ---
+                // A. Rimuove eventuali righe doppie con lo stesso identico timestamp
                 const uniqueMap = new Map();
                 localData.forEach(item => uniqueMap.set(item.x, item));
                 localData = Array.from(uniqueMap.values());
-                localData.sort((a,b) => a.x - b.x);
-                if (json.data && json.data.length > 0) await saveLocalData(chipId, localData);
+                
+                // B. Riordina TUTTO in modo rigorosamente cronologico prima di darlo al grafico
+                localData.sort((a, b) => a.x - b.x);
+
+                // Salva il database pulito sul telefono (se ci sono stati aggiornamenti)
+                if (json.data && json.data.length > 0) {
+                    await saveLocalData(chipId, localData);
+                }
+
+                // Applica all'interfaccia
                 allData = localData;
+
                 updateStatsCards();
                 updateLogs();
                 renderCharts();
+
             } catch (e) {
                 alert("Errore caricamento dati: " + e.message);
-            } finally { showLoader(false); }
+            } finally {
+                showLoader(false);
+            }
         }
+//fino qui sostituisco Gabriel 
 
-        function updateStatsCards() {
+       function updateStatsCards() {
             if (allData.length === 0) return;
-            const last = allData[allData.length-1];
+            const last = allData[allData.length - 1];
+
             document.getElementById('currWeight1').innerText = `${last.peso1.toFixed(2)} Kg`;
             document.getElementById('currWeight2').innerText = `${last.peso2.toFixed(2)} Kg`;
+
             const findAgo = (ms, key) => {
                 const target = last.x - ms;
                 let closestIndex = -1;
-                for (let i=allData.length-1; i>=0; i--) {
-                    if (allData[i].x <= target) { closestIndex = i; break; }
+                for (let i = allData.length - 1; i >= 0; i--) {
+                    if (allData[i].x <= target) {
+                        closestIndex = i;
+                        break;
+                    }
                 }
-                return closestIndex === -1 ? (allData.length>0 ? allData[0][key] : null) : allData[closestIndex][key];
+                if (closestIndex === -1) return allData.length > 0 ? allData[0][key] : null;
+                return allData[closestIndex][key];
             };
-            const lastMaintPoint = [...allData].reverse().find(d => d.maintInizio !== null);
-            let w1m = null, w2m = null;
-            if (lastMaintPoint) { w1m = lastMaintPoint.peso1; w2m = lastMaintPoint.peso2; }
+
+            const lastMaintPoint = [...allData].reverse().find(d => d.maintInizio !== null && d.maintInizio !== "");
+
+            let weightAtMaint1 = null;
+            let weightAtMaint2 = null;
+
+            if (lastMaintPoint) {
+                weightAtMaint1 = lastMaintPoint.peso1;
+                weightAtMaint2 = lastMaintPoint.peso2;
+            }
+
             const day = 86400000;
+
             updateDelta('delta24h_1', last.peso1, findAgo(day, 'peso1'));
             updateDelta('delta24h_2', last.peso2, findAgo(day, 'peso2'));
-            updateDelta('delta7d_1', last.peso1, findAgo(day*7, 'peso1'));
-            updateDelta('delta7d_2', last.peso2, findAgo(day*7, 'peso2'));
-            updateDelta('delta15d_1', last.peso1, findAgo(day*15, 'peso1'));
-            updateDelta('delta15d_2', last.peso2, findAgo(day*15, 'peso2'));
-            updateDelta('deltaMaint_1', last.peso1, w1m);
-            updateDelta('deltaMaint_2', last.peso2, w2m);
+            updateDelta('delta7d_1', last.peso1, findAgo(day * 7, 'peso1'));
+            updateDelta('delta7d_2', last.peso2, findAgo(day * 7, 'peso2'));
+            updateDelta('delta15d_1', last.peso1, findAgo(day * 15, 'peso1'));
+            updateDelta('delta15d_2', last.peso2, findAgo(day * 15, 'peso2'));
+            updateDelta('deltaMaint_1', last.peso1, weightAtMaint1);
+            updateDelta('deltaMaint_2', last.peso2, weightAtMaint2);
         }
+
         function updateDelta(id, curr, old) {
             const el = document.getElementById(id);
             if (old === null) { el.innerText="N/A"; el.className="val-neutral"; return; }
@@ -591,23 +785,25 @@
             el.innerText = `${sign}${diff.toFixed(2)} Kg`;
             el.className = diff > 0.05 ? 'val-pos' : (diff < -0.05 ? 'val-neg' : 'val-neutral');
         }
+
         function updateLogs() {
             const tMaint = document.querySelector('#maintTable tbody'); tMaint.innerHTML = '';
-            const maints = allData.filter(d => d.maintInizio).reverse().slice(0,10);
-            if(maints.length===0) tMaint.innerHTML = '<tr><td colspan="3">Nessuna manutenzione</td></tr>';
+            const maints = allData.filter(d => d.maintInizio).reverse().slice(0, 10);
+            if(maints.length === 0) tMaint.innerHTML = '<tr><td colspan="3">Nessuna manutenzione</td></tr>';
             else maints.forEach(l => {
                 const tr = document.createElement('tr');
                 const fmt = d => d ? new Date(d).toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}) : '-';
-                tr.innerHTML = `<td>${fmt(l.maintInizio)}</td><td>${fmt(l.maintFine)}</td><td>${l.durata}</td>`;
+                tr.innerHTML = `<td>${fmt(l.maintInizio)}</td><td>${fmt(l.maintFine)}</td><td>${l.durata}</td></tr>`;
                 tMaint.appendChild(tr);
             });
+
             const tLog = document.querySelector('#logTable tbody'); tLog.innerHTML = '';
-            const logs = allData.filter(d => d.logMsg).reverse().slice(0,10);
-            if(logs.length===0) tLog.innerHTML = '<tr><td colspan="2">Nessun messaggio</td></tr>';
+            const logs = allData.filter(d => d.logMsg).reverse().slice(0, 10);
+            if(logs.length === 0) tLog.innerHTML = '<tr><td colspan="2">Nessun messaggio</td></tr>';
             else logs.forEach(l => {
                 const tr = document.createElement('tr');
-                const dStr = new Date(l.x).toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
-                tr.innerHTML = `<td>${dStr}</td><td>${l.logMsg}</td>`;
+                const dStr = new Date(l.x).toLocaleDateString('it-IT', {day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+                tr.innerHTML = `<td>${dStr}</td><td>${l.logMsg}</td></tr>`;
                 tLog.appendChild(tr);
             });
         }
@@ -615,42 +811,60 @@
         function generateHtmlLegend(chart, containerId) {
             const container = document.getElementById(containerId);
             container.innerHTML = '';
-            chart.data.datasets.forEach((ds, i) => {
+
+            const items = chart.data.datasets.map((ds, i) => {
                 const el = document.createElement('div');
                 const isHidden = !chart.isDatasetVisible(i);
                 el.className = `legend-item ${isHidden ? 'hidden-dataset' : ''}`;
+
                 const colorBox = document.createElement('span');
                 colorBox.className = 'legend-color-box';
                 colorBox.style.backgroundColor = ds.borderColor;
+
+                const text = document.createTextNode(ds.label);
+
                 el.appendChild(colorBox);
-                el.appendChild(document.createTextNode(ds.label));
+                el.appendChild(text);
+
                 el.onclick = () => {
-                    if (chart.isDatasetVisible(i)) { chart.hide(i); el.classList.add('hidden-dataset'); }
-                    else { chart.show(i); el.classList.remove('hidden-dataset'); }
+                    const isNowVisible = chart.isDatasetVisible(i);
+                    if (isNowVisible) {
+                        chart.hide(i);
+                        el.classList.add('hidden-dataset');
+                    } else {
+                        chart.show(i);
+                        el.classList.remove('hidden-dataset');
+                    }
                 };
-                container.appendChild(el);
+                return el;
             });
+            items.forEach(item => container.appendChild(item));
         }
 
         function renderCharts() {
             if (allData.length === 0) return;
             const now = Date.now();
             let minTime, maxTime = (currentRange === 'SET') ? customEnd : now;
-            if (currentRange === 'SET' && customStart && customEnd) minTime = customStart;
-            else {
+
+            if (currentRange === 'SET' && customStart && customEnd) {
+                minTime = customStart;
+            } else {
                 const timeMap = { '6H': 21600000, '1D': 86400000, '1W': 604800000, '2W': 1209600000, '1M': 2592000000, '3M': 7776000000, '6M': 15552000000, '1Y': 31536000000, '5Y': 157680000000 };
                 minTime = now - (timeMap[currentRange] || 86400000);
             }
+
             const subset = allData.filter(d => d.x >= minTime && d.x <= maxTime);
+
             const maintenanceAnnotations = subset.filter(d => d.maintInizio).map(d => ({
                 type: 'line', mode: 'vertical', scaleID: 'x', value: d.x,
-                borderColor: '#ff453a', borderWidth: 2, borderDash: [5,5], label: { enabled: false }
+                borderColor: '#ff453a', borderWidth: 2, borderDash: [5, 5], label: { enabled: false }
             }));
+
             const commonOpts = {
                 responsive: true, maintainAspectRatio: false, animation: false, spanGaps: true,
                 scales: {
-                    x: { type: 'time', time: { displayFormats: { hour: 'HH:mm', day: 'dd/MM' }, tooltipFormat: 'dd/MM HH:mm' }, grid: { color: '#3a3a3c' }, ticks: { color: '#aeaeb2', maxRotation: 0, autoSkip: true, font: {size:11} }, min: minTime, max: maxTime },
-                    y: { grid: { color: '#3a3a3c' }, ticks: { color: '#aeaeb2', font: {size:11} }, position: 'left' }
+                    x: { type: 'time', time: { displayFormats: { hour: 'HH:mm', day: 'dd/MM' }, tooltipFormat: 'dd/MM HH:mm' }, grid: { color: '#3a3a3c' }, ticks: { color: '#aeaeb2', maxRotation: 0, autoSkip: true, font: {size: 11} }, min: minTime, max: maxTime },
+                    y: { grid: { color: '#3a3a3c' }, ticks: { color: '#aeaeb2', font: {size: 11} }, position: 'left' }
                 },
                 plugins: {
                     decimation: { enabled: true, algorithm: 'lttb', samples: 200, threshold: 200 },
@@ -661,50 +875,70 @@
                 },
                 interaction: { mode: 'nearest', axis: 'x', intersect: false }
             };
-            // Grafico Peso
+
+            // CHART PESO
             const ctxPeso = document.getElementById('chartPeso').getContext('2d');
+            const dsPeso1 = { label: 'Arnia 1', data: subset.map(d=>({x:d.x, y:d.peso1})), borderColor: '#ffffff', borderWidth: 2, pointRadius:0, tension: 0.2, parsing: false, normalized: true, yAxisID: 'y' };
+            const dsPeso2 = { label: 'Arnia 2', data: subset.map(d=>({x:d.x, y:d.peso2})), borderColor: '#4a90e2', borderWidth: 2, pointRadius:0, tension: 0.2, parsing: false, normalized: true, yAxisID: 'y1' };
+
             let pesoVisibility = [true, true];
-            if(charts.peso) { pesoVisibility = charts.peso.data.datasets.map((d,i)=>charts.peso.isDatasetVisible(i)); charts.peso.destroy(); }
+            if(charts.peso) {
+                pesoVisibility = charts.peso.data.datasets.map((d, i) => charts.peso.isDatasetVisible(i));
+                charts.peso.destroy();
+            }
+            dsPeso1.hidden = !pesoVisibility[0]; dsPeso2.hidden = !pesoVisibility[1];
+
             charts.peso = new Chart(ctxPeso, {
-                type: 'line',
-                data: { datasets: [
-                    { label: 'Arnia 1', data: subset.map(d=>({x:d.x, y:d.peso1})), borderColor: '#ffffff', borderWidth: 2, pointRadius:0, tension:0.2, parsing:false, normalized:true, hidden:!pesoVisibility[0] },
-                    { label: 'Arnia 2', data: subset.map(d=>({x:d.x, y:d.peso2})), borderColor: '#4a90e2', borderWidth: 2, pointRadius:0, tension:0.2, parsing:false, normalized:true, hidden:!pesoVisibility[1] }
-                ]},
-                options: { ...commonOpts, scales: { ...commonOpts.scales, y1: { position: 'right', grid: { display: false }, ticks: { color: '#4a90e2', font: {size:11} }, display: true } } }
+                type: 'line', data: { datasets: [ dsPeso1, dsPeso2 ] },
+                options: {
+                    ...commonOpts,
+                    scales: {
+                        x: commonOpts.scales.x,
+                        y: { ...commonOpts.scales.y, position: 'left', grid: { color: '#3a3a3c' }, ticks: { color: '#aeaeb2', font: {size: 11} } },
+                        y1: { position: 'right', grid: { display: false }, ticks: { color: '#4a90e2', font: {size: 11} }, display: true }
+                    }
+                }
             });
             generateHtmlLegend(charts.peso, 'legendPeso');
-            // Grafico Multi
+
+            // CHART MULTI
             const ctxMulti = document.getElementById('chartMulti').getContext('2d');
-            let multiVisibility = [true, true, false, false, false];
-            if(charts.multi) { multiVisibility = charts.multi.data.datasets.map((d,i)=>charts.multi.isDatasetVisible(i)); charts.multi.destroy(); }
-            const multiDatasets = [
-                { label: 'Temp Amb.', data: subset.map(d=>({x:d.x, y:d.tempEnv})), borderColor: '#ff9f0a', borderWidth: 2, pointRadius:0, parsing:false, normalized:true, hidden:!multiVisibility[0] },
-                { label: 'Umidità', data: subset.map(d=>({x:d.x, y:d.hum})), borderColor: '#0a84ff', borderWidth: 2, pointRadius:0, parsing:false, normalized:true, hidden:!multiVisibility[1] },
-                { label: 'Temp 1', data: subset.map(d=>({x:d.x, y:d.temp1})), borderColor: '#ff453a', borderWidth: 1.5, pointRadius:0, parsing:false, normalized:true, hidden:!multiVisibility[2] },
-                { label: 'Temp 2', data: subset.map(d=>({x:d.x, y:d.temp2})), borderColor: '#bf5af2', borderWidth: 1.5, pointRadius:0, parsing:false, normalized:true, hidden:!multiVisibility[3] },
-                { label: 'Batteria', data: subset.map(d=>({x:d.x, y:d.batt})), borderColor: '#32d74b', borderWidth: 1.5, pointRadius:0, parsing:false, normalized:true, hidden:!multiVisibility[4] }
+            const multiData = [
+                { label: 'Temp Amb.', data: subset.map(d=>({x:d.x, y:d.tempEnv})), borderColor: '#ff9f0a', borderWidth: 2, pointRadius:0, yAxisID:'y', parsing: false, normalized: true },
+                { label: 'Umidità', data: subset.map(d=>({x:d.x, y:d.hum})), borderColor: '#0a84ff', borderWidth: 2, pointRadius:0, yAxisID:'y1', parsing: false, normalized: true },
+                { label: 'Temp 1', data: subset.map(d=>({x:d.x, y:d.temp1})), borderColor: '#ff453a', borderWidth: 1.5, pointRadius:0, yAxisID:'y', hidden: true, parsing: false, normalized: true },
+                { label: 'Temp 2', data: subset.map(d=>({x:d.x, y:d.temp2})), borderColor: '#bf5af2', borderWidth: 1.5, pointRadius:0, yAxisID:'y', hidden: true, parsing: false, normalized: true },
+                { label: 'Batteria', data: subset.map(d=>({x:d.x, y:d.batt})), borderColor: '#32d74b', borderWidth: 1.5, pointRadius:0, yAxisID:'y', hidden: true, parsing: false, normalized: true }
             ];
+
+            let multiVisibility = [true, true, false, false, false];
+            if(charts.multi) {
+                multiVisibility = charts.multi.data.datasets.map((d, i) => charts.multi.isDatasetVisible(i));
+                charts.multi.destroy();
+            }
+            multiData.forEach((d, i) => { if (i < multiVisibility.length) d.hidden = !multiVisibility[i]; });
+
             charts.multi = new Chart(ctxMulti, {
-                type: 'line', data: { datasets: multiDatasets },
-                options: { ...commonOpts, plugins: { ...commonOpts.plugins, annotation: { annotations: [] } }, scales: { ...commonOpts.scales, y1: { position: 'right', grid: { display: false }, ticks: { color: '#0a84ff', font: {size:11} }, display: true } } }
+                type: 'line', data: { datasets: multiData },
+                options: {
+                    ...commonOpts,
+                    plugins: { ...commonOpts.plugins, annotation: { annotations: [] }, legend: { display: false } },
+                    scales: {
+                        x: commonOpts.scales.x,
+                        y: { ...commonOpts.scales.y, position: 'left', title: {display: false}, grid: { color: '#3a3a3c' } },
+                        y1: { position: 'right', grid: { display: false }, ticks: { color: '#0a84ff', font: {size: 11} }, title: {display: false} }
+                    }
+                }
             });
             generateHtmlLegend(charts.multi, 'legendMulti');
         }
 
-        // Auto-login e avvio
-        function checkAutoLogin() {
-            const savedEmail = localStorage.getItem('userEmail');
-            if (savedEmail) {
-                document.getElementById('emailInput').value = savedEmail;
-                doLoginProcess(savedEmail);
-            }
+        function showLoader(show, text) {
+            loader.classList.toggle('hidden', !show);
+            if(text) loaderText.innerText = text;
         }
-        window.onload = async function() {
-            await syncDynamicUrl();
-            initRanges();
-            checkAutoLogin();
-        };
+
     </script>
 </body>
 </html>
+

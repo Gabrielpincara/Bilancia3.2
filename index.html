@@ -841,8 +841,13 @@
 
     <script>
         // ============================================================
-        // REGISTRA SERVICE WORKER
+        // REGISTRA SERVICE WORKER E PLUGIN CHART.JS
         // ============================================================
+        // Registrazione esplicita del plugin annotation per Chart.js
+        if (window.Chart && window.ChartDataLabels === undefined) {
+            Chart.register(window['chartjs-plugin-annotation']);
+        }
+
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('./service-worker.js')
@@ -860,7 +865,7 @@
         const SECRET_KEY = "alluser";
 
         // Link scriptUrl aggiornato dal Foglio Google (Importante: il foglio deve essere pubblico!)
-        const DYNAMIC_URL_SHEET = "https://docs.google.com/spreadsheets/d/1v2QYh6ZYvMKCxBI0mt7nHSS2btbmDRtP018k8Yj0Lfg/export?format=csv&gid=1773702506&range=B1";
+        const DYNAMIC_URL_SHEET = ""; // SET TO EMPTY STRING to bypass CORS issues on Github Pages
 
         const CONFIG_SHEET_URL = "";
 
@@ -882,6 +887,34 @@
         const loaderText = document.getElementById('loader-text');
         const modal = document.getElementById('customRangeModal');
 
+        // Funzione helper INSUPERABILE per gestire qualsiasi casino di data
+        function parseDate(val) {
+            if (!val) return null;
+            
+            // Se è un numero (es. timestamp in millisecondi)
+            if (typeof val === 'number') return new Date(val);
+            if (typeof val === 'string' && !isNaN(Number(val)) && val.trim() !== '') return new Date(Number(val));
+
+            // Fix clamoroso per il bug di Safari su dispositivi Apple:
+            // "2023-10-05 12:30:00" blocca Safari. Deve essere "2023/10/05 12:30:00"
+            let str = String(val);
+            if (str.includes('-') && !str.includes('T')) {
+                str = str.replace(/-/g, '/');
+            }
+            
+            // Fix per eventuali orari con i punti invece dei due punti (es. 14.30 -> 14:30)
+            str = str.replace(/\.(?=\d{2}(:|$|\s))/g, ':');
+
+            let parsed = new Date(str);
+            if (!isNaN(parsed.getTime())) return parsed;
+
+            // Ultimo tentativo nativo
+            parsed = new Date(val);
+            if (!isNaN(parsed.getTime())) return parsed;
+
+            return null;
+        }
+
         // ============================================================
         // AVVIO DELLA PAGINA
         // ============================================================
@@ -895,6 +928,7 @@
 
         // Aggiorna la scriptUrl in base al Google Sheet in tempo reale
         async function syncDynamicUrl() {
+            if (!DYNAMIC_URL_SHEET) return;
             try {
                 const res = await fetch(DYNAMIC_URL_SHEET);
                 if (!res.ok) throw new Error("Risposta network non ok");
@@ -1177,7 +1211,7 @@
         }
 
         // ============================================================
-        // CARICAMENTO DATI
+        // CARICAMENTO DATI E PARSING JSON
         // ============================================================
         async function loadDeviceData(chipId) {
             showLoader(true, "Verifica database locale...");
@@ -1214,24 +1248,57 @@
 
                 const res = await fetch(`${scriptUrl}?action=getDeviceHistory&chipId=${chipId}&after=${lastTs}`);
                 const json = await res.json();
+                
                 if (json.status === 'error') throw new Error(json.message);
 
                 if (json.data && json.data.length > 0) {
+                    
                     const newData = json.data.map(row => {
-                        const ts = row.Timestamp ? new Date(row.Timestamp).getTime() : null;
-                        if (!ts) return null;
+                        
+                        const tsRaw = row['Timestamp'];
+                        const tsParsed = parseDate(tsRaw);
+                        if (!tsParsed) return null;
+                        
+                        const ts = tsParsed.getTime();
+
+                        let mInizioRaw = row['Maint Inizio'] || row['maint_inizio'] || row['maintinizio'];
+                        let mFineRaw   = row['Maint Fine'] || row['maint_fine'] || row['maintfine'];
+                        
+                        // FALLBACK UNIVERSALE: Se i nomi sono sballati, cerco date "stringa" all'interno della riga JSON
+                        if (!mInizioRaw) {
+                            let possibleDates = [];
+                            for (let key in row) {
+                                if (key.toLowerCase().includes('timestamp') || key === 'Data/Ora') continue;
+                                let val = row[key];
+                                if (typeof val === 'string' && val.length > 10 && (val.includes('-') || val.includes('/'))) {
+                                    let pd = parseDate(val);
+                                    if (pd && pd.getFullYear() > 2020) possibleDates.push(val);
+                                }
+                            }
+                            if (possibleDates.length > 0) {
+                                mInizioRaw = possibleDates[0];
+                                if (possibleDates.length > 1) mFineRaw = possibleDates[1];
+                            }
+                        }
+
+                        const maintInizioObj = parseDate(mInizioRaw);
+                        const maintFineObj = parseDate(mFineRaw);
+
                         return {
                             x: ts,
-                            peso1: parseFloat(row['Peso 1']) || 0,
-                            peso2: parseFloat(row['Peso 2']) || 0,
-                            tempEnv: parseFloat(row['Temp SHT4x']) || 0,
-                            hum: parseFloat(row.Umidità) || 0,
-                            batt: parseFloat(row.Batteria) || 0,
-                            temp1: parseFloat(row['Temp 1']) || 0,
-                            temp2: parseFloat(row['Temp 2']) || 0,
-                            maintInizio: row['Maint Inizio'] ? new Date(row['Maint Inizio']) : null,
-                            maintFine: row['Maint Fine'] ? new Date(row['Maint Fine']) : null,
-                            durata: row['Durata (min)'] || 0,
+                            peso1: parseFloat(row['Peso 1'] || row['peso1'] || 0) || 0,
+                            peso2: parseFloat(row['Peso 2'] || row['peso2'] || 0) || 0,
+                            tempEnv: parseFloat(row['Temp SHT4x'] || row['tempEnv'] || 0) || 0,
+                            hum: parseFloat(row['Umidità'] || row['umidita'] || 0) || 0,
+                            batt: parseFloat(row['Batteria'] || row['batt'] || 0) || 0,
+                            temp1: parseFloat(row['Temp 1'] || row['temp1'] || 0) || 0,
+                            temp2: parseFloat(row['Temp 2'] || row['temp2'] || 0) || 0,
+                            
+                            // Salviamo il timestamp puro per i grafici
+                            maintInizioTs: maintInizioObj ? maintInizioObj.getTime() : null,
+                            maintFineTs: maintFineObj ? maintFineObj.getTime() : null,
+                            
+                            durata: row['Durata (min)'] || row['durata'] || 0,
                             firmware: row['Firmware'] || ''
                         };
                     }).filter(d => d !== null);
@@ -1239,6 +1306,7 @@
                     localData = localData.concat(newData);
                 }
 
+                // Deduplica basata su timestamp "x"
                 const uniqueMap = new Map();
                 localData.forEach(item => uniqueMap.set(item.x, item));
                 localData = Array.from(uniqueMap.values());
@@ -1293,7 +1361,7 @@
                 return allData[closestIndex][key];
             };
 
-            const lastMaintPoint = [...allData].reverse().find(d => d.maintInizio !== null && d.maintInizio !== "");
+            const lastMaintPoint = [...allData].reverse().find(d => d.maintInizioTs !== null);
 
             let weightAtMaint1 = null;
             let weightAtMaint2 = null;
@@ -1326,14 +1394,29 @@
 
         function updateLogs() {
             const tMaint = document.querySelector('#maintTable tbody'); tMaint.innerHTML = '';
-            const maints = allData.filter(d => d.maintInizio).reverse().slice(0, 10);
-            if(maints.length === 0) tMaint.innerHTML = '<tr><td colspan="3">Nessuna manutenzione</td></tr>';
-            else maints.forEach(l => {
-                const tr = document.createElement('tr');
-                const fmt = d => d ? new Date(d).toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}) : '-';
-                tr.innerHTML = `<td>${fmt(l.maintInizio)}</td><td>${fmt(l.maintFine)}</td><td>${l.durata}</td></tr>`;
-                tMaint.appendChild(tr);
+            
+            const uniqueMaints = new Map();
+            allData.forEach(d => {
+                if (d.maintInizioTs) {
+                    uniqueMaints.set(d.maintInizioTs, d);
+                }
             });
+            
+            const maints = Array.from(uniqueMaints.values()).sort((a, b) => b.maintInizioTs - a.maintInizioTs).slice(0, 10);
+            
+            if(maints.length === 0) {
+                tMaint.innerHTML = '<tr><td colspan=\"3\" style=\"text-align: center; color: #7a8b9c;\">Nessuna manutenzione registrata</td></tr>';
+            } else {
+                maints.forEach(l => {
+                    const tr = document.createElement('tr');
+                    const formatta = (ts) => {
+                        if (!ts) return '-';
+                        return new Date(ts).toLocaleDateString('it-IT', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' });
+                    };
+                    tr.innerHTML = `<td>${formatta(l.maintInizioTs)}</td><td>${formatta(l.maintFineTs)}</td><td>${l.durata}</td>`;
+                    tMaint.appendChild(tr);
+                });
+            }
         }
 
         // ============================================================
@@ -1386,15 +1469,34 @@
 
             const subset = allData.filter(d => d.x >= minTime && d.x <= maxTime);
 
-            const maintenanceAnnotations = subset.filter(d => d.maintInizio).map(d => ({
-                type: 'line', mode: 'vertical', scaleID: 'x', value: d.x,
-                borderColor: '#ff453a', borderWidth: 2, borderDash: [5, 5], label: { enabled: false }
+            const uniqueMaintsForAnnotations = new Map();
+            subset.forEach(d => {
+                if (d.maintInizioTs) {
+                    uniqueMaintsForAnnotations.set(d.maintInizioTs, d.maintInizioTs);
+                }
+            });
+
+            const maintenanceAnnotations = Array.from(uniqueMaintsForAnnotations.values()).map(timestampMs => ({
+                type: 'line', 
+                mode: 'vertical', 
+                scaleID: 'x', 
+                value: timestampMs,
+                borderColor: '#ff453a', 
+                borderWidth: 2, 
+                borderDash: [5, 5], 
+                label: { enabled: false }
             }));
 
             const commonOpts = {
                 responsive: true, maintainAspectRatio: false, animation: false, spanGaps: true,
                 scales: {
-                    x: { type: 'time', time: { displayFormats: { hour: 'HH:mm', day: 'dd/MM' }, tooltipFormat: 'dd/MM HH:mm' }, grid: { color: '#3a3a3c' }, ticks: { color: '#aeaeb2', maxRotation: 0, autoSkip: true, font: {size: 11} }, min: minTime, max: maxTime },
+                    x: { 
+                        type: 'time', 
+                        time: { displayFormats: { hour: 'HH:mm', day: 'dd/MM' }, tooltipFormat: 'dd/MM HH:mm' }, 
+                        grid: { color: '#3a3a3c' }, 
+                        ticks: { color: '#aeaeb2', maxRotation: 0, autoSkip: true, font: {size: 11} }, 
+                        min: minTime, max: maxTime 
+                    },
                     y: { grid: { color: '#3a3a3c' }, ticks: { color: '#aeaeb2', font: {size: 11} }, position: 'left' }
                 },
                 plugins: {
@@ -1402,7 +1504,7 @@
                     legend: { display: false },
                     tooltip: { mode: 'index', intersect: false },
                     zoom: { pan: { enabled: true, mode: 'x', threshold: 10 }, zoom: { wheel: { enabled: true }, pinch: { enabled: true }, mode: 'x' } },
-                    annotation: { annotations: maintenanceAnnotations }
+                    annotation: { annotations: maintenanceAnnotations } 
                 },
                 interaction: { mode: 'nearest', axis: 'x', intersect: false }
             };

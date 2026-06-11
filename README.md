@@ -51,4 +51,6 @@ Quando modifichi il codice e fai un push su GitHub, i browser degli utenti non s
 
 ## 📞 Supporto
 
+"Lo schema elettrico e il progetto del PCB sono disponibili pubblicamente su OSHWLab a questo link: https://oshwlab.com/gabrielpincara/bilancia3-2".
+
 Per problemi o suggerimenti, contatta il team di sviluppo.

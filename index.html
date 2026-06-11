@@ -843,7 +843,6 @@
         // ============================================================
         // REGISTRA SERVICE WORKER E PLUGIN CHART.JS
         // ============================================================
-        // Registrazione esplicita del plugin annotation per Chart.js
         if (window.Chart && window.ChartDataLabels === undefined) {
             Chart.register(window['chartjs-plugin-annotation']);
         }
@@ -860,12 +859,13 @@
         // CONFIGURAZIONE DINAMICA E BACKUP
         // ============================================================
         
-        // URL AGGIORNATO E CORRETTO (Fallback se la cella B1 è vuota)
+        // URL Fallback hardcoded
         let scriptUrl = 'https://script.google.com/macros/s/AKfycbxbZPP3JLMIVUpUKDFxn2dB_JHBSeMYAYHLOBvikN35pNvSHGDD1_7_gH1Tm62JxoM/exec';
         const SECRET_KEY = "alluser";
 
-        // Link scriptUrl aggiornato dal Foglio Google (Importante: il foglio deve essere pubblico!)
-        const DYNAMIC_URL_SHEET = ""; // SET TO EMPTY STRING to bypass CORS issues on Github Pages
+        // ✅ MODIFICA 1: URL del Google Sheet per leggere B1 dinamicamente
+        // Il foglio deve essere accessibile (condiviso con "Chiunque abbia il link" -> Lettore)
+        const DYNAMIC_URL_SHEET = "https://docs.google.com/spreadsheets/d/1v2QYh6ZYvMKCxBI0mt7nHSS2btbmDRtP018k8Yj0Lfg/export?format=csv&gid=1773702506&range=B1";
 
         const CONFIG_SHEET_URL = "";
 
@@ -887,31 +887,19 @@
         const loaderText = document.getElementById('loader-text');
         const modal = document.getElementById('customRangeModal');
 
-        // Funzione helper INSUPERABILE per gestire qualsiasi casino di data
         function parseDate(val) {
             if (!val) return null;
-            
-            // Se è un numero (es. timestamp in millisecondi)
             if (typeof val === 'number') return new Date(val);
             if (typeof val === 'string' && !isNaN(Number(val)) && val.trim() !== '') return new Date(Number(val));
-
-            // Fix clamoroso per il bug di Safari su dispositivi Apple:
-            // "2023-10-05 12:30:00" blocca Safari. Deve essere "2023/10/05 12:30:00"
             let str = String(val);
             if (str.includes('-') && !str.includes('T')) {
                 str = str.replace(/-/g, '/');
             }
-            
-            // Fix per eventuali orari con i punti invece dei due punti (es. 14.30 -> 14:30)
             str = str.replace(/\.(?=\d{2}(:|$|\s))/g, ':');
-
             let parsed = new Date(str);
             if (!isNaN(parsed.getTime())) return parsed;
-
-            // Ultimo tentativo nativo
             parsed = new Date(val);
             if (!isNaN(parsed.getTime())) return parsed;
-
             return null;
         }
 
@@ -926,7 +914,7 @@
             checkIosInstall();
         };
 
-        // Aggiorna la scriptUrl in base al Google Sheet in tempo reale
+        // ✅ MODIFICA 2: Funzione syncDynamicUrl aggiornata — legge B1 dal foglio Google
         async function syncDynamicUrl() {
             if (!DYNAMIC_URL_SHEET) return;
             try {
@@ -934,13 +922,16 @@
                 if (!res.ok) throw new Error("Risposta network non ok");
 
                 const text = await res.text();
-                const fetchedUrl = text.trim();
+                
+                // Il CSV esportato da Google Sheets per una singola cella può avere
+                // virgolette attorno al valore. Le rimuoviamo.
+                let fetchedUrl = text.trim().replace(/^"(.*)"$/, '$1');
 
                 if (fetchedUrl.startsWith('http')) {
                     scriptUrl = fetchedUrl;
-                    console.log("🌐 URL dell'App Script aggiornato dal Foglio Google!");
+                    console.log("🌐 URL dell'App Script aggiornato dal Foglio Google:", scriptUrl);
                 } else {
-                    console.warn("La cella B1 non contiene un URL valido. Uso il fallback.");
+                    console.warn("La cella B1 non contiene un URL valido. Valore letto:", fetchedUrl, ". Uso il fallback.");
                 }
             } catch(e) {
                 console.warn("⚠️ Impossibile raggiungere il foglio per l'URL dinamico, uso il fallback.", e);
@@ -1264,7 +1255,6 @@
                         let mInizioRaw = row['Maint Inizio'] || row['maint_inizio'] || row['maintinizio'];
                         let mFineRaw   = row['Maint Fine'] || row['maint_fine'] || row['maintfine'];
                         
-                        // FALLBACK UNIVERSALE: Se i nomi sono sballati, cerco date "stringa" all'interno della riga JSON
                         if (!mInizioRaw) {
                             let possibleDates = [];
                             for (let key in row) {
@@ -1284,17 +1274,27 @@
                         const maintInizioObj = parseDate(mInizioRaw);
                         const maintFineObj = parseDate(mFineRaw);
 
+                        // ✅ MODIFICA 3: Parsing di peso1, peso2, adj1, adj2 e calcolo pesoTot
+                        const parsedPeso1 = parseFloat(row['Peso 1'] || row['peso1'] || 0) || 0;
+                        const parsedPeso2 = parseFloat(row['Peso 2'] || row['peso2'] || 0) || 0;
+                        const parsedAdj1  = parseFloat(row['CFG adj1'] || row['adj1'] || 0) || 0;
+                        const parsedAdj2  = parseFloat(row['CFG adj2'] || row['adj2'] || 0) || 0;
+
                         return {
                             x: ts,
-                            peso1: parseFloat(row['Peso 1'] || row['peso1'] || 0) || 0,
-                            peso2: parseFloat(row['Peso 2'] || row['peso2'] || 0) || 0,
+                            peso1: parsedPeso1,
+                            peso2: parsedPeso2,
+                            adj1: parsedAdj1,
+                            adj2: parsedAdj2,
+                            // ✅ Peso totale = peso + correzione adj
+                            peso1Tot: parsedPeso1 + parsedAdj1,
+                            peso2Tot: parsedPeso2 + parsedAdj2,
                             tempEnv: parseFloat(row['Temp SHT4x'] || row['tempEnv'] || 0) || 0,
                             hum: parseFloat(row['Umidità'] || row['umidita'] || 0) || 0,
                             batt: parseFloat(row['Batteria'] || row['batt'] || 0) || 0,
                             temp1: parseFloat(row['Temp 1'] || row['temp1'] || 0) || 0,
                             temp2: parseFloat(row['Temp 2'] || row['temp2'] || 0) || 0,
                             
-                            // Salviamo il timestamp puro per i grafici
                             maintInizioTs: maintInizioObj ? maintInizioObj.getTime() : null,
                             maintFineTs: maintFineObj ? maintFineObj.getTime() : null,
                             
@@ -1306,7 +1306,6 @@
                     localData = localData.concat(newData);
                 }
 
-                // Deduplica basata su timestamp "x"
                 const uniqueMap = new Map();
                 localData.forEach(item => uniqueMap.set(item.x, item));
                 localData = Array.from(uniqueMap.values());
@@ -1509,20 +1508,30 @@
                 interaction: { mode: 'nearest', axis: 'x', intersect: false }
             };
 
-            // CHART PESO
+            // ✅ MODIFICA 4: CHART PESO — Aggiunti dataset "Arnia 1 Tot" e "Arnia 2 Tot"
             const ctxPeso = document.getElementById('chartPeso').getContext('2d');
-            const dsPeso1 = { label: 'Arnia 1', data: subset.map(d=>({x:d.x, y:d.peso1})), borderColor: '#ffffff', borderWidth: 2, pointRadius:0, tension: 0.2, parsing: false, normalized: true, yAxisID: 'y' };
-            const dsPeso2 = { label: 'Arnia 2', data: subset.map(d=>({x:d.x, y:d.peso2})), borderColor: '#4a90e2', borderWidth: 2, pointRadius:0, tension: 0.2, parsing: false, normalized: true, yAxisID: 'y1' };
+            const dsPeso1    = { label: 'Arnia 1',     data: subset.map(d=>({x:d.x, y:d.peso1})),    borderColor: '#ffffff', borderWidth: 2, pointRadius:0, tension: 0.2, parsing: false, normalized: true, yAxisID: 'y' };
+            const dsPeso2    = { label: 'Arnia 2',     data: subset.map(d=>({x:d.x, y:d.peso2})),    borderColor: '#4a90e2', borderWidth: 2, pointRadius:0, tension: 0.2, parsing: false, normalized: true, yAxisID: 'y1' };
+            const dsPeso1Tot = { label: 'Arnia 1 Tot', data: subset.map(d=>({x:d.x, y:d.peso1Tot})), borderColor: '#39FF14', borderWidth: 2, pointRadius:0, tension: 0.2, parsing: false, normalized: true, yAxisID: 'y',  borderDash: [6, 3], hidden: true };
+            const dsPeso2Tot = { label: 'Arnia 2 Tot', data: subset.map(d=>({x:d.x, y:d.peso2Tot})), borderColor: '#FF2D55', borderWidth: 2, pointRadius:0, tension: 0.2, parsing: false, normalized: true, yAxisID: 'y1', borderDash: [6, 3], hidden: true };
 
-            let pesoVisibility = [true, true];
+            // ✅ Visibility array aggiornato: 4 dataset [Arnia1, Arnia2, Arnia1Tot, Arnia2Tot]
+            let pesoVisibility = [true, true, false, false];
             if(charts.peso) {
                 pesoVisibility = charts.peso.data.datasets.map((d, i) => charts.peso.isDatasetVisible(i));
+                // Se il vecchio chart aveva solo 2 dataset, estendi l'array
+                while (pesoVisibility.length < 4) {
+                    pesoVisibility.push(false); // I nuovi dataset partono nascosti
+                }
                 charts.peso.destroy();
             }
-            dsPeso1.hidden = !pesoVisibility[0]; dsPeso2.hidden = !pesoVisibility[1];
+            dsPeso1.hidden = !pesoVisibility[0];
+            dsPeso2.hidden = !pesoVisibility[1];
+            dsPeso1Tot.hidden = !pesoVisibility[2];
+            dsPeso2Tot.hidden = !pesoVisibility[3];
 
             charts.peso = new Chart(ctxPeso, {
-                type: 'line', data: { datasets: [ dsPeso1, dsPeso2 ] },
+                type: 'line', data: { datasets: [ dsPeso1, dsPeso2, dsPeso1Tot, dsPeso2Tot ] },
                 options: {
                     ...commonOpts,
                     scales: {
@@ -1534,7 +1543,7 @@
             });
             generateHtmlLegend(charts.peso, 'legendPeso');
 
-            // CHART MULTI
+            // CHART MULTI (invariato)
             const ctxMulti = document.getElementById('chartMulti').getContext('2d');
             const multiData = [
                 { label: 'Temp Amb.', data: subset.map(d=>({x:d.x, y:d.tempEnv})), borderColor: '#ff9f0a', borderWidth: 2, pointRadius:0, yAxisID:'y', parsing: false, normalized: true },
@@ -1572,4 +1581,4 @@
         }
     </script>
 </body>
-</html>
+</html> 

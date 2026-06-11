@@ -1,9 +1,13 @@
 # 🐝 Smart Hive Dashboard - PWA
 
 Monitoraggio Intelligente delle Arnie con Progressive Web App
+
 Versione PWA: v1.1-11/06/2026
+
 Versione FW ESP32: v1.9.3-11/06/2026
+
 Ultimo aggiornamento: Giugno 2026
+
 Repository: https://github.com/Gabrielpincara/Bilancia3.2
 
 

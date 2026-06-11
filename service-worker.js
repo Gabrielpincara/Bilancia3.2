@@ -5,7 +5,7 @@
 //            Network-first per App Script / Google Sheets
 // ============================================================
 
-const CACHE_NAME = 'smarthive-v1';
+const CACHE_NAME = 'arnia-dashboard-v1.1'; // <-- Numero cambiato 11/06/26
 
 // Asset statici da mettere in cache al momento dell'installazione
 const PRECACHE_URLS = [

@@ -88,7 +88,9 @@ gabrielpincara@gmail.com
 Per problemi o suggerimenti, contatta il team di sviluppo.
 
 ---
+service-worker.js
 const CACHE_NAME = 'arnia-dashboard-v1.1'; // <-- Numero cambiato 11/06/26
+
 **Versione**: 3.2.0  
 **Ultimo aggiornamento**: Giugno 2026  
 **Repository**: https://github.com/Gabrielpincara/Bilancia3.2

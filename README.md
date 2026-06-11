@@ -1,9 +1,15 @@
 # 🐝 Smart Hive Dashboard - PWA
 
 Monitoraggio Intelligente delle Arnie con Progressive Web App
+Versione PWA: v1.1-11/06/2026
+Versione FW ESP32: v1.9.3-11/06/2026
+Ultimo aggiornamento: Giugno 2026
+Repository: https://github.com/Gabrielpincara/Bilancia3.2
+
 
 ## 📱 Installazione
 
+Essendo una PWA, puoi installarla direttamente sul tuo smartphone come un'app vera, senza passare dagli store.
 ### Android (Chrome)
 1. Apri Chrome
 2. Vai a: **https://gabrielpincara.github.io/Bilancia3.2/**
@@ -19,8 +25,6 @@ Monitoraggio Intelligente delle Arnie con Progressive Web App
 ## 🔐 Accesso
 
 - **Email utente**: Inserisci la tua email registrata
-- **Master Key**: Digita `alluser` per accesso amministratore
-
 ## ✨ Funzionalità
 
 ✅ **Offline Support** - Funziona anche senza internet  
@@ -38,59 +42,13 @@ Monitoraggio Intelligente delle Arnie con Progressive Web App
 - **Grafici**: Andamento peso e parametri ambientali con zoom
 - **Logs**: Storico manutenzioni
 - **Range**: Selezione intervalli temporali (6H, 1D, 1W, 2W, 1M, 3M, 6M, 1Y, 5Y, SET)
+- I dati si sincronizzano automaticamente
 
-## ⚙️ Configurazione
+## 🚀 Deployment e Auto-Update
 
-La PWA utilizza una **Google Apps Script** per i dati. L'URL è salvato in `config.json`.
-
-Per cambiare l'URL:
-1. Modifica il file `config.json`
-2. Cambia il valore di `scriptUrl` con il tuo Apps Script
-3. I dati si sincronizzano automaticamente
-
-## 🏗️ Struttura del Progetto
-
-```
-Bilancia3.2/
-├── index.html              # Pagina principale (loader minimalista)
-├── manifest.json           # Configurazione PWA
-├── service-worker.js       # Cache offline + auto-update
-├── config.json             # Configurazione dinamica
-├── assets/
-│   ├── app.js             # Logica principale (minificata)
-│   └── styles.css         # Stili (minificati)
-└── README.md              # Questo file
-```
-
-## 🚀 Deployment
-
-La PWA è automaticamente deployata su GitHub Pages:
-- URL: `https://gabrielpincara.github.io/Bilancia3.2/`
-- Aggiornamenti automatici ad ogni push sul branch `main`
-
-## 🔄 Auto-Update
-
-Quando modifichi l'HTML o il codice:
-1. Fai il push su GitHub
-2. GitHub Actions deploya automaticamente
-3. Tutti gli utenti riceveranno la nuova versione al prossimo accesso
-
-## 🛡️ Sicurezza
-
-- ✅ Codice minificato e offuscato
-- ✅ API Key nascosta in config.json
-- ✅ Service Worker per offline
-- ✅ HTTPS obbligatorio (GitHub Pages)
+Come funzionano gli aggiornamenti per gli utenti?
+Quando modifichi il codice e fai un push su GitHub, i browser degli utenti non se ne accorgono subito a causa della cache. 
 
 ## 📞 Supporto
-gabrielpincara@gmail.com
 
 Per problemi o suggerimenti, contatta il team di sviluppo.
-
----
-service-worker.js
-const CACHE_NAME = 'arnia-dashboard-v1.1'; // <-- Numero cambiato 11/06/26
-
-**Versione**: 3.2.0  
-**Ultimo aggiornamento**: Giugno 2026  
-**Repository**: https://github.com/Gabrielpincara/Bilancia3.2

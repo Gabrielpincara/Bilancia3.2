@@ -9,7 +9,6 @@
     <meta name="theme-color" content="#1c1c1e">
 
     <meta name="mobile-web-app-capable" content="yes">
-
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
@@ -24,7 +23,6 @@
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@2.2.1/dist/chartjs-plugin-annotation.min.js"></script>
 
     <style>
-        /* --- VARIABILI COLORI MANUALE --- */
         :root {
             --manual-bg: #0b0f14;
             --manual-panel: #151c25;
@@ -37,7 +35,6 @@
             --manual-danger: #ff5470;
         }
 
-        /* --- RESET E BASE --- */
         * {
             box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
@@ -49,146 +46,66 @@
         input, select { user-select: text; -webkit-user-select: text; }
 
         body {
-            margin: 0;
-            padding: 0;
-            background-color: #1c1c1e;
-            color: #ffffff;
-            padding-bottom: env(safe-area-inset-bottom);
-            overflow-x: hidden;
+            margin: 0; padding: 0; background-color: #1c1c1e; color: #ffffff;
+            padding-bottom: env(safe-area-inset-bottom); overflow-x: hidden;
         }
 
-        /* --- UTILITÀ --- */
         .hidden { display: none !important; }
         .flex { display: flex; }
         .text-center { text-align: center; }
 
-        /* --- LOGIN PAGE --- */
         #login-page {
-            height: 100vh;
-            background: linear-gradient(135deg, #1c1c1e, #000000);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
+            height: 100vh; background: linear-gradient(135deg, #1c1c1e, #000000);
+            display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px;
         }
 
         .login-card {
-            background: #2c2c2e;
-            padding: 30px;
-            border-radius: 20px;
-            width: 100%;
-            max-width: 400px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            text-align: center;
+            background: #2c2c2e; padding: 30px; border-radius: 20px; width: 100%; max-width: 400px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); text-align: center;
         }
-
         .login-card h1 { margin-bottom: 20px; color: #4a90e2; font-size: 1.8rem; }
 
         .login-input {
-            width: 100%;
-            padding: 15px;
-            margin-bottom: 20px;
-            border-radius: 12px;
-            border: 1px solid #48484a;
-            background: #1c1c1e;
-            color: white;
-            font-size: 1rem;
-            outline: none;
+            width: 100%; padding: 15px; margin-bottom: 20px; border-radius: 12px;
+            border: 1px solid #48484a; background: #1c1c1e; color: white; font-size: 1rem; outline: none;
         }
         .login-input:focus { border-color: #4a90e2; }
 
         .btn-primary {
-            background: #4a90e2;
-            color: white;
-            border: none;
-            padding: 15px 30px;
-            border-radius: 12px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            width: 100%;
+            background: #4a90e2; color: white; border: none; padding: 15px 30px;
+            border-radius: 12px; font-size: 1rem; font-weight: 600; cursor: pointer; width: 100%;
         }
 
-        /* --- DASHBOARD PAGE --- */
-        #dashboard-page {
-            padding: 10px 10px 90px 10px;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
+        #dashboard-page { padding: 10px 10px 90px 10px; max-width: 1200px; margin: 0 auto; }
 
-        /* HEADER */
         header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 5px;
-            margin-bottom: 10px;
-            flex-wrap: wrap;
-            gap: 10px;
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 10px 5px; margin-bottom: 10px; flex-wrap: wrap; gap: 10px;
         }
         .app-title { font-size: 1.2rem; font-weight: 700; color: #f2f2f7; }
-
-        .header-controls {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
+        .header-controls { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 
         .badge {
             font-size: 0.75rem; padding: 4px 8px; border-radius: 12px;
-            background: #3a3a3c; color: #aeaeb2; text-transform: uppercase;
-            font-weight: 600;
+            background: #3a3a3c; color: #aeaeb2; text-transform: uppercase; font-weight: 600;
         }
-
-        #accountBadge.master {
-            background: #ff3b30; color: white;
-            box-shadow: 0 0 10px rgba(255, 59, 48, 0.5);
-        }
-
-        #ownerBadge {
-            background: #0a84ff; color: white;
-            text-transform: none;
-            display: none;
-        }
-
-        #fwBadge {
-            background: #5e5ce6; color: white;
-            display: none;
-        }
+        #accountBadge.master { background: #ff3b30; color: white; box-shadow: 0 0 10px rgba(255, 59, 48, 0.5); }
+        #ownerBadge { background: #0a84ff; color: white; text-transform: none; display: none; }
+        #fwBadge { background: #5e5ce6; color: white; display: none; }
 
         #ios-install-banner {
-            display: none;
-            background: #ffcc00;
-            color: #000;
-            padding: 12px;
-            text-align: center;
-            font-size: 0.85rem;
-            font-weight: 600;
-            border-radius: 12px;
-            margin-bottom: 10px;
+            display: none; background: #ffcc00; color: #000; padding: 12px; text-align: center;
+            font-size: 0.85rem; font-weight: 600; border-radius: 12px; margin-bottom: 10px;
         }
 
-        /* SELETTORE DISPOSITIVO */
         .device-selector-container { margin-bottom: 15px; }
         select#deviceSelector {
-            width: 100%;
-            padding: 12px;
-            background: #2c2c2e;
-            color: #fff;
-            border: 1px solid #3a3a3c;
-            border-radius: 12px;
-            font-size: 1rem;
-            outline: none;
-            appearance: none;
+            width: 100%; padding: 12px; background: #2c2c2e; color: #fff; border: 1px solid #3a3a3c;
+            border-radius: 12px; font-size: 1rem; outline: none; appearance: none;
             background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23FFFFFF%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
-            background-repeat: no-repeat;
-            background-position: right 15px top 50%;
-            background-size: 12px auto;
+            background-repeat: no-repeat; background-position: right 15px top 50%; background-size: 12px auto;
         }
 
-        /* CARD STATISTICHE */
         .stats-grid-top { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 8px; margin-bottom: 8px; }
         .stats-grid-mid { display: grid; grid-template-columns: 1fr; gap: 8px; margin-bottom: 20px; }
 
@@ -212,19 +129,16 @@
         .val-neg { color: #ff453a; }
         .val-neutral { color: #ffffff; }
 
-        /* LEGENDA ESTERNA */
         .custom-legend-container { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 15px; justify-content: center; padding: 0 5px; }
         .legend-item {
             display: flex; align-items: center; background: #3a3a3c; padding: 10px 18px;
             border-radius: 30px; cursor: pointer; font-size: 0.9rem; font-weight: 600;
-            transition: all 0.2s; border: 2px solid transparent; user-select: none;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            transition: all 0.2s; border: 2px solid transparent; user-select: none; box-shadow: 0 2px 5px rgba(0,0,0,0.3);
         }
         .legend-item:active { transform: scale(0.95); }
         .legend-item.hidden-dataset { opacity: 0.4; background: #252525; box-shadow: none; border: 2px solid #3a3a3c; }
         .legend-color-box { width: 14px; height: 14px; border-radius: 50%; margin-right: 10px; display: inline-block; border: 1px solid rgba(255,255,255,0.2); }
 
-        /* GRAFICI */
         .chart-section { margin-bottom: 30px; }
         .chart-header { padding: 0 5px; margin-bottom: 5px; color: #aeaeb2; font-size: 0.9rem; font-weight: 600; }
         .chart-container {
@@ -237,7 +151,6 @@
             canvas { touch-action: pan-y !important; }
         }
 
-        /* BOTTOM NAV */
         .bottom-nav {
             position: fixed; bottom: 0; left: 0; width: 100%;
             background: rgba(28, 28, 30, 0.95); backdrop-filter: blur(10px);
@@ -255,7 +168,6 @@
         }
         .range-btn.active { background: #ffcc00; color: #000; transform: scale(1.05); }
 
-        /* LOG TABLES */
         .log-section { margin-top: 20px; margin-bottom: 20px; }
         .log-header { background: #2c2c2e; padding: 12px; border-radius: 12px 12px 0 0; font-weight: 600; color: #4a90e2; font-size: 0.9rem; }
         .log-table-container { max-height: 250px; overflow-y: auto; background: #2c2c2e; border-radius: 0 0 12px 12px; margin-bottom: 15px; }
@@ -264,35 +176,28 @@
         th { position: sticky; top: 0; background: #3a3a3c; color: #fff; z-index: 10; }
         tr:last-child td { border-bottom: none; }
 
-        /* MODAL CUSTOM RANGE */
         #customRangeModal {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.85); z-index: 2000;
-            display: flex; justify-content: center; align-items: center;
-            backdrop-filter: blur(5px);
+            display: flex; justify-content: center; align-items: center; backdrop-filter: blur(5px);
         }
         .modal-content {
-            background: #2c2c2e; padding: 25px; border-radius: 18px;
-            width: 90%; max-width: 350px; text-align: center;
-            border: 1px solid #48484a; box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+            background: #2c2c2e; padding: 25px; border-radius: 18px; width: 90%; max-width: 350px;
+            text-align: center; border: 1px solid #48484a; box-shadow: 0 20px 40px rgba(0,0,0,0.6);
         }
         .modal-content h3 { margin-top: 0; color: #ffcc00; margin-bottom: 20px; }
         .modal-input-group { margin-bottom: 15px; text-align: left; }
         .modal-input-group label { display: block; color: #aeaeb2; font-size: 0.85rem; margin-bottom: 5px; font-weight: 600; }
         .modal-input-group input {
             width: 100%; padding: 12px; background: #1c1c1e; border: 1px solid #3a3a3c;
-            color: #fff; border-radius: 10px; font-size: 1rem; font-family: 'Montserrat', sans-serif;
-            outline: none;
+            color: #fff; border-radius: 10px; font-size: 1rem; font-family: 'Montserrat', sans-serif; outline: none;
         }
         .modal-input-group input:focus { border-color: #ffcc00; }
         .modal-buttons { display: flex; gap: 10px; margin-top: 25px; }
-        .modal-buttons button {
-            flex: 1; padding: 14px; border-radius: 12px; font-weight: 600; cursor: pointer; border: none; font-size: 1rem;
-        }
+        .modal-buttons button { flex: 1; padding: 14px; border-radius: 12px; font-weight: 600; cursor: pointer; border: none; font-size: 1rem; }
         .btn-modal-cancel { background: #3a3a3c; color: #fff; }
         .btn-modal-apply { background: #ffcc00; color: #000; }
 
-        /* LOADER */
         #loader-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.8); z-index: 9999;
@@ -304,146 +209,45 @@
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* --- STILI NUOVO MANUALE INTERATTIVO --- */
+        /* --- STILI MANUALE INTERATTIVO --- */
         #manual-page {
-            display: flex;
-            height: 100vh;
-            background-color: var(--manual-bg);
-            color: var(--manual-ink);
-            overflow: hidden;
-            width: 100%;
-            position: fixed;
-            top: 0;
-            left: 0;
-            z-index: 1500;
+            display: flex; height: 100vh; background-color: var(--manual-bg); color: var(--manual-ink);
+            overflow: hidden; width: 100%; position: fixed; top: 0; left: 0; z-index: 1500;
         }
-
         #manual-page nav {
-            width: 280px;
-            background-color: var(--manual-panel);
-            border-right: 1px solid var(--manual-border);
-            display: flex;
-            flex-direction: column;
-            padding: 20px 0;
-            overflow-y: auto;
-            flex-shrink: 0;
+            width: 280px; background-color: var(--manual-panel); border-right: 1px solid var(--manual-border);
+            display: flex; flex-direction: column; padding: 20px 0; overflow-y: auto; flex-shrink: 0;
         }
-
         #manual-page .logo {
-            font-size: 20px;
-            font-weight: 800;
-            padding: 0 20px 20px 20px;
-            border-bottom: 1px solid var(--manual-border);
-            margin-bottom: 10px;
-            color: var(--manual-accent);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            font-size: 20px; font-weight: 800; padding: 0 20px 20px 20px;
+            border-bottom: 1px solid var(--manual-border); margin-bottom: 10px; color: var(--manual-accent);
+            display: flex; justify-content: space-between; align-items: center;
         }
-
         #manual-page .nav-btn {
-            background: none;
-            border: none;
-            color: var(--manual-muted);
-            padding: 15px 20px;
-            text-align: left;
-            font-size: 15px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            border-left: 3px solid transparent;
+            background: none; border: none; color: var(--manual-muted); padding: 15px 20px; text-align: left;
+            font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s; border-left: 3px solid transparent;
         }
-
-        #manual-page .nav-btn:hover {
-            background-color: rgba(58, 163, 255, 0.1);
-            color: var(--manual-ink);
-        }
-
-        #manual-page .nav-btn.active {
-            color: var(--manual-accent);
-            border-left-color: var(--manual-accent);
-            background-color: rgba(58, 163, 255, 0.1);
-        }
-
-        #manual-page main {
-            flex: 1;
-            padding: 40px;
-            overflow-y: auto;
-            scroll-behavior: smooth;
-            background-color: var(--manual-bg);
-        }
-
-        #manual-page .tab-content {
-            display: none;
-            max-width: 800px;
-            margin: 0 auto;
-            animation: fadeIn 0.3s ease;
-        }
-
+        #manual-page .nav-btn:hover { background-color: rgba(58, 163, 255, 0.1); color: var(--manual-ink); }
+        #manual-page .nav-btn.active { color: var(--manual-accent); border-left-color: var(--manual-accent); background-color: rgba(58, 163, 255, 0.1); }
+        #manual-page main { flex: 1; padding: 40px; overflow-y: auto; scroll-behavior: smooth; background-color: var(--manual-bg); }
+        #manual-page .tab-content { display: none; max-width: 800px; margin: 0 auto; animation: fadeIn 0.3s ease; }
         #manual-page .tab-content.active { display: block; }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         #manual-page h1 { font-size: 32px; margin-bottom: 20px; color: var(--manual-ink); }
         #manual-page h2 { font-size: 22px; margin-top: 30px; margin-bottom: 15px; color: var(--manual-accent); border-bottom: 1px solid var(--manual-border); padding-bottom: 5px; }
         #manual-page p, #manual-page li { line-height: 1.6; margin-bottom: 15px; color: #a0b2c6; }
         #manual-page ul, #manual-page ol { padding-left: 20px; margin-bottom: 20px; }
         #manual-page strong { color: var(--manual-ink); }
         #manual-page code { background: var(--manual-panel); padding: 2px 6px; border-radius: 4px; font-family: monospace; color: var(--manual-warning); border: 1px solid var(--manual-border); }
-
-        #manual-page .alert {
-            background-color: rgba(245, 166, 35, 0.1);
-            border-left: 4px solid var(--manual-warning);
-            padding: 15px;
-            border-radius: 0 8px 8px 0;
-            margin: 20px 0;
-            color: #d1d9e2;
-            line-height: 1.5;
-        }
-
-        #manual-page .mockup-container {
-            margin: 30px 0;
-            text-align: center;
-        }
-
-        #manual-page .mockup-container svg {
-            max-width: 100%;
-            height: auto;
-            border-radius: 8px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            display: block;
-            margin: 0 auto;
-        }
-
-        #manual-page .mockup-caption {
-            margin-top: 10px;
-            font-size: 13px;
-            color: var(--manual-muted);
-            font-style: italic;
-        }
-
-        /* Pulsanti Speciali */
+        #manual-page .alert { background-color: rgba(245, 166, 35, 0.1); border-left: 4px solid var(--manual-warning); padding: 15px; border-radius: 0 8px 8px 0; margin: 20px 0; color: #d1d9e2; line-height: 1.5; }
+        #manual-page .mockup-container { margin: 30px 0; text-align: center; }
+        #manual-page .mockup-container svg { max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); display: block; margin: 0 auto; }
+        #manual-page .mockup-caption { margin-top: 10px; font-size: 13px; color: var(--manual-muted); font-style: italic; }
         #close-manual-mobile {
-            display: none;
-            position: fixed;
-            top: 15px;
-            right: 15px;
-            z-index: 2000;
-            background-color: var(--manual-danger);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 45px;
-            height: 45px;
-            font-size: 20px;
-            font-weight: bold;
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            display: none; position: fixed; top: 15px; right: 15px; z-index: 2000;
+            background-color: var(--manual-danger); color: white; border: none; border-radius: 50%;
+            width: 45px; height: 45px; font-size: 20px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.5);
         }
-
         @media (max-width: 768px) {
             #manual-page { flex-direction: column; }
             #manual-page nav { width: 100%; height: auto; flex-direction: row; overflow-x: auto; padding: 10px; border-bottom: 1px solid var(--manual-border); border-right: none; }
@@ -491,7 +295,6 @@
     </div>
 
     <div id="dashboard-page" class="hidden">
-
         <header>
             <div class="app-title">BILANCIA ARNIA 3.2</div>
             <div class="header-controls">
@@ -579,7 +382,6 @@
         </div>
 
         <div class="bottom-nav" id="rangeContainer"></div>
-
     </div>
 
     <button id="close-manual-mobile" onclick="hideManual()">✕</button>
@@ -644,39 +446,13 @@
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 120" style="background:#151c25; border:1px solid #1e2a36;">
                         <text x="15" y="30" fill="#e7eef7" font-family="sans-serif" font-size="18" font-weight="bold">🐝 Bilancia_A1B2C3</text>
                         <text x="550" y="30" fill="#7a8b9c" font-family="sans-serif" font-size="12">v1.9.2</text>
-
-                        <g transform="translate(15, 50)">
-                            <rect x="0" y="0" width="85" height="45" rx="8" fill="#0b0f14"/>
-                            <text x="42.5" y="20" fill="#7a8b9c" font-family="sans-serif" font-size="11" text-anchor="middle">🔋 Batteria</text>
-                            <text x="42.5" y="38" fill="#e7eef7" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="middle">4.10V</text>
-                        </g>
-                        <g transform="translate(110, 50)">
-                            <rect x="0" y="0" width="85" height="45" rx="8" fill="#0b0f14"/>
-                            <text x="42.5" y="20" fill="#7a8b9c" font-family="sans-serif" font-size="11" text-anchor="middle">🌡️ Nido 1</text>
-                            <text x="42.5" y="38" fill="#e7eef7" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="middle">34.5°C</text>
-                        </g>
-                        <g transform="translate(205, 50)">
-                            <rect x="0" y="0" width="85" height="45" rx="8" fill="#0b0f14"/>
-                            <text x="42.5" y="20" fill="#7a8b9c" font-family="sans-serif" font-size="11" text-anchor="middle">🌡️ Nido 2</text>
-                            <text x="42.5" y="38" fill="#e7eef7" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="middle">34.2°C</text>
-                        </g>
-                        <g transform="translate(300, 50)">
-                            <rect x="0" y="0" width="85" height="45" rx="8" fill="#0b0f14"/>
-                            <text x="42.5" y="20" fill="#7a8b9c" font-family="sans-serif" font-size="11" text-anchor="middle">🌤️ Esterna</text>
-                            <text x="42.5" y="38" fill="#e7eef7" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="middle">28.1°C</text>
-                        </g>
-                        <g transform="translate(395, 50)">
-                            <rect x="0" y="0" width="85" height="45" rx="8" fill="#0b0f14"/>
-                            <text x="42.5" y="20" fill="#7a8b9c" font-family="sans-serif" font-size="11" text-anchor="middle">💧 Umidità</text>
-                            <text x="42.5" y="38" fill="#e7eef7" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="middle">55%</text>
-                        </g>
-                        <g transform="translate(490, 50)">
-                            <rect x="0" y="0" width="85" height="45" rx="8" fill="#0b0f14"/>
-                            <text x="42.5" y="20" fill="#7a8b9c" font-family="sans-serif" font-size="11" text-anchor="middle">⏳ Timer</text>
-                            <text x="42.5" y="38" fill="#e7eef7" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="middle">04:30</text>
-                        </g>
-                        <rect x="0" y="114" width="600" height="6" fill="#1e2a36"/>
-                        <rect x="0" y="114" width="120" height="6" fill="#3aa3ff"/>
+                        <g transform="translate(15, 50)"><rect x="0" y="0" width="85" height="45" rx="8" fill="#0b0f14"/><text x="42.5" y="20" fill="#7a8b9c" font-family="sans-serif" font-size="11" text-anchor="middle">🔋 Batteria</text><text x="42.5" y="38" fill="#e7eef7" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="middle">4.10V</text></g>
+                        <g transform="translate(110, 50)"><rect x="0" y="0" width="85" height="45" rx="8" fill="#0b0f14"/><text x="42.5" y="20" fill="#7a8b9c" font-family="sans-serif" font-size="11" text-anchor="middle">🌡️ Nido 1</text><text x="42.5" y="38" fill="#e7eef7" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="middle">34.5°C</text></g>
+                        <g transform="translate(205, 50)"><rect x="0" y="0" width="85" height="45" rx="8" fill="#0b0f14"/><text x="42.5" y="20" fill="#7a8b9c" font-family="sans-serif" font-size="11" text-anchor="middle">🌡️ Nido 2</text><text x="42.5" y="38" fill="#e7eef7" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="middle">34.2°C</text></g>
+                        <g transform="translate(300, 50)"><rect x="0" y="0" width="85" height="45" rx="8" fill="#0b0f14"/><text x="42.5" y="20" fill="#7a8b9c" font-family="sans-serif" font-size="11" text-anchor="middle">🌤️ Esterna</text><text x="42.5" y="38" fill="#e7eef7" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="middle">28.1°C</text></g>
+                        <g transform="translate(395, 50)"><rect x="0" y="0" width="85" height="45" rx="8" fill="#0b0f14"/><text x="42.5" y="20" fill="#7a8b9c" font-family="sans-serif" font-size="11" text-anchor="middle">💧 Umidità</text><text x="42.5" y="38" fill="#e7eef7" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="middle">55%</text></g>
+                        <g transform="translate(490, 50)"><rect x="0" y="0" width="85" height="45" rx="8" fill="#0b0f14"/><text x="42.5" y="20" fill="#7a8b9c" font-family="sans-serif" font-size="11" text-anchor="middle">⏳ Timer</text><text x="42.5" y="38" fill="#e7eef7" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="middle">04:30</text></g>
+                        <rect x="0" y="114" width="600" height="6" fill="#1e2a36"/><rect x="0" y="114" width="120" height="6" fill="#3aa3ff"/>
                     </svg>
                     <div class="mockup-caption">Barra superiore con letture in tempo reale e timer di sicurezza</div>
                 </div>
@@ -704,20 +480,15 @@
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 420" style="background:#151c25; border:1px solid #1e2a36;">
                         <text x="20" y="30" fill="#7a8b9c" font-family="sans-serif" font-size="15" letter-spacing="1">BILANCIA 1</text>
                         <line x1="20" y1="40" x2="380" y2="40" stroke="#1e2a36" stroke-width="1"/>
-
                         <text x="200" y="90" fill="#3aa3ff" font-family="sans-serif" font-size="38" font-weight="800" text-anchor="middle">45.230 kg</text>
-
                         <text x="200" y="120" fill="#7a8b9c" font-family="sans-serif" font-size="12" text-anchor="middle">Off: <tspan fill="#e7eef7">82555</tspan>   Fatt: <tspan fill="#e7eef7">29293.96</tspan>   Adj: <tspan fill="#e7eef7">0.000</tspan></text>
-
                         <rect x="20" y="140" width="360" height="40" rx="8" fill="transparent" stroke="#f5a623" stroke-width="2"/>
                         <text x="200" y="165" fill="#f5a623" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="middle">⚡ ESEGUI TARA</text>
-
                         <text x="20" y="210" fill="#7a8b9c" font-family="sans-serif" font-size="12" font-weight="bold">Calibrazione con peso noto in Kg</text>
                         <rect x="20" y="220" width="250" height="40" rx="8" fill="#0b0f14" stroke="#1e2a36" stroke-width="1"/>
                         <text x="35" y="245" fill="#7a8b9c" font-family="sans-serif" font-size="14">(es. 5.000)</text>
                         <rect x="280" y="220" width="100" height="40" rx="8" fill="#3aa3ff"/>
                         <text x="330" y="245" fill="#ffffff" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="middle">CALIBRA</text>
-
                         <text x="20" y="290" fill="#7a8b9c" font-family="sans-serif" font-size="12" font-weight="bold">Correzione Peso (+ o - kg)</text>
                         <rect x="20" y="300" width="180" height="40" rx="8" fill="#0b0f14" stroke="#1e2a36" stroke-width="1"/>
                         <text x="35" y="325" fill="#7a8b9c" font-family="sans-serif" font-size="14">Es. +0.5 o -0.2</text>
@@ -725,7 +496,6 @@
                         <text x="250" y="325" fill="#ffffff" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="middle">APPLICA</text>
                         <rect x="300" y="300" width="80" height="40" rx="8" fill="transparent" stroke="#ff5470" stroke-width="1"/>
                         <text x="340" y="325" fill="#ff5470" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="middle">🗑️ RESET</text>
-
                         <rect x="20" y="360" width="360" height="35" rx="8" fill="transparent" stroke="#17c964" stroke-width="1" stroke-dasharray="4"/>
                         <text x="200" y="382" fill="#17c964" font-family="sans-serif" font-size="12" font-weight="bold" text-anchor="middle">⚖️ Peso Costante ATTIVO</text>
                     </svg>
@@ -823,13 +593,10 @@
                 <div class="mockup-container">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 250" style="background:#0b0f14;">
                         <text x="200" y="40" fill="#e7eef7" font-family="sans-serif" font-size="20" font-weight="bold" text-anchor="middle">⬆ Aggiornamento Firmware</text>
-
                         <rect x="20" y="60" width="360" height="40" rx="5" fill="#ffaa00"/>
                         <text x="200" y="85" fill="#000000" font-family="sans-serif" font-size="12" font-weight="bold" text-anchor="middle">⚠️ Se il file non si seleziona, apri Chrome...</text>
-
                         <rect x="20" y="120" width="360" height="60" rx="10" fill="transparent" stroke="#3aa3ff" stroke-width="2" stroke-dasharray="6"/>
                         <text x="200" y="155" fill="#7a8b9c" font-family="sans-serif" font-size="14" text-anchor="middle">Scegli file... nessun file selezionato</text>
-
                         <rect x="20" y="200" width="360" height="40" rx="5" fill="#3aa3ff"/>
                         <text x="200" y="225" fill="#ffffff" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="middle">AVVIA AGGIORNAMENTO</text>
                     </svg>
@@ -846,7 +613,6 @@
         if (window.Chart && window.ChartDataLabels === undefined) {
             Chart.register(window['chartjs-plugin-annotation']);
         }
-
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('./service-worker.js')
@@ -856,17 +622,13 @@
         }
 
         // ============================================================
-        // CONFIGURAZIONE DINAMICA E BACKUP
+        // CONFIGURAZIONE DINAMICA
         // ============================================================
+        let scriptUrl = 'https://script.google.com/macros/s/AKfycbxufPNF26brAEMw9n_UM2vtwxLFwNlj_nYmYVfrkiHvwQFVR3nGUQvdZ4_YmP6tJ3Hp/exec';
         
-        // URL Fallback hardcoded
-        let scriptUrl = 'https://script.google.com/macros/s/AKfycbxbZPP3JLMIVUpUKDFxn2dB_JHBSeMYAYHLOBvikN35pNvSHGDD1_7_gH1Tm62JxoM/exec';
-        const SECRET_KEY = "alluser";
+        // LA PASSWORD SECRET_KEY È STATA RIMOSSA DA QUI! Ora la gestisce il server.
 
-        // ✅ MODIFICA 1: URL del Google Sheet per leggere B1 dinamicamente
-        // Il foglio deve essere accessibile (condiviso con "Chiunque abbia il link" -> Lettore)
         const DYNAMIC_URL_SHEET = "https://docs.google.com/spreadsheets/d/1v2QYh6ZYvMKCxBI0mt7nHSS2btbmDRtP018k8Yj0Lfg/export?format=csv&gid=1773702506&range=B1";
-
         const CONFIG_SHEET_URL = "";
 
         // ============================================================
@@ -877,7 +639,6 @@
         let currentRange = '1W';
         let customStart = null;
         let customEnd = null;
-
         const ranges = ['6H','1D','1W','2W','1M','3M','6M','1Y','5Y', 'SET'];
 
         const loginPage = document.getElementById('login-page');
@@ -892,9 +653,7 @@
             if (typeof val === 'number') return new Date(val);
             if (typeof val === 'string' && !isNaN(Number(val)) && val.trim() !== '') return new Date(Number(val));
             let str = String(val);
-            if (str.includes('-') && !str.includes('T')) {
-                str = str.replace(/-/g, '/');
-            }
+            if (str.includes('-') && !str.includes('T')) { str = str.replace(/-/g, '/'); }
             str = str.replace(/\.(?=\d{2}(:|$|\s))/g, ':');
             let parsed = new Date(str);
             if (!isNaN(parsed.getTime())) return parsed;
@@ -914,39 +673,28 @@
             checkIosInstall();
         };
 
-        // ✅ MODIFICA 2: Funzione syncDynamicUrl aggiornata — legge B1 dal foglio Google
         async function syncDynamicUrl() {
             if (!DYNAMIC_URL_SHEET) return;
             try {
                 const res = await fetch(DYNAMIC_URL_SHEET);
                 if (!res.ok) throw new Error("Risposta network non ok");
-
                 const text = await res.text();
-                
-                // Il CSV esportato da Google Sheets per una singola cella può avere
-                // virgolette attorno al valore. Le rimuoviamo.
                 let fetchedUrl = text.trim().replace(/^"(.*)"$/, '$1');
-
                 if (fetchedUrl.startsWith('http')) {
                     scriptUrl = fetchedUrl;
                     console.log("🌐 URL dell'App Script aggiornato dal Foglio Google:", scriptUrl);
                 } else {
-                    console.warn("La cella B1 non contiene un URL valido. Valore letto:", fetchedUrl, ". Uso il fallback.");
+                    console.warn("La cella B1 non contiene un URL valido. Uso il fallback.");
                 }
             } catch(e) {
                 console.warn("⚠️ Impossibile raggiungere il foglio per l'URL dinamico, uso il fallback.", e);
             }
         }
 
-        // ============================================================
-        // FUNZIONI AGGIUNTIVE (iOS Banner e Config Remota)
-        // ============================================================
         function checkIosInstall() {
             const isIos = /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
             const isInStandaloneMode = ('standalone' in window.navigator) && window.navigator.standalone;
-            if (isIos && !isInStandaloneMode) {
-                document.getElementById('ios-install-banner').style.display = 'block';
-            }
+            if (isIos && !isInStandaloneMode) { document.getElementById('ios-install-banner').style.display = 'block'; }
         }
 
         async function caricaConfigurazioneRemota() {
@@ -980,18 +728,10 @@
             return new Promise((resolve, reject) => {
                 try {
                     const request = indexedDB.open(DB_NAME, 1);
-                    request.onupgradeneeded = event => {
-                        event.target.result.createObjectStore(STORE_NAME);
-                    };
+                    request.onupgradeneeded = event => { event.target.result.createObjectStore(STORE_NAME); };
                     request.onsuccess = event => resolve(event.target.result);
-                    request.onerror = event => {
-                        isDbAvailable = false;
-                        reject(event.target.error);
-                    };
-                } catch(e) {
-                    isDbAvailable = false;
-                    reject(e);
-                }
+                    request.onerror = event => { isDbAvailable = false; reject(event.target.error); };
+                } catch(e) { isDbAvailable = false; reject(e); }
             });
         }
 
@@ -1000,8 +740,7 @@
             try {
                 const db = await openDB();
                 return new Promise((resolve, reject) => {
-                    const tx = db.transaction(STORE_NAME, "readonly");
-                    const store = tx.objectStore(STORE_NAME);
+                    const tx = db.transaction(STORE_NAME, "readonly"); const store = tx.objectStore(STORE_NAME);
                     const request = store.get(chipId);
                     request.onsuccess = () => resolve(request.result || []);
                     request.onerror = () => reject(request.error);
@@ -1014,8 +753,7 @@
             try {
                 const db = await openDB();
                 return new Promise((resolve, reject) => {
-                    const tx = db.transaction(STORE_NAME, "readwrite");
-                    const store = tx.objectStore(STORE_NAME);
+                    const tx = db.transaction(STORE_NAME, "readwrite"); const store = tx.objectStore(STORE_NAME);
                     store.put(data, chipId);
                     tx.oncomplete = () => resolve();
                     tx.onerror = () => reject(tx.error);
@@ -1032,24 +770,20 @@
             ranges.forEach(r => {
                 const btn = document.createElement('button');
                 btn.className = `range-btn ${r === currentRange ? 'active' : ''}`;
-                btn.textContent = r;
-                btn.onclick = () => setRange(r);
+                btn.textContent = r; btn.onclick = () => setRange(r);
                 container.appendChild(btn);
             });
         }
 
         function setRange(range) {
             if (range === 'SET') { openModal(); return; }
-            currentRange = range;
-            customStart = null; customEnd = null;
-            updateRangeButtons();
-            renderCharts();
+            currentRange = range; customStart = null; customEnd = null;
+            updateRangeButtons(); renderCharts();
         }
 
         function updateRangeButtons() {
             document.querySelectorAll('.range-btn').forEach(b => {
-                if(b.textContent === currentRange) b.classList.add('active');
-                else b.classList.remove('active');
+                if(b.textContent === currentRange) b.classList.add('active'); else b.classList.remove('active');
             });
         }
 
@@ -1078,19 +812,11 @@
         // ============================================================
         // MENU GUIDA
         // ============================================================
-        function showManual() {
-            dashboardPage.classList.add('hidden');
-            manualPage.classList.remove('hidden');
-        }
-        function hideManual() {
-            manualPage.classList.add('hidden');
-            dashboardPage.classList.remove('hidden');
-        }
+        function showManual() { dashboardPage.classList.add('hidden'); manualPage.classList.remove('hidden'); }
+        function hideManual() { manualPage.classList.add('hidden'); dashboardPage.classList.remove('hidden'); }
         function openManualTab(evt, tabName) {
-            const tabcontent = document.querySelectorAll('#manual-page .tab-content');
-            tabcontent.forEach(tab => tab.classList.remove('active'));
-            const navbtns = document.querySelectorAll('#manual-page .nav-btn');
-            navbtns.forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('#manual-page .tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('#manual-page .nav-btn').forEach(btn => btn.classList.remove('active'));
             document.getElementById(tabName).classList.add('active');
             evt.currentTarget.classList.add('active');
         }
@@ -1101,10 +827,7 @@
         function checkAutoLogin() {
             try {
                 const savedEmail = localStorage.getItem('userEmail');
-                if (savedEmail) {
-                    document.getElementById('emailInput').value = savedEmail;
-                    doLoginProcess(savedEmail);
-                }
+                if (savedEmail) { document.getElementById('emailInput').value = savedEmail; doLoginProcess(savedEmail); }
             } catch(e) {}
         }
 
@@ -1114,47 +837,36 @@
             doLoginProcess(email);
         }
 
-        function logout() {
-            try { localStorage.removeItem('userEmail'); } catch(e) {}
-            location.reload();
-        }
+        function logout() { try { localStorage.removeItem('userEmail'); } catch(e) {} location.reload(); }
 
         async function doLoginProcess(email) {
             showLoader(true, "Accesso in corso...");
             try {
-                let requestEmail = email;
-                let isMaster = false;
-
-                if (email.toLowerCase() === SECRET_KEY) {
-                    requestEmail = "";
-                    isMaster = true;
-                }
-
+                const requestEmail = email;
                 const url = `${scriptUrl}?action=listDevices&email=${encodeURIComponent(requestEmail)}`;
                 const res = await fetch(url);
                 const json = await res.json();
 
                 if (json.status === "error") throw new Error(json.message);
-                if (!json.data || json.data.length === 0) throw new Error("Nessun dispositivo trovato.");
+                
+                const isMaster = json.data.isMaster || false;
+                const devices = json.data.devices || [];
+
+                if (devices.length === 0) throw new Error("Nessun dispositivo trovato.");
 
                 try { localStorage.setItem('userEmail', email); } catch(e) {}
 
-                populateDeviceSelector(json.data);
+                populateDeviceSelector(devices);
 
                 const badge = document.getElementById('accountBadge');
-                if (isMaster) {
-                    badge.innerText = "MASTER KEY";
-                    badge.className = "badge master";
-                } else {
-                    badge.innerText = "FREE";
-                    badge.className = "badge";
-                }
+                if (isMaster) { badge.innerText = "MASTER KEY"; badge.className = "badge master"; }
+                else { badge.innerText = "FREE"; badge.className = "badge"; }
 
                 loginPage.classList.add('hidden');
                 dashboardPage.classList.remove('hidden');
 
-                if (json.data.length > 0) {
-                    const firstId = json.data[0].id || json.data[0];
+                if (devices.length > 0) {
+                    const firstId = devices[0].id || devices[0];
                     document.getElementById('deviceSelector').value = firstId;
                     await loadDeviceData(firstId);
                 }
@@ -1169,37 +881,20 @@
             }
         }
 
-        function showLoginError(msg) {
-            const el = document.getElementById('loginError');
-            el.innerText = msg;
-            el.style.display = 'block';
-        }
+        function showLoginError(msg) { const el = document.getElementById('loginError'); el.innerText = msg; el.style.display = 'block'; }
 
         function populateDeviceSelector(devices) {
-            const sel = document.getElementById('deviceSelector');
-            sel.innerHTML = '';
-
+            const sel = document.getElementById('deviceSelector'); sel.innerHTML = '';
             devices.forEach(d => {
                 const opt = document.createElement('option');
-                const deviceId = d.id || d;
-                const deviceEmail = d.email || '';
-
+                const deviceId = d.id || d; const deviceEmail = d.email || '';
                 opt.value = deviceId;
-
-                if (deviceEmail) {
-                    opt.textContent = `${deviceId} - ${deviceEmail}`;
-                } else {
-                    opt.textContent = `${deviceId}`;
-                }
-
+                opt.textContent = deviceEmail ? `${deviceId} - ${deviceEmail}` : `${deviceId}`;
                 sel.appendChild(opt);
             });
         }
 
-        async function onDeviceChanged() {
-            const id = document.getElementById('deviceSelector').value;
-            if(id) await loadDeviceData(id);
-        }
+        async function onDeviceChanged() { const id = document.getElementById('deviceSelector').value; if(id) await loadDeviceData(id); }
 
         // ============================================================
         // CARICAMENTO DATI E PARSING JSON
@@ -1212,44 +907,29 @@
                     .then(d => {
                         const isMaster = document.getElementById('accountBadge').classList.contains('master');
                         const ownerBadge = document.getElementById('ownerBadge');
-                        if (isMaster && d.data?.email) {
-                            ownerBadge.innerText = d.data.email;
-                            ownerBadge.style.display = 'inline-block';
-                        } else {
-                            ownerBadge.style.display = 'none';
-                        }
+                        if (isMaster && d.data?.email) { ownerBadge.innerText = d.data.email; ownerBadge.style.display = 'inline-block'; }
+                        else { ownerBadge.style.display = 'none'; }
                         if (!isMaster) {
                             const type = d.data?.tipologia || 'Standard';
                             const badge = document.getElementById('accountBadge');
-                            badge.innerText = type;
-                            badge.style.color = type === 'Demo' ? '#e67e22' : '#2ecc71';
+                            badge.innerText = type; badge.style.color = type === 'Demo' ? '#e67e22' : '#2ecc71';
                         }
                     }).catch(e => {});
 
                 let localData = await getLocalData(chipId);
                 let lastTs = 0;
 
-                if (localData.length > 0) {
-                    localData.sort((a, b) => a.x - b.x);
-                    lastTs = localData[localData.length - 1].x;
-                    showLoader(true, "Sincronizzazione nuovi dati...");
-                } else {
-                    showLoader(true, "Scaricamento dati completi (solo la prima volta)...");
-                }
+                if (localData.length > 0) { localData.sort((a, b) => a.x - b.x); lastTs = localData[localData.length - 1].x; showLoader(true, "Sincronizzazione nuovi dati..."); }
+                else { showLoader(true, "Scaricamento dati completi (solo la prima volta)..."); }
 
                 const res = await fetch(`${scriptUrl}?action=getDeviceHistory&chipId=${chipId}&after=${lastTs}`);
                 const json = await res.json();
-                
                 if (json.status === 'error') throw new Error(json.message);
 
                 if (json.data && json.data.length > 0) {
-                    
                     const newData = json.data.map(row => {
-                        
-                        const tsRaw = row['Timestamp'];
-                        const tsParsed = parseDate(tsRaw);
+                        const tsRaw = row['Timestamp']; const tsParsed = parseDate(tsRaw);
                         if (!tsParsed) return null;
-                        
                         const ts = tsParsed.getTime();
 
                         let mInizioRaw = row['Maint Inizio'] || row['maint_inizio'] || row['maintinizio'];
@@ -1265,67 +945,42 @@
                                     if (pd && pd.getFullYear() > 2020) possibleDates.push(val);
                                 }
                             }
-                            if (possibleDates.length > 0) {
-                                mInizioRaw = possibleDates[0];
-                                if (possibleDates.length > 1) mFineRaw = possibleDates[1];
-                            }
+                            if (possibleDates.length > 0) { mInizioRaw = possibleDates[0]; if (possibleDates.length > 1) mFineRaw = possibleDates[1]; }
                         }
 
-                        const maintInizioObj = parseDate(mInizioRaw);
-                        const maintFineObj = parseDate(mFineRaw);
+                        const maintInizioObj = parseDate(mInizioRaw); const maintFineObj = parseDate(mFineRaw);
 
-                        // ✅ MODIFICA 3: Parsing di peso1, peso2, adj1, adj2 e calcolo pesoTot
                         const parsedPeso1 = parseFloat(row['Peso 1'] || row['peso1'] || 0) || 0;
                         const parsedPeso2 = parseFloat(row['Peso 2'] || row['peso2'] || 0) || 0;
                         const parsedAdj1  = parseFloat(row['CFG adj1'] || row['adj1'] || 0) || 0;
                         const parsedAdj2  = parseFloat(row['CFG adj2'] || row['adj2'] || 0) || 0;
 
                         return {
-                            x: ts,
-                            peso1: parsedPeso1,
-                            peso2: parsedPeso2,
-                            adj1: parsedAdj1,
-                            adj2: parsedAdj2,
-                            // ✅ Peso totale = peso + correzione adj
-                            peso1Tot: parsedPeso1 + parsedAdj1,
-                            peso2Tot: parsedPeso2 + parsedAdj2,
+                            x: ts, peso1: parsedPeso1, peso2: parsedPeso2, adj1: parsedAdj1, adj2: parsedAdj2,
+                            peso1Tot: parsedPeso1 + parsedAdj1, peso2Tot: parsedPeso2 + parsedAdj2,
                             tempEnv: parseFloat(row['Temp SHT4x'] || row['tempEnv'] || 0) || 0,
                             hum: parseFloat(row['Umidità'] || row['umidita'] || 0) || 0,
                             batt: parseFloat(row['Batteria'] || row['batt'] || 0) || 0,
                             temp1: parseFloat(row['Temp 1'] || row['temp1'] || 0) || 0,
                             temp2: parseFloat(row['Temp 2'] || row['temp2'] || 0) || 0,
-                            
                             maintInizioTs: maintInizioObj ? maintInizioObj.getTime() : null,
                             maintFineTs: maintFineObj ? maintFineObj.getTime() : null,
-                            
-                            durata: row['Durata (min)'] || row['durata'] || 0,
-                            firmware: row['Firmware'] || ''
+                            durata: row['Durata (min)'] || row['durata'] || 0, firmware: row['Firmware'] || ''
                         };
                     }).filter(d => d !== null);
-
                     localData = localData.concat(newData);
                 }
 
                 const uniqueMap = new Map();
                 localData.forEach(item => uniqueMap.set(item.x, item));
-                localData = Array.from(uniqueMap.values());
-                localData.sort((a, b) => a.x - b.x);
+                localData = Array.from(uniqueMap.values()).sort((a, b) => a.x - b.x);
 
-                if (json.data && json.data.length > 0) {
-                    await saveLocalData(chipId, localData);
-                }
-
+                if (json.data && json.data.length > 0) { await saveLocalData(chipId, localData); }
                 allData = localData;
+                updateStatsCards(); updateLogs(); renderCharts();
 
-                updateStatsCards();
-                updateLogs();
-                renderCharts();
-
-            } catch (e) {
-                alert("Errore caricamento dati: " + e.message);
-            } finally {
-                showLoader(false);
-            }
+            } catch (e) { alert("Errore caricamento dati: " + e.message); }
+            finally { showLoader(false); }
         }
 
         // ============================================================
@@ -1334,44 +989,26 @@
         function updateStatsCards() {
             if (allData.length === 0) return;
             const last = allData[allData.length - 1];
-
             document.getElementById('currWeight1').innerText = `${last.peso1.toFixed(2)} Kg`;
             document.getElementById('currWeight2').innerText = `${last.peso2.toFixed(2)} Kg`;
 
             const lastWithFw = [...allData].reverse().find(d => d.firmware && d.firmware !== "");
             const fwBadge = document.getElementById('fwBadge');
-            if (lastWithFw) {
-                fwBadge.innerText = 'FW: ' + lastWithFw.firmware;
-                fwBadge.style.display = 'inline-block';
-            } else {
-                fwBadge.style.display = 'none';
-            }
+            if (lastWithFw) { fwBadge.innerText = 'FW: ' + lastWithFw.firmware; fwBadge.style.display = 'inline-block'; }
+            else { fwBadge.style.display = 'none'; }
 
             const findAgo = (ms, key) => {
-                const target = last.x - ms;
-                let closestIndex = -1;
-                for (let i = allData.length - 1; i >= 0; i--) {
-                    if (allData[i].x <= target) {
-                        closestIndex = i;
-                        break;
-                    }
-                }
+                const target = last.x - ms; let closestIndex = -1;
+                for (let i = allData.length - 1; i >= 0; i--) { if (allData[i].x <= target) { closestIndex = i; break; } }
                 if (closestIndex === -1) return allData.length > 0 ? allData[0][key] : null;
                 return allData[closestIndex][key];
             };
 
             const lastMaintPoint = [...allData].reverse().find(d => d.maintInizioTs !== null);
-
-            let weightAtMaint1 = null;
-            let weightAtMaint2 = null;
-
-            if (lastMaintPoint) {
-                weightAtMaint1 = lastMaintPoint.peso1;
-                weightAtMaint2 = lastMaintPoint.peso2;
-            }
+            let weightAtMaint1 = null, weightAtMaint2 = null;
+            if (lastMaintPoint) { weightAtMaint1 = lastMaintPoint.peso1; weightAtMaint2 = lastMaintPoint.peso2; }
 
             const day = 86400000;
-
             updateDelta('delta24h_1', last.peso1, findAgo(day, 'peso1'));
             updateDelta('delta24h_2', last.peso2, findAgo(day, 'peso2'));
             updateDelta('delta7d_1', last.peso1, findAgo(day * 7, 'peso1'));
@@ -1385,33 +1022,21 @@
         function updateDelta(id, curr, old) {
             const el = document.getElementById(id);
             if (old === null) { el.innerText="N/A"; el.className="val-neutral"; return; }
-            const diff = curr - old;
-            const sign = diff > 0 ? "+" : "";
+            const diff = curr - old; const sign = diff > 0 ? "+" : "";
             el.innerText = `${sign}${diff.toFixed(2)} Kg`;
             el.className = diff > 0.05 ? 'val-pos' : (diff < -0.05 ? 'val-neg' : 'val-neutral');
         }
 
         function updateLogs() {
             const tMaint = document.querySelector('#maintTable tbody'); tMaint.innerHTML = '';
-            
             const uniqueMaints = new Map();
-            allData.forEach(d => {
-                if (d.maintInizioTs) {
-                    uniqueMaints.set(d.maintInizioTs, d);
-                }
-            });
-            
+            allData.forEach(d => { if (d.maintInizioTs) uniqueMaints.set(d.maintInizioTs, d); });
             const maints = Array.from(uniqueMaints.values()).sort((a, b) => b.maintInizioTs - a.maintInizioTs).slice(0, 10);
-            
-            if(maints.length === 0) {
-                tMaint.innerHTML = '<tr><td colspan=\"3\" style=\"text-align: center; color: #7a8b9c;\">Nessuna manutenzione registrata</td></tr>';
-            } else {
+            if(maints.length === 0) { tMaint.innerHTML = '<tr><td colspan="3" style="text-align: center; color: #7a8b9c;">Nessuna manutenzione registrata</td></tr>'; }
+            else {
                 maints.forEach(l => {
                     const tr = document.createElement('tr');
-                    const formatta = (ts) => {
-                        if (!ts) return '-';
-                        return new Date(ts).toLocaleDateString('it-IT', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' });
-                    };
+                    const formatta = (ts) => { if (!ts) return '-'; return new Date(ts).toLocaleDateString('it-IT', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' }); };
                     tr.innerHTML = `<td>${formatta(l.maintInizioTs)}</td><td>${formatta(l.maintFineTs)}</td><td>${l.durata}</td>`;
                     tMaint.appendChild(tr);
                 });
@@ -1422,32 +1047,18 @@
         // GRAFICI (CHART.JS)
         // ============================================================
         function generateHtmlLegend(chart, containerId) {
-            const container = document.getElementById(containerId);
-            container.innerHTML = '';
-
+            const container = document.getElementById(containerId); container.innerHTML = '';
             const items = chart.data.datasets.map((ds, i) => {
                 const el = document.createElement('div');
                 const isHidden = !chart.isDatasetVisible(i);
                 el.className = `legend-item ${isHidden ? 'hidden-dataset' : ''}`;
-
-                const colorBox = document.createElement('span');
-                colorBox.className = 'legend-color-box';
-                colorBox.style.backgroundColor = ds.borderColor;
-
+                const colorBox = document.createElement('span'); colorBox.className = 'legend-color-box'; colorBox.style.backgroundColor = ds.borderColor;
                 const text = document.createTextNode(ds.label);
-
-                el.appendChild(colorBox);
-                el.appendChild(text);
-
+                el.appendChild(colorBox); el.appendChild(text);
                 el.onclick = () => {
                     const isNowVisible = chart.isDatasetVisible(i);
-                    if (isNowVisible) {
-                        chart.hide(i);
-                        el.classList.add('hidden-dataset');
-                    } else {
-                        chart.show(i);
-                        el.classList.remove('hidden-dataset');
-                    }
+                    if (isNowVisible) { chart.hide(i); el.classList.add('hidden-dataset'); }
+                    else { chart.show(i); el.classList.remove('hidden-dataset'); }
                 };
                 return el;
             });
@@ -1459,9 +1070,8 @@
             const now = Date.now();
             let minTime, maxTime = (currentRange === 'SET') ? customEnd : now;
 
-            if (currentRange === 'SET' && customStart && customEnd) {
-                minTime = customStart;
-            } else {
+            if (currentRange === 'SET' && customStart && customEnd) { minTime = customStart; }
+            else {
                 const timeMap = { '6H': 21600000, '1D': 86400000, '1W': 604800000, '2W': 1209600000, '1M': 2592000000, '3M': 7776000000, '6M': 15552000000, '1Y': 31536000000, '5Y': 157680000000 };
                 minTime = now - (timeMap[currentRange] || 86400000);
             }
@@ -1469,33 +1079,17 @@
             const subset = allData.filter(d => d.x >= minTime && d.x <= maxTime);
 
             const uniqueMaintsForAnnotations = new Map();
-            subset.forEach(d => {
-                if (d.maintInizioTs) {
-                    uniqueMaintsForAnnotations.set(d.maintInizioTs, d.maintInizioTs);
-                }
-            });
+            subset.forEach(d => { if (d.maintInizioTs) uniqueMaintsForAnnotations.set(d.maintInizioTs, d.maintInizioTs); });
 
             const maintenanceAnnotations = Array.from(uniqueMaintsForAnnotations.values()).map(timestampMs => ({
-                type: 'line', 
-                mode: 'vertical', 
-                scaleID: 'x', 
-                value: timestampMs,
-                borderColor: '#ff453a', 
-                borderWidth: 2, 
-                borderDash: [5, 5], 
-                label: { enabled: false }
+                type: 'line', mode: 'vertical', scaleID: 'x', value: timestampMs,
+                borderColor: '#ff453a', borderWidth: 2, borderDash: [5, 5], label: { enabled: false }
             }));
 
             const commonOpts = {
                 responsive: true, maintainAspectRatio: false, animation: false, spanGaps: true,
                 scales: {
-                    x: { 
-                        type: 'time', 
-                        time: { displayFormats: { hour: 'HH:mm', day: 'dd/MM' }, tooltipFormat: 'dd/MM HH:mm' }, 
-                        grid: { color: '#3a3a3c' }, 
-                        ticks: { color: '#aeaeb2', maxRotation: 0, autoSkip: true, font: {size: 11} }, 
-                        min: minTime, max: maxTime 
-                    },
+                    x: { type: 'time', time: { displayFormats: { hour: 'HH:mm', day: 'dd/MM' }, tooltipFormat: 'dd/MM HH:mm' }, grid: { color: '#3a3a3c' }, ticks: { color: '#aeaeb2', maxRotation: 0, autoSkip: true, font: {size: 11} }, min: minTime, max: maxTime },
                     y: { grid: { color: '#3a3a3c' }, ticks: { color: '#aeaeb2', font: {size: 11} }, position: 'left' }
                 },
                 plugins: {
@@ -1508,27 +1102,20 @@
                 interaction: { mode: 'nearest', axis: 'x', intersect: false }
             };
 
-            // ✅ MODIFICA 4: CHART PESO — Aggiunti dataset "Arnia 1 Tot" e "Arnia 2 Tot"
             const ctxPeso = document.getElementById('chartPeso').getContext('2d');
             const dsPeso1    = { label: 'Arnia 1',     data: subset.map(d=>({x:d.x, y:d.peso1})),    borderColor: '#ffffff', borderWidth: 2, pointRadius:0, tension: 0.2, parsing: false, normalized: true, yAxisID: 'y' };
             const dsPeso2    = { label: 'Arnia 2',     data: subset.map(d=>({x:d.x, y:d.peso2})),    borderColor: '#4a90e2', borderWidth: 2, pointRadius:0, tension: 0.2, parsing: false, normalized: true, yAxisID: 'y1' };
-            const dsPeso1Tot = { label: 'Arnia 1 Tot', data: subset.map(d=>({x:d.x, y:d.peso1Tot})), borderColor: '#39FF14', borderWidth: 2, pointRadius:0, tension: 0.2, parsing: false, normalized: true, yAxisID: 'y',  borderDash: [6, 3], hidden: true };
-            const dsPeso2Tot = { label: 'Arnia 2 Tot', data: subset.map(d=>({x:d.x, y:d.peso2Tot})), borderColor: '#FF2D55', borderWidth: 2, pointRadius:0, tension: 0.2, parsing: false, normalized: true, yAxisID: 'y1', borderDash: [6, 3], hidden: true };
+            const dsPeso1Tot = { label: 'Arnia 1 Tot', data: subset.map(d=>({x:d.x, y:d.peso1Tot})), borderColor: '#39FF14', borderWidth: 2.5, pointRadius:0, tension: 0.2, parsing: false, normalized: true, yAxisID: 'y',  borderDash: [6, 3], hidden: true };
+            const dsPeso2Tot = { label: 'Arnia 2 Tot', data: subset.map(d=>({x:d.x, y:d.peso2Tot})), borderColor: '#FF2D55', borderWidth: 2.5, pointRadius:0, tension: 0.2, parsing: false, normalized: true, yAxisID: 'y1', borderDash: [6, 3], hidden: true };
 
-            // ✅ Visibility array aggiornato: 4 dataset [Arnia1, Arnia2, Arnia1Tot, Arnia2Tot]
             let pesoVisibility = [true, true, false, false];
             if(charts.peso) {
                 pesoVisibility = charts.peso.data.datasets.map((d, i) => charts.peso.isDatasetVisible(i));
-                // Se il vecchio chart aveva solo 2 dataset, estendi l'array
-                while (pesoVisibility.length < 4) {
-                    pesoVisibility.push(false); // I nuovi dataset partono nascosti
-                }
+                while (pesoVisibility.length < 4) { pesoVisibility.push(false); }
                 charts.peso.destroy();
             }
-            dsPeso1.hidden = !pesoVisibility[0];
-            dsPeso2.hidden = !pesoVisibility[1];
-            dsPeso1Tot.hidden = !pesoVisibility[2];
-            dsPeso2Tot.hidden = !pesoVisibility[3];
+            dsPeso1.hidden = !pesoVisibility[0]; dsPeso2.hidden = !pesoVisibility[1];
+            dsPeso1Tot.hidden = !pesoVisibility[2]; dsPeso2Tot.hidden = !pesoVisibility[3];
 
             charts.peso = new Chart(ctxPeso, {
                 type: 'line', data: { datasets: [ dsPeso1, dsPeso2, dsPeso1Tot, dsPeso2Tot ] },
@@ -1543,7 +1130,6 @@
             });
             generateHtmlLegend(charts.peso, 'legendPeso');
 
-            // CHART MULTI (invariato)
             const ctxMulti = document.getElementById('chartMulti').getContext('2d');
             const multiData = [
                 { label: 'Temp Amb.', data: subset.map(d=>({x:d.x, y:d.tempEnv})), borderColor: '#ff9f0a', borderWidth: 2, pointRadius:0, yAxisID:'y', parsing: false, normalized: true },
@@ -1575,10 +1161,7 @@
             generateHtmlLegend(charts.multi, 'legendMulti');
         }
 
-        function showLoader(show, text) {
-            loader.classList.toggle('hidden', !show);
-            if(text) loaderText.innerText = text;
-        }
+        function showLoader(show, text) { loader.classList.toggle('hidden', !show); if(text) loaderText.innerText = text; }
     </script>
 </body>
-</html> 
+</html>

@@ -298,12 +298,13 @@
         <header>
             <div class="app-title">BILANCIA ARNIA 3.2</div>
             <div class="header-controls">
-                <span id="fwBadge" class="badge">FW: --</span>
-                <span id="ownerBadge" class="badge"></span>
-                <span id="accountBadge" class="badge">FREE</span>
-                <button onclick="showManual()" style="background:none; border:none; color:#4a90e2; font-size:0.8rem; font-weight:600; cursor:pointer;">📖 Guida</button>
-                <button onclick="logout()" style="background:none; border:none; color:#ff453a; font-size:0.8rem; font-weight:600; cursor:pointer;">Esci</button>
-            </div>
+    <button id="installPwaBtn" class="hidden" style="background:#17c964; border:none; color:#fff; font-size:0.8rem; font-weight:600; padding:6px 12px; border-radius:12px; cursor:pointer;">⬇️ Installa App</button>
+    <span id="fwBadge" class="badge">FW: --</span>
+    <span id="ownerBadge" class="badge"></span>
+    <span id="accountBadge" class="badge">FREE</span>
+    <button onclick="showManual()" style="background:none; border:none; color:#4a90e2; font-size:0.8rem; font-weight:600; cursor:pointer;">📖 Guida</button>
+    <button onclick="logout()" style="background:none; border:none; color:#ff453a; font-size:0.8rem; font-weight:600; cursor:pointer;">Esci</button>
+</div>
         </header>
 
         <div id="ios-install-banner">📱 Per installare l'App su iPhone: tocca l'icona Condividi di Safari e poi "Aggiungi alla schermata Home"</div>
@@ -1162,6 +1163,44 @@
         }
 
         function showLoader(show, text) { loader.classList.toggle('hidden', !show); if(text) loaderText.innerText = text; }
+      // ============================================================
+        // GESTIONE INSTALLAZIONE PWA (ANDROID)
+        // ============================================================
+        let deferredPrompt;
+        const installBtn = document.getElementById('installPwaBtn');
+
+        // Intercetta l'evento nativo di Chrome quando l'app è pronta per essere installata
+        window.addEventListener('beforeinstallprompt', (e) => {
+            // Impedisce l'apertura del noioso banner automatico
+            e.preventDefault();
+            // Salva l'evento per usarlo quando l'utente clicca il pulsante
+            deferredPrompt = e;
+            // Rende visibile il tuo pulsante verde
+            installBtn.classList.remove('hidden');
+        });
+
+        installBtn.addEventListener('click', async () => {
+            if (deferredPrompt) {
+                // Mostra il vero popup di sistema di Android
+                deferredPrompt.prompt();
+                // Attende la risposta dell'utente
+                const { outcome } = await deferredPrompt.userChoice;
+                if (outcome === 'accepted') {
+                    console.log('App Arnia IoT installata con successo!');
+                }
+                deferredPrompt = null;
+                // Nasconde il pulsante a fine operazione
+                installBtn.classList.add('hidden');
+            }
+        });
+
+        // Nasconde il pulsante se l'app è già installata correttamente
+        window.addEventListener('appinstalled', () => {
+            installBtn.classList.add('hidden');
+        });
+
+
+
     </script>
 </body>
 </html>

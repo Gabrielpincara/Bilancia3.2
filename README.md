@@ -14,13 +14,13 @@
 Essendo una PWA (Progressive Web App), puoi installarla direttamente sul tuo smartphone come un'app nativa, senza passare dagli store ufficiali.
 
 ### Android (tramite Chrome)
-1. Apri Chrome e vai a: `https://gabrielpincara.github.io/Bilancia3.2/`
+1. Apri Chrome e vai a: https://gabrielpincara.github.io/Bilancia3.2/
 2. Clicca il menu con i tre puntini (⋮) in alto a destra.
 3. Seleziona **Installa app** (o "Aggiungi a schermata Home").
 4. Conferma l'installazione.
 
 ### iOS (tramite Safari)
-1. Apri Safari e vai a: `https://gabrielpincara.github.io/Bilancia3.2/`
+1. Apri Safari e vai a: https://gabrielpincara.github.io/Bilancia3.2/
 2. Clicca sull'icona **Condividi** (il quadrato con la freccia verso l'alto).
 3. Scorri e seleziona **Aggiungi alla schermata home**.
 4. Scegli il nome e conferma.
